@@ -1,0 +1,49 @@
+# Python 가상환경
+venv/
+env/
+
+# 환경변수 파일
+.env
+
+# Python 캐시
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# 로그 파일
+*.log
+
+# pytest, mypy 캐시
+.pytest_cache/
+.mypy_cache/
+
+# VSCode, PyCharm 등 에디터 설정
+.vscode/
+.idea/
+
+# macOS
+.DS_Store
+
+# 배포/빌드
+build/
+dist/
+*.egg-info/
+
+# 데이터 파일
+data/
+
+# Downloaded Models
+models/
+yolov8n.pt
+yolov8n-hands.pt
+
+# Streamlit specific
+.streamlit/
+
+# Temporary files
+*.tmp
+tmp/
+temp/
