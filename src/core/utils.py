@@ -9,6 +9,7 @@ from typing import Optional, List
 import subprocess
 
 import streamlit as st
+from dotenv import load_dotenv
 
 from src.core.config import Config
 
@@ -65,43 +66,19 @@ def get_app_state(config: Config) -> AppState:
 # =======================
 
 def resolve_api_key() -> Optional[str]:
-    """Streamlit 시크릿, 환경 변수 또는 로컬 .env 파일에서 API 키를 확인합니다.
-
-    우선 순위:
-    1. Streamlit 시크릿 (OPENAI_API_KEY, OPEN_API_KEY)
-    2. 환경 변수 (OPENAI_API_KEY, OPEN_API_KEY)
-    3. 현재 작업 디렉터리의 .env 파일 (OPENAI_API_KEY 또는 OPEN_API_KEY 포함)
     """
-    # 1) Streamlit 시크릿
+    API 키를 확인하고 반환합니다.
+    Streamlit Cloud secrets를 먼저 시도하고, 실패하면 로컬 환경(.env, 환경변수)으로 대체합니다.
+    """
     try:
-        if "OPENAI_API_KEY" in st.secrets and st.secrets["OPENAI_API_KEY"]:
-            return st.secrets["OPENAI_API_KEY"]
-        if "OPEN_API_KEY" in st.secrets and st.secrets["OPENAI_API_KEY"]:
+        # Cloud 환경이거나 로컬에 secrets.toml 파일이 있는 경우, 여기서 키를 가져옵니다.
+        # 로컬에 secrets.toml이 없으면 st.secrets 접근 시 예외가 발생합니다.
+        if "OPENAI_API_KEY" in st.secrets:
             return st.secrets["OPENAI_API_KEY"]
     except Exception:
+        # st.secrets 접근에 실패하면 로컬 환경으로 간주하고 다음 단계로 넘어갑니다.
         pass
 
-    # 2) 환경 변수
-    for name in ("OPENAI_API_KEY", "OPEN_API_KEY"):
-        val = os.getenv(name)
-        if val and val.strip():
-            return val.strip()
-
-    # 3) .env 파일 (간단한 구문 분석, 종속성 없음)
-    try:
-        env_path = os.path.join(os.getcwd(), ".env")
-        if os.path.isfile(env_path):
-            with open(env_path, "r", encoding="utf-8") as fh:
-                for raw in fh:
-                    line = raw.strip()
-                    if not line or line.startswith("#") or "=" not in line:
-                        continue
-                    k, v = line.split("=", 1)
-                    k = k.strip()
-                    v = v.strip().strip('"').strip("'")
-                    if k in ("OPENAI_API_KEY", "OPEN_API_KEY") and v:
-                        return v
-    except Exception:
-        pass
-
-    return None
+    # 로컬 환경이거나 Cloud secrets에 키가 없는 경우, .env 및 환경 변수를 확인합니다.
+    load_dotenv()
+    return os.environ.get("OPENAI_API_KEY")

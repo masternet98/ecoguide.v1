@@ -18,18 +18,18 @@ def main():
     # 페이지별 설정
     st.set_page_config(page_title="카메라 - LLM 이미지 분석", page_icon="📷", layout="centered")
 
-    # Initialize separate session state keys for camera and gallery images so they persist independently
+    # --- 세션 상태 초기화 ---
+    # API 키를 세션 상태에 저장하여 사용자가 입력한 값을 유지합니다.
+    if 'api_key' not in st.session_state:
+        st.session_state.api_key = resolve_api_key() or ""
     if 'camera_photo_bytes' not in st.session_state:
         st.session_state.camera_photo_bytes = None
     if 'gallery_photo_bytes' not in st.session_state:
         st.session_state.gallery_photo_bytes = None
-    # last_photo_source tracks which source (camera/gallery) was most recently set by the user
     if 'last_photo_source' not in st.session_state:
         st.session_state.last_photo_source = None
-    # prev_active_tab tracks the previously active tab so we can detect tab switches
     if 'prev_active_tab' not in st.session_state:
         st.session_state.prev_active_tab = None
-    # analysis results persisted so they can be cleared on tab switch
     if 'analysis_output' not in st.session_state:
         st.session_state.analysis_output = None
     if 'analysis_raw' not in st.session_state:
@@ -47,9 +47,13 @@ def main():
     with st.sidebar:
         st.header("⚙️ 설정")
         model = st.selectbox("모델 선택", options=config.vision_models, index=0)
-        api_key_input = st.text_input(
-            "OpenAI API Key", type="password", value=resolve_api_key() or "",
-            placeholder="sk-...", help="환경변수 또는 Streamlit secrets 사용을 권장합니다."
+        # st.text_input을 세션 상태('api_key')에 바인딩합니다.
+        st.text_input(
+            "OpenAI API Key",
+            type="password",
+            key="api_key",  # 세션 상태 키
+            placeholder="sk-ாலத்தில்",
+            help="자동으로 로드된 키를 사용하거나 여기에 직접 입력하세요."
         )
         installation_guide_ui()
 
@@ -148,8 +152,8 @@ def main():
             st.info("사진 분석을 시작하려면 '🧠 이미지 분석' 버튼을 클릭하세요.")
             st.stop()
 
-        # Prefer explicit sidebar input (api_key_input). If empty, fallback to resolve_api_key().
-        api_key_value = api_key_input.strip() if (api_key_input and api_key_input.strip()) else (resolve_api_key() or "")
+        # 세션 상태에 저장된 API 키를 사용합니다.
+        api_key_value = st.session_state.api_key.strip()
         if not api_key_value:
             st.error("OpenAI API Key가 필요합니다. 사이드바에 입력해 주세요.")
             st.stop()
@@ -160,7 +164,7 @@ def main():
 
             with st.spinner("LLM 분석 중..."):
                 output_text, raw = analyze_image_with_openai(
-                    jpeg_bytes, prompt.strip(), model, api_key_value.strip()
+                    jpeg_bytes, prompt.strip(), model, api_key_value
                 )
                 # persist analysis result to session so it can be cleared on tab switches
                 st.session_state.analysis_output = output_text
@@ -205,3 +209,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
