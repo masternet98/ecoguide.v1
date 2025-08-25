@@ -10,7 +10,7 @@ import json
 from src.core.utils import resolve_api_key, get_app_state
 from src.core.config import load_config
 from src.services.openai_service import jpeg_bytes_from_image, analyze_image_with_openai
-from src.core.ui import installation_guide_ui
+from src.core.ui import installation_guide_ui, mask_api_key
 # from src.components.measure_ui import render_measure_ui
  
 def main():
@@ -47,14 +47,15 @@ def main():
     with st.sidebar:
         st.header("⚙️ 설정")
         model = st.selectbox("모델 선택", options=config.vision_models, index=0)
-        # st.text_input을 세션 상태('api_key')에 바인딩합니다.
-        st.text_input(
-            "OpenAI API Key",
-            type="password",
-            key="api_key",  # 세션 상태 키
-            placeholder="sk-ாலத்தில்",
-            help="자동으로 로드된 키를 사용하거나 여기에 직접 입력하세요."
-        )
+        # API 키 상태를 표시합니다. UI를 통한 직접 입력 기능은 보안을 위해 제거되었습니다.
+        st.markdown("---")
+        if st.session_state.api_key:
+            st.success(f"API Key: `{mask_api_key(st.session_state.api_key)}`")
+        else:
+            st.error("API Key가 없습니다.")
+            st.caption("`.env` 파일 또는 Streamlit secrets에 키를 설정해 주세요.")
+        st.markdown("---")
+
         installation_guide_ui()
 
     # --- 데모 페이지 로직 시작 ---
