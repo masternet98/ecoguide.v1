@@ -41,7 +41,7 @@ yolov8n.pt
 yolov8n-hands.pt
 
 # Streamlit specific
-.streamlit/
+# .streamlit/
 
 # Temporary files
 *.tmp
