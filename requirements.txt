@@ -1,20 +1,18 @@
-# Core dependencies
-streamlit>=1.33.0
-openai>=1.40.0
-pillow>=10.0.0
+# Core
+streamlit>=1.33.0,<1.49
+openai>=1.40.0,<2.0
+pillow>=10.0.0,<11.0
 qrcode[pil]>=7.4.2
+numpy>=1.24.0,<2.0
 
-# Vision pipeline (optional; see GEMINI.md for detailed CPU/GPU install instructions)
-numpy>=1.24.0
-rembg>=2.0.0
-onnxruntime>=1.16.0
-ultralytics>=8.0.0
-mediapipe>=0.10.0
-opencv-python>=4.7.0
+# Vision stack (Py3.11 verified)
+rembg==2.0.57
+onnxruntime==1.16.3
+ultralytics==8.0.20
+mediapipe==0.10.14
+opencv-python==4.9.0.80
 
-# PyTorch is required by some vision backends (ultralytics, optional GPU)
-# Install PyTorch separately following instructions in GEMINI.md to choose CPU vs GPU build.
-# Example (PowerShell) for CPU:
-#   pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
-# Example (PowerShell) for CUDA-enabled GPU (e.g., cu118):
-#   pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+# (Optional) PyTorch for ultralytics / deep learning backends
+# ⚠️ Streamlit Cloud 무료플랜은 CPU-only 빌드 권장
+# 설치는 아래 중 하나 선택해서 로컬/Cloud에서 따로 실행
+# pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
