@@ -11,7 +11,7 @@ from src.core.utils import resolve_api_key, get_app_state
 from src.core.config import load_config
 from src.services.openai_service import jpeg_bytes_from_image, analyze_image_with_openai
 from src.core.ui import installation_guide_ui
-from src.components.measure_ui import render_measure_ui
+# from src.components.measure_ui import render_measure_ui
  
 def main():
     """애플리케이션의 메인 함수입니다."""
