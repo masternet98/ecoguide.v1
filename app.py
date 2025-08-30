@@ -7,10 +7,11 @@ Streamlit 애플리케이션의 메인 파일입니다.
 import streamlit as st
 import numpy as np
 import json
+import qrcode
 from src.core.utils import resolve_api_key, get_app_state
 from src.core.config import load_config
 from src.services.openai_service import jpeg_bytes_from_image, analyze_image_with_openai
-from src.core.ui import installation_guide_ui, mask_api_key
+from src.core.ui import installation_guide_ui
 # from src.components.measure_ui import render_measure_ui
  
 def main():
@@ -18,18 +19,18 @@ def main():
     # 페이지별 설정
     st.set_page_config(page_title="카메라 - LLM 이미지 분석", page_icon="📷", layout="centered")
 
-    # --- 세션 상태 초기화 ---
-    # API 키를 세션 상태에 저장하여 사용자가 입력한 값을 유지합니다.
-    if 'api_key' not in st.session_state:
-        st.session_state.api_key = resolve_api_key() or ""
+    # Initialize separate session state keys for camera and gallery images so they persist independently
     if 'camera_photo_bytes' not in st.session_state:
         st.session_state.camera_photo_bytes = None
     if 'gallery_photo_bytes' not in st.session_state:
         st.session_state.gallery_photo_bytes = None
+    # last_photo_source tracks which source (camera/gallery) was most recently set by the user
     if 'last_photo_source' not in st.session_state:
         st.session_state.last_photo_source = None
+    # prev_active_tab tracks the previously active tab so we can detect tab switches
     if 'prev_active_tab' not in st.session_state:
         st.session_state.prev_active_tab = None
+    # analysis results persisted so they can be cleared on tab switch
     if 'analysis_output' not in st.session_state:
         st.session_state.analysis_output = None
     if 'analysis_raw' not in st.session_state:
@@ -47,15 +48,10 @@ def main():
     with st.sidebar:
         st.header("⚙️ 설정")
         model = st.selectbox("모델 선택", options=config.vision_models, index=0)
-        # API 키 상태를 표시합니다. UI를 통한 직접 입력 기능은 보안을 위해 제거되었습니다.
-        st.markdown("---")
-        if st.session_state.api_key:
-            st.success(f"API Key: `{mask_api_key(st.session_state.api_key)}`")
-        else:
-            st.error("API Key가 없습니다.")
-            st.caption("`.env` 파일 또는 Streamlit secrets에 키를 설정해 주세요.")
-        st.markdown("---")
-
+        api_key_input = st.text_input(
+            "OpenAI API Key", type="password", value=resolve_api_key() or "",
+            placeholder="sk-...", help="환경변수 또는 Streamlit secrets 사용을 권장합니다."
+        )
         installation_guide_ui()
 
     # --- 데모 페이지 로직 시작 ---
@@ -153,8 +149,8 @@ def main():
             st.info("사진 분석을 시작하려면 '🧠 이미지 분석' 버튼을 클릭하세요.")
             st.stop()
 
-        # 세션 상태에 저장된 API 키를 사용합니다.
-        api_key_value = st.session_state.api_key.strip()
+        # Prefer explicit sidebar input (api_key_input). If empty, fallback to resolve_api_key().
+        api_key_value = api_key_input.strip() if (api_key_input and api_key_input.strip()) else (resolve_api_key() or "")
         if not api_key_value:
             st.error("OpenAI API Key가 필요합니다. 사이드바에 입력해 주세요.")
             st.stop()
@@ -165,7 +161,7 @@ def main():
 
             with st.spinner("LLM 분석 중..."):
                 output_text, raw = analyze_image_with_openai(
-                    jpeg_bytes, prompt.strip(), model, api_key_value
+                    jpeg_bytes, prompt.strip(), model, api_key_value.strip()
                 )
                 # persist analysis result to session so it can be cleared on tab switches
                 st.session_state.analysis_output = output_text
@@ -210,4 +206,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

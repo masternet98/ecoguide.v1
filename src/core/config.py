@@ -6,8 +6,41 @@ Vision 관련 기본값은 src.services.vision_types.VisionConfig를 사용하�
 """
 from dataclasses import dataclass, field
 from typing import List
+import os
 
 from src.services.vision_types import VisionConfig
+
+
+@dataclass
+class DistrictConfig:
+    """
+    행정구역 데이터 처리 관련 설정을 포함하는 데이터 클래스입니다.
+    """
+    # 파일 경로 설정
+    uploads_dir: str = field(default_factory=lambda: os.path.join(os.getcwd(), "uploads\districts"))
+    
+    # data.go.kr API URL 설정
+    meta_url: str = "https://www.data.go.kr/tcs/dss/selectFileDataDownload.do?publicDataDetailPk=uddi%3A5176efd5-da6e-42a0-b2cf-8512f74503ea&publicDataPk=15063424&atchFileId=&fileDetailSn=1"
+    download_url: str = "https://www.data.go.kr/cmm/cmm/fileDownload.do"
+    
+    # 파일명 설정
+    file_prefix: str = "districts"
+    file_extension: str = "json"
+    
+    # CSV 처리 설정
+    expected_columns: List[str] = field(default_factory=lambda: [
+        '법정동코드', '시도명', '시군구명', '읍면동명', '리명', '순위', '생성일자', '삭제일자'
+    ])
+    required_columns: List[str] = field(default_factory=lambda: [
+        '법정동코드', '시도명', '시군구명'
+    ])
+    
+    # 네트워크 설정
+    request_timeout: int = 30
+    download_timeout: int = 120
+    
+    # User-Agent 설정
+    user_agent: str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
 
 
 @dataclass
@@ -29,6 +62,9 @@ class Config:
 
     # Vision-specific configuration (uses VisionConfig from src.services.vision_types)
     vision: VisionConfig = field(default_factory=VisionConfig)
+    
+    # District-specific configuration
+    district: DistrictConfig = field(default_factory=DistrictConfig)
 
 
 def load_config() -> Config:

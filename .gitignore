@@ -34,6 +34,7 @@ dist/
 
 # 데이터 파일
 data/
+uploads/
 
 # Downloaded Models
 models/
