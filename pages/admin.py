@@ -1,10 +1,12 @@
 """
 Streamlit 애플리케이션의 관리자 페이지를 정의하는 모듈입니다.
-Cloudflared 터널 관리, 로그 보기, 환경 변수 다시 로드 기능을 제공합니다.
+Cloudflared 터널 관리, 로그 보기, 환경 변수 다시 로드 기능과
+시군구별 대형폐기물 배출 신고 링크 자동 수집 기능을 제공합니다.
 """
 import os
 import streamlit as st
 from src.components.tunnel_ui import tunnel_sidebar_ui
+from src.components.link_collector_ui import link_collector_ui
 from src.core.utils import get_app_state
 from src.core.config import load_config
 
@@ -36,6 +38,16 @@ if os.path.isfile(log_path):
     st.download_button("로그 파일 다운로드", data=log_data, file_name="cloudflared_tunnel.log", mime="text/plain")
 else:
     st.info("로그 파일이 없습니다. 터널을 시작하면 생성됩니다.")
+
+st.divider()
+
+# 링크 수집기 UI 표시
+try:
+    link_collector_ui()
+except Exception as e:
+    st.error(f"링크 수집기 UI 로드 중 오류가 발생했습니다: {str(e)}")
+    st.write("자세한 오류 정보:")
+    st.code(str(e))
 
 st.divider()
 st.header("환경 및 키 설정")

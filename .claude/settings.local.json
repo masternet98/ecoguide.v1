@@ -5,9 +5,11 @@
       "Bash(del test_date_check.py simple_test.py)",
       "Bash(del test_update_info.py)",
       "Bash(del uploadslast_update_info.json)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(del test_link_collector.py)"
     ],
     "deny": [],
     "ask": []
-  }
+  },
+  "outputStyle": "default"
 }

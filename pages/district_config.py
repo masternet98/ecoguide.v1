@@ -8,7 +8,8 @@ import json
 from src.core.config import load_config
 from src.services.district_service import (
     process_district_csv, get_district_files, preview_district_file,
-    auto_update_district_data, delete_district_file
+    auto_update_district_data, delete_district_file, delete_all_district_files,
+    clear_update_info
 )
 
 # 페이지 설정
@@ -269,9 +270,9 @@ with tab2:
         """)
     
     with data_info_col2:
-        st.markdown("""
+        st.markdown(f"""
         **🔗 관련 링크**
-        - [데이터 페이지](https://www.data.go.kr/data/15063424/fileData.do)
+        - [데이터 페이지]({district_config.page_url})
         - [행정안전부](https://www.mois.go.kr)
         
         **⚙️ 처리 방식**
@@ -291,38 +292,47 @@ with tab3:
             st.rerun()
     
     with col_delete_all:
-        # 일괄 삭제 버튼 (파일이 있을 때만 활성화)
+        # 일괄 삭제 기능
         files_exist = len(get_district_files(district_config)) > 0
-        if st.button("🗑️ 모든 파일 삭제", disabled=not files_exist, type="secondary"):
-            if files_exist:
-                # 확인 모달 대신 expander 사용
-                st.warning("⚠️ **주의**: 모든 파일을 삭제하시겠습니까?")
-                
-                confirm_col1, confirm_col2 = st.columns(2)
-                with confirm_col1:
-                    if st.button("❌ 취소", key="cancel_delete_all"):
-                        st.info("삭제가 취소되었습니다.")
-                
-                with confirm_col2:
-                    if st.button("✅ 확인 - 모두 삭제", key="confirm_delete_all", type="primary"):
-                        with st.spinner("모든 파일 삭제 중..."):
-                            files_to_delete = get_district_files(district_config)
-                            deleted_count = 0
-                            failed_count = 0
-                            
-                            for file_info in files_to_delete:
-                                delete_result = delete_district_file(file_info['file_path'], district_config)
-                                if delete_result["success"]:
-                                    deleted_count += 1
-                                else:
-                                    failed_count += 1
-                            
-                            if failed_count == 0:
-                                st.success(f"✅ {deleted_count}개 파일이 모두 삭제되었습니다.")
-                            else:
-                                st.warning(f"⚠️ {deleted_count}개 파일 삭제 완료, {failed_count}개 파일 삭제 실패")
-                            
-                            st.rerun()  # 페이지 새로고침
+        
+        # 세션 상태 초기화
+        if 'delete_all_confirm' not in st.session_state:
+            st.session_state.delete_all_confirm = False
+        
+        if not st.session_state.delete_all_confirm:
+            # 첫 번째 단계: 삭제 버튼
+            if st.button("🗑️ 모든 파일 삭제", disabled=not files_exist, type="secondary"):
+                st.session_state.delete_all_confirm = True
+                st.rerun()
+        else:
+            # 두 번째 단계: 확인 단계
+            st.warning("⚠️ **주의**: 모든 파일과 업데이트 정보를 삭제하시겠습니까?")
+            st.markdown("- 모든 district JSON 파일 삭제")
+            st.markdown("- 업데이트 정보 초기화 (last_update_info.json)")
+            st.markdown("- **삭제된 파일은 복구할 수 없습니다**")
+            
+            confirm_col1, confirm_col2 = st.columns(2)
+            with confirm_col1:
+                if st.button("❌ 취소", key="cancel_delete_all", use_container_width=True):
+                    st.session_state.delete_all_confirm = False
+                    st.rerun()
+            
+            with confirm_col2:
+                if st.button("✅ 확인 - 모두 삭제", key="confirm_delete_all", type="primary", use_container_width=True):
+                    with st.spinner("모든 파일 삭제 중..."):
+                        # 새로 만든 통합 삭제 함수 사용
+                        delete_result = delete_all_district_files(district_config)
+                        
+                        if delete_result["success"]:
+                            st.success(f"✅ {delete_result['message']}")
+                            if delete_result.get('update_info_cleared'):
+                                st.info("📝 업데이트 정보도 초기화되었습니다.")
+                        else:
+                            st.error(f"❌ {delete_result['message']}")
+                        
+                        # 세션 상태 초기화
+                        st.session_state.delete_all_confirm = False
+                        st.rerun()
     
     # 저장된 파일 목록 (config 전달)
     files = get_district_files(district_config)
@@ -407,6 +417,17 @@ with tab3:
                             
                             if delete_result["success"]:
                                 st.success(f"✅ {delete_result['message']}")
+                                
+                                # 삭제 후 남은 파일 확인
+                                remaining_files = get_district_files(district_config)
+                                if len(remaining_files) == 0:
+                                    # 마지막 파일이 삭제된 경우 업데이트 정보도 초기화
+                                    clear_result = clear_update_info(district_config)
+                                    if clear_result["success"]:
+                                        st.info("📝 마지막 파일이 삭제되어 업데이트 정보도 초기화되었습니다.")
+                                    else:
+                                        st.warning(f"⚠️ 업데이트 정보 초기화 중 문제 발생: {clear_result['message']}")
+                                
                                 st.rerun()  # 페이지 새로고침하여 파일 목록 업데이트
                             else:
                                 st.error(f"❌ {delete_result['message']}")

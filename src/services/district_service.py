@@ -109,50 +109,6 @@ def manual_csv_parse(csv_string: str) -> Optional[pd.DataFrame]:
         return None
 
 
-def detect_csv_format(csv_string: str) -> Dict[str, Any]:
-    """
-    CSV 형식을 자동으로 감지합니다.
-    
-    Args:
-        csv_string: CSV 문자열
-        
-    Returns:
-        감지된 형식 정보
-    """
-    sample_lines = csv_string.split('\n')[:10]  # 처음 10줄만 분석
-    
-    # 구분자 감지
-    delimiters = [',', '\t', '|', ';']
-    delimiter_scores = {}
-    
-    for delimiter in delimiters:
-        scores = []
-        for line in sample_lines:
-            if line.strip():
-                scores.append(len(line.split(delimiter)))
-        
-        if scores:
-            # 일관성 점수 (표준편차가 낮을수록 좋음)
-            avg_fields = sum(scores) / len(scores)
-            if avg_fields > 1:  # 최소 2개 필드 필요
-                variance = sum((x - avg_fields) ** 2 for x in scores) / len(scores)
-                delimiter_scores[delimiter] = (avg_fields, 1 / (variance + 1))
-    
-    best_delimiter = ','
-    if delimiter_scores:
-        best_delimiter = max(delimiter_scores.keys(), 
-                           key=lambda d: delimiter_scores[d][1])
-    
-    # 인코딩 힌트
-    has_korean = any(ord(char) > 127 for char in csv_string[:1000])
-    
-    return {
-        'delimiter': best_delimiter,
-        'has_korean': has_korean,
-        'sample_field_count': delimiter_scores.get(best_delimiter, (0, 0))[0]
-    }
-
-
 def validate_csv_data(data: bytes, expected_content_patterns: Optional[List[str]] = None) -> Dict[str, Any]:
     """
     다운로드된 데이터가 유효한 CSV 형식인지 확인하고 상세한 검증 결과를 반환합니다.
@@ -515,7 +471,34 @@ def process_district_csv(csv_content: bytes, output_filename: Optional[str] = No
                 f"데이터 정리 시작 - 정리 전 행 수: {len(df):,}"
             )
             
-            # 시군구명 컬럼의 현재 상태 확인
+            # 1. 삭제일자가 있는 데이터(폐지된 법정동) 제거
+            before_deletion_filter = len(df)
+            deletion_count = 0
+            
+            if '삭제일자' in df.columns:
+                # 삭제일자가 있는 행의 수 확인
+                deletion_count = df['삭제일자'].notna().sum()
+                
+                log_info(
+                    LogCategory.CSV_PROCESSING, module_name, function_name, "삭제일자_확인",
+                    f"삭제일자 상태 - 전체: {before_deletion_filter:,}, 폐지된 법정동: {deletion_count:,}, 유효한 법정동: {before_deletion_filter - deletion_count:,}"
+                )
+                
+                # 삭제일자가 없는 데이터만 유지 (NaN 또는 빈값인 경우만)
+                df = df[df['삭제일자'].isna()]
+                after_deletion_filter = len(df)
+                
+                log_info(
+                    LogCategory.CSV_PROCESSING, module_name, function_name, "폐지된_법정동_제거",
+                    f"폐지된 법정동 제거 완료 - 제거 전: {before_deletion_filter:,}, 제거 후: {after_deletion_filter:,}, 제거된 수: {deletion_count:,}"
+                )
+            else:
+                log_warning(
+                    LogCategory.CSV_PROCESSING, module_name, function_name, "삭제일자_컬럼_없음",
+                    "'삭제일자' 컬럼이 존재하지 않음 - 폐지된 법정동 필터링을 건너뜁니다"
+                )
+            
+            # 2. 시군구명 컬럼의 현재 상태 확인
             null_count = df['시군구명'].isnull().sum()
             empty_count = (df['시군구명'].astype(str).str.strip() == '').sum()
             valid_count = len(df) - null_count - empty_count
@@ -525,7 +508,7 @@ def process_district_csv(csv_content: bytes, output_filename: Optional[str] = No
                 f"시군구명 상태 - 전체: {len(df):,}, 유효: {valid_count:,}, NULL: {null_count:,}, 빈값: {empty_count:,}"
             )
             
-            # 시군구명이 비어있거나 NaN인 행 제거
+            # 3. 시군구명이 비어있거나 NaN인 행 제거
             before_cleanup = len(df)
             df = df.dropna(subset=['시군구명'])
             after_dropna = len(df)
@@ -538,17 +521,19 @@ def process_district_csv(csv_content: bytes, output_filename: Optional[str] = No
                 f"데이터 정리 완료 - 정리 전: {before_cleanup:,}, dropna 후: {after_dropna:,}, 최종: {after_cleanup:,}"
             )
         
-        # 시군구명별 중복 개수 계산
+        # 시도명+시군구명 조합별 중복 개수 계산
         with log_step(LogCategory.CSV_PROCESSING, module_name, function_name, "중복_처리"):
-            duplicate_counts = df['시군구명'].value_counts().to_dict()
+            # 시도명과 시군구명 조합으로 중복 계산
+            df['시도시군구'] = df['시도명'] + ' ' + df['시군구명']
+            duplicate_counts = df['시도시군구'].value_counts().to_dict()
             log_info(
                 LogCategory.CSV_PROCESSING, module_name, function_name, "중복_계산_완료",
-                f"시군구명별 중복 계산 - 고유 시군구: {len(duplicate_counts):,}개"
+                f"시도명+시군구명 조합별 중복 계산 - 고유 시도시군구: {len(duplicate_counts):,}개"
             )
             
-            # 시군구명 기준으로 중복 제거 (첫 번째 행 유지)
+            # 시도명+시군구명 조합 기준으로 중복 제거 (첫 번째 행 유지)
             before_dedup = len(df)
-            df_unique = df.drop_duplicates(subset=['시군구명'], keep='first')
+            df_unique = df.drop_duplicates(subset=['시도명', '시군구명'], keep='first')
             after_dedup = len(df_unique)
             
             log_info(
@@ -556,8 +541,13 @@ def process_district_csv(csv_content: bytes, output_filename: Optional[str] = No
                 f"중복 제거 완료 - 제거 전: {before_dedup:,}, 제거 후: {after_dedup:,}, 제거된 수: {before_dedup - after_dedup:,}"
             )
             
-            # 필요한 컬럼만 선택 (config에서 정의된 required_columns 사용)
-            columns_to_keep = config.required_columns
+            # 각 시도시군구 조합에 중복 개수 정보 추가 (copy to avoid SettingWithCopyWarning)
+            df_unique = df_unique.copy()
+            df_unique['시도시군구'] = df_unique['시도명'] + ' ' + df_unique['시군구명']
+            df_unique['중복개수'] = df_unique['시도시군구'].map(duplicate_counts)
+            
+            # 필요한 컬럼만 선택 (config에서 정의된 required_columns + 중복개수)
+            columns_to_keep = config.required_columns + ['중복개수']
             available_columns = [col for col in columns_to_keep if col in df_unique.columns]
             df_unique = df_unique[available_columns]
             
@@ -565,9 +555,6 @@ def process_district_csv(csv_content: bytes, output_filename: Optional[str] = No
                 LogCategory.CSV_PROCESSING, module_name, function_name, "컬럼_선택_완료",
                 f"컬럼 선택 완료 - 선택된 컬럼: {available_columns}"
             )
-            
-            # 각 시군구명에 중복 개수 정보 추가
-            df_unique['중복개수'] = df_unique['시군구명'].map(duplicate_counts)
         
         # 처리 후 데이터 통계
         after_cleanup_count = len(df)
@@ -579,17 +566,33 @@ def process_district_csv(csv_content: bytes, output_filename: Optional[str] = No
                 f"JSON 변환 시작 - 최종 데이터 수: {unique_count:,}"
             )
             
-            # JSON으로 변환할 데이터 준비
+            # JSON으로 변환할 데이터 준비 (타입 변환 포함)
             json_data = {
                 "metadata": {
                     "processed_date": datetime.now().isoformat(),
-                    "original_count": original_count,
-                    "after_cleanup_count": after_cleanup_count,
-                    "unique_districts_count": unique_count,
-                    "removed_duplicates": after_cleanup_count - unique_count
+                    "original_count": int(original_count),
+                    "deleted_districts_count": int(deletion_count),
+                    "after_cleanup_count": int(after_cleanup_count),
+                    "unique_districts_count": int(unique_count),
+                    "removed_duplicates": int(after_cleanup_count - unique_count),
+                    "processing_notes": "삭제일자가 있는 폐지된 법정동은 제외됨"
                 },
                 "districts": df_unique.to_dict('records')
             }
+            
+            # DataFrame의 데이터 타입을 표준 Python 타입으로 변환
+            for district in json_data["districts"]:
+                for key, value in district.items():
+                    if pd.isna(value):
+                        district[key] = None
+                    elif isinstance(value, (pd.Int64Dtype, pd.Timestamp)):
+                        district[key] = str(value)
+                    elif hasattr(value, 'item'):  # numpy/pandas 스칼라 타입
+                        district[key] = value.item()
+                    elif isinstance(value, (int, float, str, bool)):
+                        district[key] = value
+                    else:
+                        district[key] = str(value)
             
             # 출력 파일명 생성
             if not output_filename:
@@ -627,6 +630,7 @@ def process_district_csv(csv_content: bytes, output_filename: Optional[str] = No
             "file_path": output_path,
             "statistics": {
                 "원본_데이터_수": original_count,
+                "폐지된_법정동_제거": deletion_count,
                 "정리_후_데이터_수": after_cleanup_count,
                 "중복제거_후_수": unique_count,
                 "제거된_중복_수": after_cleanup_count - unique_count
@@ -787,7 +791,7 @@ def preview_district_file(file_path: str, limit: int = 10) -> Dict[str, Any]:
         }
 
 
-def check_data_go_kr_update(url: str = "https://www.data.go.kr/data/15063424/fileData.do", config: Optional[DistrictConfig] = None) -> Dict[str, Any]:
+def check_data_go_kr_update(url: str = None, config: Optional[DistrictConfig] = None) -> Dict[str, Any]:
     """
     data.go.kr 페이지에서 데이터 수정일을 확인합니다.
     
@@ -803,6 +807,10 @@ def check_data_go_kr_update(url: str = "https://www.data.go.kr/data/15063424/fil
         if config is None:
             from src.core.config import load_config
             config = load_config().district
+        
+        # URL이 없으면 config의 page_url 사용
+        if url is None:
+            url = config.page_url
         
         headers = {
             'User-Agent': config.user_agent
@@ -1115,14 +1123,19 @@ def extract_download_params(soup: BeautifulSoup) -> Dict[str, Any]:
     return result
 
 
-def try_javascript_download(session: requests.Session, params: Dict[str, str]) -> Dict[str, Any]:
+def try_javascript_download(session: requests.Session, params: Dict[str, str], config: Optional[DistrictConfig] = None) -> Dict[str, Any]:
     """
     JavaScript 기반 다운로드를 시도합니다.
     실제 data.go.kr는 2단계 다운로드 방식을 사용합니다.
     """
     try:
+        # Config 로드
+        if config is None:
+            from src.core.config import load_config
+            config = load_config().district
+            
         # 1단계: 다운로드 정보 요청 (publicDataPk, publicDataDetailPk만 사용)
-        info_url = "https://www.data.go.kr/tcs/dss/selectFileDataDownload.do"
+        info_url = config.file_download_endpoint
         
         info_data = {
             'publicDataPk': params.get('publicDataPk', ''),
@@ -1189,7 +1202,7 @@ def try_javascript_download(session: requests.Session, params: Dict[str, str]) -
             return try_direct_file_download(session, info_response.content, info_url, info_data)
         
         # 2단계: 실제 파일 다운로드
-        download_url = "https://www.data.go.kr/tcs/dss/selectFileDataDownload.do"
+        download_url = config.file_download_endpoint
         
         download_data = {
             'atchFileId': atch_file_id,
@@ -1318,10 +1331,15 @@ def try_direct_file_download(session: requests.Session, content: bytes, url: str
         }
 
 
-def try_direct_links(session: requests.Session, soup: BeautifulSoup, base_url: str) -> Dict[str, Any]:
+def try_direct_links(session: requests.Session, soup: BeautifulSoup, base_url: str, config: Optional[DistrictConfig] = None) -> Dict[str, Any]:
     """
     직접 링크 방식 다운로드를 시도합니다.
     """
+    # Config 로드
+    if config is None:
+        from src.core.config import load_config
+        config = load_config().district
+        
     # 다운로드 링크 찾기
     download_links = []
     
@@ -1332,7 +1350,7 @@ def try_direct_links(session: requests.Session, soup: BeautifulSoup, base_url: s
         text = link.get_text().lower()
         if 'download' in text or '다운로드' in text:
             if not href.startswith('http'):
-                href = 'https://www.data.go.kr' + href
+                href = config.base_url + href
             download_links.append(href)
     
     # 찾은 링크들로 다운로드 시도
@@ -1358,10 +1376,15 @@ def try_direct_links(session: requests.Session, soup: BeautifulSoup, base_url: s
     }
 
 
-def try_api_endpoints(session: requests.Session, soup: BeautifulSoup, base_url: str) -> Dict[str, Any]:
+def try_api_endpoints(session: requests.Session, soup: BeautifulSoup, base_url: str, config: Optional[DistrictConfig] = None) -> Dict[str, Any]:
     """
     알려진 API 엔드포인트를 시도합니다.
     """
+    # Config 로드
+    if config is None:
+        from src.core.config import load_config
+        config = load_config().district
+        
     # 공통적으로 사용되는 API 엔드포인트들
     api_endpoints = [
         "/tcs/dss/selectFileDataDownload.do",
@@ -1371,7 +1394,7 @@ def try_api_endpoints(session: requests.Session, soup: BeautifulSoup, base_url: 
     
     for endpoint in api_endpoints:
         try:
-            url = f"https://www.data.go.kr{endpoint}"
+            url = f"{config.base_url}{endpoint}"
             
             # GET 방식 시도
             response = session.get(url, timeout=30)
@@ -1393,13 +1416,18 @@ def try_api_endpoints(session: requests.Session, soup: BeautifulSoup, base_url: 
     }
 
 
-def try_fallback_download(session: requests.Session, soup: BeautifulSoup, base_url: str) -> Dict[str, Any]:
+def try_fallback_download(session: requests.Session, soup: BeautifulSoup, base_url: str, config: Optional[DistrictConfig] = None) -> Dict[str, Any]:
     """
     최후의 수단으로 알려진 파일 URL을 시도합니다.
     """
+    # Config 로드
+    if config is None:
+        from src.core.config import load_config
+        config = load_config().district
+        
     # 행정안전부 법정동코드는 보통 고정된 패턴을 가짐
     fallback_urls = [
-        "https://www.data.go.kr/tcs/dss/selectFileDataDownload.do?publicDataPk=15063424",
+        config.api_download_endpoint,
     ]
     
     for url in fallback_urls:
@@ -1422,131 +1450,6 @@ def try_fallback_download(session: requests.Session, soup: BeautifulSoup, base_u
         "message": "폴백 다운로드 실패",
         "csv_data": None
     }
-
-
-def debug_download_process(url: str = "https://www.data.go.kr/data/15063424/fileData.do") -> Dict[str, Any]:
-    """
-    다운로드 과정을 디버깅하고 상세 정보를 반환합니다.
-    개발/테스트 목적으로 사용됩니다.
-    
-    Args:
-        url: data.go.kr 페이지 URL
-    
-    Returns:
-        디버깅 정보가 포함된 결과
-    """
-    debug_info = {
-        "steps": [],
-        "errors": [],
-        "found_elements": {},
-        "final_result": None
-    }
-    
-    try:
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
-        }
-        
-        session = requests.Session()
-        session.headers.update(headers)
-        
-        # 1단계: 페이지 접근
-        debug_info["steps"].append("1. 페이지 접근 시도")
-        response = session.get(url, timeout=30)
-        response.raise_for_status()
-        debug_info["steps"].append(f"   - 응답 코드: {response.status_code}")
-        debug_info["steps"].append(f"   - 페이지 크기: {len(response.text):,} bytes")
-        
-        soup = BeautifulSoup(response.text, 'html.parser')
-        
-        # 2단계: 다운로드 버튼/링크 찾기
-        debug_info["steps"].append("2. 다운로드 요소 검색")
-        
-        # 다운로드 관련 링크
-        download_links = soup.find_all('a', href=True)
-        relevant_links = []
-        for link in download_links:
-            href = link.get('href', '')
-            text = link.get_text().strip()
-            if any(keyword in text.lower() for keyword in ['다운로드', 'download', '내려받기']):
-                relevant_links.append({
-                    'href': href,
-                    'text': text,
-                    'onclick': link.get('onclick', '')
-                })
-        
-        debug_info["found_elements"]["download_links"] = relevant_links
-        debug_info["steps"].append(f"   - 다운로드 링크 수: {len(relevant_links)}")
-        
-        # JavaScript 함수 찾기
-        script_tags = soup.find_all('script')
-        js_functions = []
-        for script in script_tags:
-            if script.string and 'fn_fileDataDown' in script.string:
-                js_functions.append(script.string[:200] + "..." if len(script.string) > 200 else script.string)
-        
-        debug_info["found_elements"]["javascript_functions"] = js_functions
-        debug_info["steps"].append(f"   - JavaScript 함수 수: {len(js_functions)}")
-        
-        # 3단계: 파라미터 추출 시도
-        debug_info["steps"].append("3. 다운로드 파라미터 추출")
-        download_params = extract_download_params(soup)
-        debug_info["found_elements"]["download_params"] = download_params
-        debug_info["steps"].append(f"   - 추출된 파라미터: {len(download_params)} 개")
-        
-        # 4단계: 각 다운로드 방법 시도
-        methods = [
-            ("JavaScript 방식", lambda: try_javascript_download(session, download_params) if download_params else {"success": False, "message": "파라미터 없음"}),
-            ("직접 링크 방식", lambda: try_direct_links(session, soup, url)),
-            ("API 엔드포인트 방식", lambda: try_api_endpoints(session, soup, url)),
-            ("폴백 방식", lambda: try_fallback_download(session, soup, url))
-        ]
-        
-        for method_name, method_func in methods:
-            debug_info["steps"].append(f"4. {method_name} 시도")
-            try:
-                result = method_func()
-                debug_info["steps"].append(f"   - 결과: {'성공' if result['success'] else '실패'}")
-                debug_info["steps"].append(f"   - 메시지: {result['message']}")
-                
-                if result["success"]:
-                    debug_info["final_result"] = {
-                        "method": method_name,
-                        "success": True,
-                        "data_size": len(result.get("csv_data", b"")),
-                        "message": result["message"]
-                    }
-                    return {
-                        "success": True,
-                        "message": f"디버깅 완료 - {method_name} 성공",
-                        "debug_info": debug_info,
-                        "csv_data": result["csv_data"]
-                    }
-            except Exception as e:
-                debug_info["errors"].append(f"{method_name} 오류: {str(e)}")
-                debug_info["steps"].append(f"   - 오류: {str(e)}")
-        
-        debug_info["final_result"] = {
-            "method": "없음",
-            "success": False,
-            "message": "모든 방법 실패"
-        }
-        
-        return {
-            "success": False,
-            "message": "모든 다운로드 방법 실패 - 디버깅 정보 확인",
-            "debug_info": debug_info,
-            "csv_data": None
-        }
-        
-    except Exception as e:
-        debug_info["errors"].append(f"전체 과정 오류: {str(e)}")
-        return {
-            "success": False,
-            "message": f"디버깅 중 오류: {str(e)}",
-            "debug_info": debug_info,
-            "csv_data": None
-        }
 
 
 def get_last_update_info(config: Optional[DistrictConfig] = None) -> Dict[str, Any]:
@@ -1712,7 +1615,7 @@ def auto_update_district_data(config: Optional[DistrictConfig] = None) -> Dict[s
                     error_message += "\n\n🔍 가능한 해결방법:\n"
                     error_message += "1. 웹사이트 구조가 변경되어 다운로드 파라미터를 찾을 수 없습니다\n"
                     error_message += "2. 수동으로 CSV 파일을 다운로드하여 업로드해 주세요\n"
-                    error_message += f"3. 페이지 주소: https://www.data.go.kr/data/15063424/fileData.do"
+                    error_message += f"3. 페이지 주소: {config.page_url}"
             
             # HTML 응답 관련 정보가 있는 경우
             validation_info = download_result.get("validation_info", {})
@@ -1883,4 +1786,115 @@ def delete_district_file(file_path: str, config: Optional[DistrictConfig] = None
         return {
             "success": False,
             "message": f"파일 삭제 중 오류가 발생했습니다: {str(e)}"
+        }
+
+
+def clear_update_info(config: Optional[DistrictConfig] = None) -> Dict[str, Any]:
+    """
+    업데이트 정보를 초기화(삭제)합니다.
+    모든 district 파일이 삭제될 때 호출됩니다.
+    
+    Args:
+        config: District 설정 (None이면 기본 config 사용)
+    
+    Returns:
+        초기화 결과 딕셔너리
+    """
+    # Config 로드
+    if config is None:
+        from src.core.config import load_config
+        config = load_config().district
+    
+    uploads_dir = config.uploads_dir
+    info_file = os.path.join(uploads_dir, "last_update_info.json")
+    
+    try:
+        if os.path.exists(info_file):
+            os.remove(info_file)
+            log_info(
+                LogCategory.FILE_OPERATION, "district_service", "clear_update_info", "업데이트_정보_초기화",
+                f"업데이트 정보 파일 삭제 완료 - 경로: {info_file}"
+            )
+            return {
+                "success": True,
+                "message": "업데이트 정보가 초기화되었습니다."
+            }
+        else:
+            return {
+                "success": True,
+                "message": "업데이트 정보 파일이 이미 존재하지 않습니다."
+            }
+    except Exception as e:
+        log_error(
+            LogCategory.FILE_OPERATION, "district_service", "clear_update_info", "업데이트_정보_초기화_오류",
+            f"업데이트 정보 초기화 실패: {str(e)}", error=e
+        )
+        return {
+            "success": False,
+            "message": f"업데이트 정보 초기화 중 오류가 발생했습니다: {str(e)}"
+        }
+
+
+def delete_all_district_files(config: Optional[DistrictConfig] = None) -> Dict[str, Any]:
+    """
+    모든 district 파일과 업데이트 정보를 삭제합니다.
+    
+    Args:
+        config: District 설정 (None이면 기본 config 사용)
+    
+    Returns:
+        삭제 결과 딕셔너리
+    """
+    # Config 로드
+    if config is None:
+        from src.core.config import load_config
+        config = load_config().district
+    
+    # 모든 district 파일 가져오기
+    files_to_delete = get_district_files(config)
+    
+    deleted_count = 0
+    failed_count = 0
+    
+    # 각 파일 삭제
+    for file_info in files_to_delete:
+        delete_result = delete_district_file(file_info['file_path'], config)
+        if delete_result["success"]:
+            deleted_count += 1
+        else:
+            failed_count += 1
+    
+    # 업데이트 정보 초기화
+    clear_result = clear_update_info(config)
+    
+    # 결과 반환
+    if failed_count == 0:
+        message = f"모든 파일이 성공적으로 삭제되었습니다. (삭제된 파일: {deleted_count}개)"
+        if not clear_result["success"]:
+            message += f" 단, 업데이트 정보 초기화 중 문제가 발생했습니다: {clear_result['message']}"
+        
+        log_info(
+            LogCategory.FILE_OPERATION, "district_service", "delete_all_district_files", "전체_파일_삭제_완료",
+            f"전체 삭제 완료 - 삭제: {deleted_count}개, 실패: {failed_count}개"
+        )
+        
+        return {
+            "success": True,
+            "message": message,
+            "deleted_count": deleted_count,
+            "failed_count": failed_count,
+            "update_info_cleared": clear_result["success"]
+        }
+    else:
+        log_warning(
+            LogCategory.FILE_OPERATION, "district_service", "delete_all_district_files", "전체_파일_삭제_부분_실패",
+            f"전체 삭제 부분 실패 - 삭제: {deleted_count}개, 실패: {failed_count}개"
+        )
+        
+        return {
+            "success": False,
+            "message": f"일부 파일 삭제에 실패했습니다. (성공: {deleted_count}개, 실패: {failed_count}개)",
+            "deleted_count": deleted_count,
+            "failed_count": failed_count,
+            "update_info_cleared": clear_result["success"] if failed_count == 0 else False
         }
