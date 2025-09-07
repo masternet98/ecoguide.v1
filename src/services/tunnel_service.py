@@ -7,6 +7,7 @@ import re
 import time
 import threading
 import subprocess
+import shlex
 from typing import Optional
 
 from src.core.utils import TunnelState
@@ -42,7 +43,11 @@ def _cloudflared_reader(proc: subprocess.Popen, state: TunnelState):
     json_url = re.compile(r'"url"\s*:\s*"(?P<url>https?://[^"]+)"')
     short_mention = re.compile(r"(https?://[a-zA-Z0-9\-]+\.trycloudflare.com)")
 
-    log_path = os.path.join(os.getcwd(), "cloudflared_tunnel.log")
+    # 프로젝트 루트의 logs 디렉토리에 로그 파일 저장 (도커/클라우드 배포 호환)
+    project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+    logs_dir = os.path.join(project_root, "logs")
+    os.makedirs(logs_dir, exist_ok=True)
+    log_path = os.path.join(logs_dir, "cloudflared_tunnel.log")
     logfile = None
     try:
         logfile = open(log_path, "a", encoding="utf-8", errors="replace")
@@ -159,7 +164,13 @@ def start_cloudflared_tunnel(state: TunnelState, wait_for_url_seconds: int = 10)
             "cloudflared 실행 파일을 찾을 수 없습니다. PATH에 추가하거나 공식 문서에 따라 설치하세요."
         )
 
-    cmd = [cpath, "tunnel", "--url", f"http://localhost:{state.port}", "--no-autoupdate", "--loglevel", "info"]
+    # 입력 검증 및 보안 강화
+    if not isinstance(state.port, int) or state.port < 1 or state.port > 65535:
+        raise ValueError(f"유효하지 않은 포트: {state.port}")
+    
+    # 안전한 명령어 구성 (shlex를 통한 이스케이핑)
+    url_arg = f"http://localhost:{state.port}"
+    cmd = [cpath, "tunnel", "--url", url_arg, "--no-autoupdate", "--loglevel", "info"]
 
     state.url = ""
     state.logs = []

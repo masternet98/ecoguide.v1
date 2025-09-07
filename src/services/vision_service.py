@@ -13,6 +13,7 @@ from typing import Optional, List, Tuple, Dict
 import torch
 from ultralytics import YOLO
 from rembg import remove
+import streamlit as st
 
 from src.services.vision_types import (
     VisionConfig,
@@ -21,33 +22,43 @@ from src.services.vision_types import (
     MeasurementResult,
 )
 
+
+@st.cache_resource
+def load_yolo_models(config: VisionConfig) -> Tuple[Optional[object], Optional[object]]:
+    """
+    YOLO 모델들을 로드하고 캐시합니다. 성능 최적화를 위해 한 번만 로드됩니다.
+    
+    Returns:
+        Tuple[object_model, hand_model]: 객체 검출 모델과 손 검출 모델
+    """
+    try:
+        device = 'cuda' if config.use_gpu and torch.cuda.is_available() else 'cpu'
+        print(f"Loading cached models on device: {device}")
+        
+        # 객체 검출 YOLO 모델 로딩
+        object_model = YOLO(config.yolo_model_path)
+        object_model.to(device)
+        print(f"Object detection model cached: {config.yolo_model_path}")
+        
+        # 손 감지 YOLO 모델 로딩
+        hand_model = YOLO(config.yolo_hand_model_path)
+        hand_model.to(device)
+        print(f"Hand detection model cached: {config.yolo_hand_model_path}")
+        
+        return object_model, hand_model
+    except Exception as e:
+        print(f"모델 로딩 실패: {e}")
+        return None, None
+
 class VisionService:
     """모델과 설정을 관리하며, 이미지 분석 파이프라인을 제공하는 서비스 클래스."""
 
     def __init__(self, config: VisionConfig):
         """서비스를 초기화하고 설정을 저장합니다."""
         self.config = config
-        self.yolo_model = None
-        self.hand_detector = None
-        print(f"VisionService initialized with config: {config}")
-
-    def load_models(self):
-        """
-        필요한 YOLO 모델(객체용, 손 감지용)을 로드하고 초기화합니다.
-        `use_gpu` 설정에 따라 디바이스를 설정합니다.
-        """
-        device = 'cuda' if self.config.use_gpu and torch.cuda.is_available() else 'cpu'
-        print(f"Using device: {device}")
-
-        # 객체 검출 YOLO 모델 로딩
-        self.yolo_model = YOLO(self.config.yolo_model_path)
-        self.yolo_model.to(device)
-        print(f"Object detection model loaded: {self.config.yolo_model_path}")
-
-        # 손 감지 YOLO 모델 로딩
-        self.yolo_hand_model = YOLO(self.config.yolo_hand_model_path)
-        self.yolo_hand_model.to(device)
-        print(f"Hand detection model loaded: {self.config.yolo_hand_model_path}")
+        # 캐시된 모델 사용으로 성능 최적화
+        self.yolo_model, self.yolo_hand_model = load_yolo_models(config)
+        print(f"VisionService initialized with cached models")
 
     def remove_background(self, pil_img: Image.Image) -> Image.Image:
         """rembg를 사용하여 이미지 배경을 제거합니다."""

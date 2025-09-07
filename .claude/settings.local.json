@@ -6,7 +6,11 @@
       "Bash(del test_update_info.py)",
       "Bash(del uploadslast_update_info.json)",
       "Bash(python:*)",
-      "Bash(del test_link_collector.py)"
+      "Bash(del test_link_collector.py)",
+      "mcp__ide__getDiagnostics",
+      "Bash(dir logs)",
+      "Bash(dir:*)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []

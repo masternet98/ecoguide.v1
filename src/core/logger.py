@@ -91,7 +91,9 @@ class EcoGuideLogger:
         
     def _setup_file_logging(self):
         """파일 로깅 설정"""
-        logs_dir = os.path.expanduser("~/logs/ecoguide")
+        # 프로젝트 루트의 logs 디렉토리 사용 (도커/클라우드 배포 호환)
+        project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+        logs_dir = os.path.join(project_root, "logs")
         os.makedirs(logs_dir, exist_ok=True)
         
         # 날짜별 로그 파일

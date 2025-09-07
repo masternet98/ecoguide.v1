@@ -25,7 +25,9 @@ tunnel_sidebar_ui(tunnel_state)
 
 st.divider()
 st.header("로그 다운로드 / 보기")
-log_path = os.path.join(os.getcwd(), "cloudflared_tunnel.log")
+# 프로젝트 루트의 logs 디렉토리에서 로그 파일 찾기 (도커/클라우드 배포 호환)
+project_root = os.path.dirname(os.path.dirname(__file__))
+log_path = os.path.join(project_root, "logs", "cloudflared_tunnel.log")
 if os.path.isfile(log_path):
     try:
         with open(log_path, "r", encoding="utf-8", errors="replace") as fh:

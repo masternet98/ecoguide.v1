@@ -1,3 +1,6 @@
+# gcloud 배포 시 제외할 파일 목록입니다.
+# .gitignore 기반으로 작성되었지만, 'models' 디렉터리는 빌드에 포함시키기 위해 제외하지 않습니다.
+
 # Python 가상환경
 venv/
 env/
@@ -37,20 +40,22 @@ data/
 uploads/
 
 # Downloaded Models
-models/
+# models/ # gcloud 빌드를 위해 의도적으로 주석 처리
 yolov8n.pt
 yolov8n-hands.pt
 
-# Streamlit specific
+# Streamlit specific - 배포 시 설정 파일 포함 필요
 # .streamlit/
+
+# Documentation files (개발용)
+AGENTS.md
+REFACTORING_SUMMARY.md
+sc_*.md
 
 # Temporary files
 *.tmp
 tmp/
 temp/
 
-# Development documentation (일시적)
-sc_*.md
-
-# Claude Code specific
-.claude/
+# Git 디렉터리
+.git/

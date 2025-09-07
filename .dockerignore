@@ -1,0 +1,30 @@
+# Git, Python, and IDE specific
+.git
+.gitignore
+.dockerignore
+__pycache__/
+*.pyc
+.env
+.venv
+venv
+.cache
+.vscode
+.idea
+.claude
+.clinerules
+
+# Project files not needed in the image
+*.md
+run.bat
+Dockerfile
+test_*.py
+
+# Directories not needed in the image
+downloads
+temp
+uploads
+test
+tests
+# .streamlit - 필요한 설정이므로 포함
+models/
+data/
