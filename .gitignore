@@ -15,6 +15,7 @@ __pycache__/
 
 # 로그 파일
 *.log
+*.jsonl
 
 # pytest, mypy 캐시
 .pytest_cache/
