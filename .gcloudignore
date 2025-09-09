@@ -37,7 +37,20 @@ dist/
 
 # 데이터 파일
 data/
+
+# uploads/ - 선택적 처리 (환경에 따라 조정)
+# 옵션 1: 외부 스토리지 사용 시 제외 (현재 설정)
 uploads/
+# 옵션 2: 초기 데이터와 함께 배포 시 아래 주석 해제
+# uploads/*.tmp
+# uploads/*.cache
+# uploads/temp/
+# uploads/cache/
+# uploads/**/*.tmp
+# uploads/**/*.cache
+
+# logs/ - 런타임 생성 디렉토리 (코드에서 자동 생성)
+logs/
 
 # Downloaded Models
 # models/ # gcloud 빌드를 위해 의도적으로 주석 처리

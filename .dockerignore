@@ -22,9 +22,15 @@ test_*.py
 # Directories not needed in the image
 downloads
 temp
-uploads
 test
 tests
+
+# uploads/ - 컨테이너에서 볼륨 마운트로 관리하므로 제외
+uploads
+
+# logs/ - 런타임에 생성되는 디렉토리이므로 제외 (코드에서 자동 생성)
+logs
+
 # .streamlit - 필요한 설정이므로 포함
 models/
 data/
