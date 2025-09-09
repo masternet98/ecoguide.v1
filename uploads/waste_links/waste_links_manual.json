@@ -1,0 +1,170 @@
+{
+  "metadata": {
+    "last_updated": "2025-09-09T01:25:15.250033"
+  },
+  "links": {
+    "대전광역시_동구": {
+      "info_url": "https://www.donggu.go.kr/dg/kor/contents/167",
+      "system_url": "https://www.donggu.go.kr/dg/kor/60/wasteApply",
+      "description": "정보 URL :  RAG로 해당 페이지의 정보를 읽어서 사용자가에 안내함. 지자체별로 따르잖아? context 주입하는 것임..\n수수료 URL(추가) : LLM이 읽어서 자동으로 DB화 하도록.. 결국 DB가 필요함. CRUD 동작이 발생해야 함.",
+      "updated_at": "2025-08-31T00:54:50.945603"
+    },
+    "인천광역시_서구": {
+      "info_url": "https://www.seo.incheon.kr/open_content/main/part/clean/detritus_big.jsp",
+      "system_url": "https://waste.seo.incheon.kr/seogu/index.do",
+      "fee_url": "https://waste.seo.incheon.kr/seogu/price.do",
+      "description": "폐기물스티커 확인하는 사이트가 존재함. 연동 방안 검토해보자.",
+      "updated_at": "2025-09-09T01:25:15.250033",
+      "appliance_url": "https://www.seo.incheon.kr/open_content/main/part/clean/detritus_waste.jsp",
+      "monitoring": {
+        "enabled": true,
+        "created_at": "2025-09-07T23:59:52.527539",
+        "last_checked": null,
+        "check_frequency": "daily",
+        "priority": "medium",
+        "failure_count": 0,
+        "last_failure": null
+      }
+    },
+    "인천광역시_중구": {
+      "info_url": "https://www.icjg.go.kr/krpt0407c",
+      "system_url": "https://yeogiro24.co.kr/web/index.html",
+      "fee_url": "https://www.icjg.go.kr/data/preview_skin/doc.html?fn=MEDIA_MEDIA_2260_1&rs=/data/preview_result/202508",
+      "description": "지자체별로 가격",
+      "updated_at": "2025-09-07T23:18:08.295111",
+      "appliance_url": "https://www.15990903.or.kr/portal/cnts/userGuide.do"
+    },
+    "인천광역시_동구": {
+      "info_url": "https://www.icdonggu.go.kr/main/area/clean/waste_large.jsp",
+      "system_url": "https://www.icdonggu.go.kr/main/area/clean/waste_large_request.jsp",
+      "fee_url": "https://www.icdonggu.go.kr/main/area/clean/waste_large_fees.jsp",
+      "description": "",
+      "updated_at": "2025-09-07T23:18:28.031423",
+      "appliance_url": "https://www.icdonggu.go.kr/main/area/clean/waste_home.jsp"
+    },
+    "강원특별자치도_정선군": {
+      "info_url": "https://www.jeongseon.go.kr/portal/partinfo/environment_forest/waste/leaflet",
+      "system_url": "",
+      "fee_url": "",
+      "description": "읍면 행정복지센터에 신고 후 배출\n560-2359 환경과 전화번호는 자동으로 URL에서 가져오게 하나?",
+      "updated_at": "2025-08-31T01:36:38.989694"
+    },
+    "강원특별자치도_동해시": {
+      "info_url": "https://dh.go.kr/www/contents.do?key=793",
+      "system_url": "",
+      "fee_url": "https://dh.go.kr/www/contents.do?key=793",
+      "description": "",
+      "updated_at": "2025-08-31T01:46:20.209955"
+    },
+    "인천광역시_미추홀구": {
+      "info_url": "https://www.michuhol.go.kr/main/content.do?sq=442",
+      "system_url": "https://www.michuhol.go.kr/bigclean/",
+      "fee_url": "https://www.michuhol.go.kr/other/attach_down.do?sq=441&key=DB7770C867",
+      "description": "수수료 URL로 제공되지 않고, 첨부파일로 저장됨.",
+      "updated_at": "2025-09-07T23:19:31.890838",
+      "appliance_url": "https://15990903.or.kr/portal/cnts/userGuide.do"
+    },
+    "인천광역시_연수구": {
+      "info_url": "https://www.yeonsu.go.kr/main/part/clean/large.asp",
+      "system_url": "http://27.101.43.143/yeonsu/index.do",
+      "fee_url": "http://27.101.43.143/yeonsu/waste_price.do",
+      "appliance_url": "https://www.yeonsu.go.kr/main/part/clean/pickup.asp",
+      "description": "",
+      "updated_at": "2025-09-07T23:22:11.525709"
+    },
+    "인천광역시_남동구": {
+      "info_url": "https://www.namdong.go.kr/main/area/clean/dumps.jsp",
+      "system_url": "https://play.google.com/store/apps/details?id=kr.co.yeogiro",
+      "fee_url": "https://www.namdong.go.kr/main/area/clean/dumps_fees.jsp",
+      "appliance_url": "https://www.15990903.or.kr/portal/main/main.do",
+      "description": "",
+      "updated_at": "2025-09-09T00:52:28.099671",
+      "monitoring": {
+        "enabled": true,
+        "created_at": "2025-09-09T00:52:28.099671",
+        "last_checked": null,
+        "check_frequency": "daily",
+        "priority": "medium",
+        "failure_count": 0,
+        "last_failure": null
+      }
+    },
+    "인천광역시_부평구": {
+      "info_url": "https://waste.icbp.go.kr/icbp/load_help.asp",
+      "system_url": "https://waste.icbp.go.kr/icbp/load_page.asp",
+      "fee_url": "https://waste.icbp.go.kr/icbp/load_bill.asp",
+      "appliance_url": "https://waste.icbp.go.kr/icbp/load_dust.asp",
+      "description": "",
+      "updated_at": "2025-09-09T00:59:17.063016",
+      "monitoring": {
+        "enabled": true,
+        "created_at": "2025-09-09T00:59:17.063016",
+        "last_checked": null,
+        "check_frequency": "daily",
+        "priority": "medium",
+        "failure_count": 0,
+        "last_failure": null
+      }
+    },
+    "인천광역시_계양구": {
+      "info_url": "https://www.gyeyang.go.kr/open_content/main/part/clean/waste.jsp",
+      "system_url": "https://www.gyeyang.go.kr/open_content/main/login/loginForm.do?return_uri=/open_content/reservation/sub/waste_appli.jsp",
+      "fee_url": "https://www.gyeyang.go.kr/open_content/main/part/clean/waste_fee.jsp",
+      "appliance_url": "https://15990903.or.kr/portal/main/main.do",
+      "description": "",
+      "updated_at": "2025-09-09T01:02:34.013250",
+      "monitoring": {
+        "enabled": true,
+        "created_at": "2025-09-09T01:02:34.013250",
+        "last_checked": null,
+        "check_frequency": "daily",
+        "priority": "medium",
+        "failure_count": 0,
+        "last_failure": null
+      }
+    },
+    "인천광역시_강화군": {
+      "info_url": "https://www.ganghwa.go.kr/open_content/main/part/clean/detritus_large.jsp",
+      "system_url": "",
+      "fee_url": "",
+      "appliance_url": "https://www.15990903.or.kr/portal/main/main.do",
+      "description": "",
+      "fee_url_file": {
+        "original_name": "대형폐기물_배출신고안내.pdf",
+        "stored_name": "fee_url_20250909_011846_대형폐기물_배출신고안내.pdf",
+        "file_path": "C:\\projects_vscode\\ecoguide.v1\\uploads\\waste_links\\attachments\\인천광역시_강화군\\fee_url_20250909_011846_대형폐기물_배출신고안내.pdf",
+        "size": 64029,
+        "type": "application/pdf",
+        "url_type": "fee_url",
+        "uploaded_at": "2025-09-09T01:18:46.680575"
+      },
+      "updated_at": "2025-09-09T01:18:46.683576",
+      "monitoring": {
+        "enabled": true,
+        "created_at": "2025-09-09T01:06:08.286818",
+        "last_checked": null,
+        "check_frequency": "daily",
+        "priority": "medium",
+        "failure_count": 0,
+        "last_failure": null
+      }
+    },
+    "인천광역시_옹진군": {
+      "info_url": "https://www.ongjin.go.kr/open_content/main/environment/cleaning/excretion_large.jsp",
+      "system_url": "",
+      "fee_url": "https://www.ongjin.go.kr/open_content/main/environment/cleaning/excretion_large.jsp",
+      "appliance_url": "https://www.ongjin.go.kr/open_content/main/environment/cleaning/eol_collect_info.jsp",
+      "description": "",
+      "updated_at": "2025-09-09T01:21:14.966810",
+      "monitoring": {
+        "enabled": true,
+        "created_at": "2025-09-09T01:21:14.966810",
+        "last_checked": null,
+        "check_frequency": "daily",
+        "priority": "medium",
+        "failure_count": 0,
+        "last_failure": null
+      }
+    }
+  }
+}
