@@ -10,7 +10,20 @@
       "mcp__ide__getDiagnostics",
       "Bash(dir logs)",
       "Bash(dir:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(git tag:*)",
+      "Bash(git checkout:*)",
+      "Bash(git stash:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(echo:*)",
+      "Bash(curl:*)",
+      "Bash(del test_batch_notification.py)",
+      "Bash(streamlit run:*)",
+      "Bash(del \"C:\\projects_vscode\\ecoguide.v1\\test_integration.py\")",
+      "Bash(nslookup:*)",
+      "Bash(git check-ignore:*)",
+      "Bash(git stash push:*)"
     ],
     "deny": [],
     "ask": []
