@@ -344,7 +344,7 @@ with tab3:
         
         for i, file_info in enumerate(files):
             with st.expander(f"📄 {file_info['filename']} ({file_info['size_mb']}MB) - {file_info['created_time']}"):
-                col1, col2, col3, col4 = st.columns([2, 1, 1, 1])
+                col1, col2, col3, col4 = st.columns([1, 2, 1, 1])
                 
                 with col1:
                     st.write(f"**경로:** `{file_info['file_path']}`")
