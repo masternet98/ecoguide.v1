@@ -294,7 +294,6 @@ def render_log_management():
         
         log_file_path = getattr(logger, 'log_file_path', None)
         if log_file_path and os.path.exists(log_file_path):
-            import os
             file_size = os.path.getsize(log_file_path) / 1024 / 1024  # MB
             st.write(f"**파일 경로**: `{log_file_path}`")
             st.write(f"**파일 크기**: {file_size:.2f} MB")

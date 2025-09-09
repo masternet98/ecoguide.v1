@@ -5,6 +5,7 @@
 """
 import json
 import os
+import shutil
 from datetime import datetime
 from typing import Dict, List, Any, Optional
 
@@ -100,7 +101,14 @@ def load_registered_links(config: Optional[Config] = None) -> Dict[str, Any]:
     """
     filepath = get_storage_filepath(config)
     if not os.path.exists(filepath):
-        return {"metadata": {}, "links": {}}
+        return {
+            "metadata": {
+                "version": "1.1",
+                "created_at": datetime.now().isoformat(),
+                "monitoring_enabled": True
+            }, 
+            "links": {}
+        }
     
     try:
         with open(filepath, 'r', encoding='utf-8') as f:
@@ -133,8 +141,28 @@ def save_link(district_key: str, link_data: Dict[str, str], config: Optional[Con
     data["links"][district_key]["info_url"] = link_data.get("info_url", "")
     data["links"][district_key]["system_url"] = link_data.get("system_url", "")
     data["links"][district_key]["fee_url"] = link_data.get("fee_url", "")
+    data["links"][district_key]["appliance_url"] = link_data.get("appliance_url", "")
     data["links"][district_key]["description"] = link_data.get("description", "")
+    
+    # URL별 첨부파일 정보 저장
+    for url_type in ["info_url", "system_url", "fee_url", "appliance_url"]:
+        file_key = f"{url_type}_file"
+        if file_key in link_data:
+            data["links"][district_key][file_key] = link_data[file_key]
+    
     data["links"][district_key]["updated_at"] = datetime.now().isoformat()
+    
+    # 모니터링 메타데이터 초기화 (새로 생성된 경우)
+    if "monitoring" not in data["links"][district_key]:
+        data["links"][district_key]["monitoring"] = {
+            "enabled": True,
+            "created_at": datetime.now().isoformat(),
+            "last_checked": None,
+            "check_frequency": "daily",  # daily, weekly, monthly
+            "priority": "medium",  # high, medium, low
+            "failure_count": 0,
+            "last_failure": None
+        }
     
     data["metadata"]["last_updated"] = datetime.now().isoformat()
     
@@ -189,3 +217,123 @@ def delete_link(district_key: str, config: Optional[Config] = None) -> bool:
     else:
         # 삭제할 키가 없는 경우도 성공으로 처리
         return True
+
+def get_attachments_storage_path(district_key: str, config: Optional[Config] = None) -> str:
+    """
+    특정 시군구의 첨부파일이 저장될 디렉토리 경로를 반환합니다.
+    없으면 생성합니다.
+
+    Args:
+        district_key: 시군구 키
+        config: 앱 설정
+
+    Returns:
+        첨부파일 저장 디렉토리 경로
+    """
+    base_dir = get_waste_links_storage_path(config)
+    attachments_dir = os.path.join(base_dir, "attachments", district_key)
+    os.makedirs(attachments_dir, exist_ok=True)
+    return attachments_dir
+
+def save_url_attachment(district_key: str, url_type: str, uploaded_file, config: Optional[Config] = None) -> Optional[Dict[str, Any]]:
+    """
+    특정 URL 타입의 첨부파일을 저장하고 메타데이터를 반환합니다.
+
+    Args:
+        district_key: 시군구 키
+        url_type: URL 타입 (info_url, system_url, fee_url)
+        uploaded_file: Streamlit UploadedFile 객체
+        config: 앱 설정
+
+    Returns:
+        첨부파일 메타데이터 딕셔너리 (실패시 None)
+    """
+    if uploaded_file is None:
+        return None
+
+    try:
+        # 저장 디렉토리 준비
+        storage_dir = get_attachments_storage_path(district_key, config)
+        
+        # 파일명 생성 (URL타입_타임스탬프_원본명)
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"{url_type}_{timestamp}_{uploaded_file.name}"
+        filepath = os.path.join(storage_dir, filename)
+        
+        # 파일 저장
+        with open(filepath, "wb") as f:
+            f.write(uploaded_file.read())
+        
+        # 메타데이터 생성
+        file_info = {
+            "original_name": uploaded_file.name,
+            "stored_name": filename,
+            "file_path": filepath,
+            "size": uploaded_file.size,
+            "type": uploaded_file.type,
+            "url_type": url_type,
+            "uploaded_at": datetime.now().isoformat()
+        }
+        
+        log_info(
+            LogCategory.FILE_OPERATION, "link_collector_service", "save_url_attachment",
+            "첨부파일 저장 성공", f"District: {district_key}, Type: {url_type}, File: {uploaded_file.name}"
+        )
+        
+        return file_info
+        
+    except Exception as e:
+        log_error(
+            LogCategory.FILE_OPERATION, "link_collector_service", "save_url_attachment",
+            "첨부파일 저장 실패", f"District: {district_key}, Type: {url_type}, Error: {str(e)}", error=e
+        )
+        return None
+
+def save_attachment(district_key: str, uploaded_file, config: Optional[Config] = None) -> Optional[Dict[str, Any]]:
+    """이전 버전과의 호환성을 위한 래퍼 함수"""
+    return save_url_attachment(district_key, "general", uploaded_file, config)
+
+def delete_attachment(district_key: str, attachment_info: Dict[str, Any], config: Optional[Config] = None) -> bool:
+    """
+    첨부파일을 삭제합니다.
+
+    Args:
+        district_key: 시군구 키
+        attachment_info: 첨부파일 메타데이터
+        config: 앱 설정
+
+    Returns:
+        성공 여부 (True/False)
+    """
+    try:
+        file_path = attachment_info.get("file_path")
+        if file_path and os.path.exists(file_path):
+            os.remove(file_path)
+            
+        log_info(
+            LogCategory.FILE_OPERATION, "link_collector_service", "delete_attachment",
+            "첨부파일 삭제 성공", f"District: {district_key}, File: {attachment_info.get('original_name')}"
+        )
+        return True
+        
+    except Exception as e:
+        log_error(
+            LogCategory.FILE_OPERATION, "link_collector_service", "delete_attachment",
+            "첨부파일 삭제 실패", f"District: {district_key}, Error: {str(e)}", error=e
+        )
+        return False
+
+def get_attachment_file_path(district_key: str, stored_name: str, config: Optional[Config] = None) -> str:
+    """
+    첨부파일의 실제 파일 경로를 반환합니다.
+
+    Args:
+        district_key: 시군구 키
+        stored_name: 저장된 파일명
+        config: 앱 설정
+
+    Returns:
+        파일 경로
+    """
+    storage_dir = get_attachments_storage_path(district_key, config)
+    return os.path.join(storage_dir, stored_name)
