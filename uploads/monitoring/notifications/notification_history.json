@@ -3744,10 +3744,472 @@
           "current_hash": "2c6cd8d89f24e15a1bf807fddb576b9f"
         }
       }
+    },
+    {
+      "id": "대전광역시_동구_info_url_20250913_171347",
+      "priority": "medium",
+      "title": "[CHANGED] 대전광역시 동구 배출정보 변경 감지",
+      "message": "지역: 대전광역시 동구\n항목: 배출정보\n변경 유형: 내용 변경",
+      "district_key": "대전광역시_동구",
+      "url_type": "info_url",
+      "created_at": "2025-09-13T17:13:34.565095",
+      "sent_at": null,
+      "channels": [],
+      "metadata": {
+        "monitoring_result": {
+          "status": "changed",
+          "change_type": "content",
+          "error_message": null,
+          "response_time": 0.43246,
+          "previous_hash": "c65c28b68628c5f1c6bba5c7637cc60a",
+          "current_hash": "98b20c5f9fa9cd03eb1b5c38a0fa8fda"
+        }
+      }
+    },
+    {
+      "id": "대전광역시_동구_system_url_20250913_171347",
+      "priority": "medium",
+      "title": "[CHANGED] 대전광역시 동구 시스템 변경 감지",
+      "message": "지역: 대전광역시 동구\n항목: 시스템\n변경 유형: 내용 변경",
+      "district_key": "대전광역시_동구",
+      "url_type": "system_url",
+      "created_at": "2025-09-13T17:13:34.980397",
+      "sent_at": null,
+      "channels": [],
+      "metadata": {
+        "monitoring_result": {
+          "status": "changed",
+          "change_type": "content",
+          "error_message": null,
+          "response_time": 0.376292,
+          "previous_hash": "3eec13eefbac93e7aeba5be793aefc82",
+          "current_hash": "c163a8cc2c55f74826085d4773dce565"
+        }
+      }
+    },
+    {
+      "id": "인천광역시_서구_info_url_20250913_171347",
+      "priority": "medium",
+      "title": "[CHANGED] 인천광역시 서구 배출정보 변경 감지",
+      "message": "지역: 인천광역시 서구\n항목: 배출정보\n변경 유형: 내용 변경",
+      "district_key": "인천광역시_서구",
+      "url_type": "info_url",
+      "created_at": "2025-09-13T17:13:35.304412",
+      "sent_at": null,
+      "channels": [],
+      "metadata": {
+        "monitoring_result": {
+          "status": "changed",
+          "change_type": "content",
+          "error_message": null,
+          "response_time": 0.292887,
+          "previous_hash": "afb41ae3814a84dc022dcdcc5da9ed4a",
+          "current_hash": "100177225ecbcfa56249f69a4be9215c"
+        }
+      }
+    },
+    {
+      "id": "인천광역시_서구_appliance_url_20250913_171347",
+      "priority": "medium",
+      "title": "[CHANGED] 인천광역시 서구 폐가전제품 변경 감지",
+      "message": "지역: 인천광역시 서구\n항목: 폐가전제품\n변경 유형: 내용 변경",
+      "district_key": "인천광역시_서구",
+      "url_type": "appliance_url",
+      "created_at": "2025-09-13T17:13:35.942692",
+      "sent_at": null,
+      "channels": [],
+      "metadata": {
+        "monitoring_result": {
+          "status": "changed",
+          "change_type": "content",
+          "error_message": null,
+          "response_time": 0.301586,
+          "previous_hash": "1a261fc907d70c9289f3c48fca6d23b3",
+          "current_hash": "2fec768397ebd091997569137e800254"
+        }
+      }
+    },
+    {
+      "id": "인천광역시_중구_info_url_20250913_171347",
+      "priority": "medium",
+      "title": "[CHANGED] 인천광역시 중구 배출정보 변경 감지",
+      "message": "지역: 인천광역시 중구\n항목: 배출정보\n변경 유형: 내용 변경",
+      "district_key": "인천광역시_중구",
+      "url_type": "info_url",
+      "created_at": "2025-09-13T17:13:36.216485",
+      "sent_at": null,
+      "channels": [],
+      "metadata": {
+        "monitoring_result": {
+          "status": "changed",
+          "change_type": "content",
+          "error_message": null,
+          "response_time": 0.244464,
+          "previous_hash": "37f0ca978d79e66673c92a70dc1a12f0",
+          "current_hash": "86b5865510ca8b0603e5170b90a66109"
+        }
+      }
+    },
+    {
+      "id": "인천광역시_동구_info_url_20250913_171347",
+      "priority": "medium",
+      "title": "[CHANGED] 인천광역시 동구 배출정보 변경 감지",
+      "message": "지역: 인천광역시 동구\n항목: 배출정보\n변경 유형: 내용 변경",
+      "district_key": "인천광역시_동구",
+      "url_type": "info_url",
+      "created_at": "2025-09-13T17:13:37.047413",
+      "sent_at": null,
+      "channels": [],
+      "metadata": {
+        "monitoring_result": {
+          "status": "changed",
+          "change_type": "content",
+          "error_message": null,
+          "response_time": 0.316226,
+          "previous_hash": "db5cbb6261e01ecbd53090fbced3efc6",
+          "current_hash": "5100ac17407bf51650712a5b3e123762"
+        }
+      }
+    },
+    {
+      "id": "인천광역시_동구_system_url_20250913_171347",
+      "priority": "medium",
+      "title": "[CHANGED] 인천광역시 동구 시스템 변경 감지",
+      "message": "지역: 인천광역시 동구\n항목: 시스템\n변경 유형: 내용 변경",
+      "district_key": "인천광역시_동구",
+      "url_type": "system_url",
+      "created_at": "2025-09-13T17:13:37.385566",
+      "sent_at": null,
+      "channels": [],
+      "metadata": {
+        "monitoring_result": {
+          "status": "changed",
+          "change_type": "content",
+          "error_message": null,
+          "response_time": 0.327145,
+          "previous_hash": "35171fbc746c8fbfc733be681ada8652",
+          "current_hash": "b8230cbf9ed6c888a4b384aa7518721e"
+        }
+      }
+    },
+    {
+      "id": "인천광역시_동구_fee_url_20250913_171347",
+      "priority": "medium",
+      "title": "[CHANGED] 인천광역시 동구 수수료 변경 감지",
+      "message": "지역: 인천광역시 동구\n항목: 수수료\n변경 유형: 내용 변경",
+      "district_key": "인천광역시_동구",
+      "url_type": "fee_url",
+      "created_at": "2025-09-13T17:13:37.715932",
+      "sent_at": null,
+      "channels": [],
+      "metadata": {
+        "monitoring_result": {
+          "status": "changed",
+          "change_type": "content",
+          "error_message": null,
+          "response_time": 0.324362,
+          "previous_hash": "9ce53d2722822ddd0f78be825065a98d",
+          "current_hash": "72d64c9d044c8c8e91dcc9000cbeef98"
+        }
+      }
+    },
+    {
+      "id": "인천광역시_동구_appliance_url_20250913_171347",
+      "priority": "medium",
+      "title": "[CHANGED] 인천광역시 동구 폐가전제품 변경 감지",
+      "message": "지역: 인천광역시 동구\n항목: 폐가전제품\n변경 유형: 내용 변경",
+      "district_key": "인천광역시_동구",
+      "url_type": "appliance_url",
+      "created_at": "2025-09-13T17:13:38.019210",
+      "sent_at": null,
+      "channels": [],
+      "metadata": {
+        "monitoring_result": {
+          "status": "changed",
+          "change_type": "content",
+          "error_message": null,
+          "response_time": 0.297273,
+          "previous_hash": "d1a76077ac5431fe2323d7674b117be9",
+          "current_hash": "176242ac687ba6826fe36d9592ef6ef6"
+        }
+      }
+    },
+    {
+      "id": "강원특별자치도_정선군_info_url_20250913_171347",
+      "priority": "medium",
+      "title": "[CHANGED] 강원특별자치도 정선군 배출정보 변경 감지",
+      "message": "지역: 강원특별자치도 정선군\n항목: 배출정보\n변경 유형: 내용 변경",
+      "district_key": "강원특별자치도_정선군",
+      "url_type": "info_url",
+      "created_at": "2025-09-13T17:13:38.539280",
+      "sent_at": null,
+      "channels": [],
+      "metadata": {
+        "monitoring_result": {
+          "status": "changed",
+          "change_type": "content",
+          "error_message": null,
+          "response_time": 0.48452,
+          "previous_hash": "c61fae857b0de5c8b1c27a9e42201212",
+          "current_hash": "b385cdb157272046f665c51eef8abffc"
+        }
+      }
+    },
+    {
+      "id": "강원특별자치도_동해시_info_url_20250913_171347",
+      "priority": "medium",
+      "title": "[CHANGED] 강원특별자치도 동해시 배출정보 변경 감지",
+      "message": "지역: 강원특별자치도 동해시\n항목: 배출정보\n변경 유형: 내용 변경",
+      "district_key": "강원특별자치도_동해시",
+      "url_type": "info_url",
+      "created_at": "2025-09-13T17:13:39.457475",
+      "sent_at": null,
+      "channels": [],
+      "metadata": {
+        "monitoring_result": {
+          "status": "changed",
+          "change_type": "content",
+          "error_message": null,
+          "response_time": 0.872074,
+          "previous_hash": "d4e5c30a464b247e993bc9e2d85fd8c7",
+          "current_hash": "9666b3612b6cd88a27884b94a1145934"
+        }
+      }
+    },
+    {
+      "id": "강원특별자치도_동해시_fee_url_20250913_171347",
+      "priority": "medium",
+      "title": "[CHANGED] 강원특별자치도 동해시 수수료 변경 감지",
+      "message": "지역: 강원특별자치도 동해시\n항목: 수수료\n변경 유형: 내용 변경",
+      "district_key": "강원특별자치도_동해시",
+      "url_type": "fee_url",
+      "created_at": "2025-09-13T17:13:40.234860",
+      "sent_at": null,
+      "channels": [],
+      "metadata": {
+        "monitoring_result": {
+          "status": "changed",
+          "change_type": "content",
+          "error_message": null,
+          "response_time": 0.764391,
+          "previous_hash": "d4e5c30a464b247e993bc9e2d85fd8c7",
+          "current_hash": "9666b3612b6cd88a27884b94a1145934"
+        }
+      }
+    },
+    {
+      "id": "인천광역시_미추홀구_info_url_20250913_171347",
+      "priority": "medium",
+      "title": "[CHANGED] 인천광역시 미추홀구 배출정보 변경 감지",
+      "message": "지역: 인천광역시 미추홀구\n항목: 배출정보\n변경 유형: 내용 변경",
+      "district_key": "인천광역시_미추홀구",
+      "url_type": "info_url",
+      "created_at": "2025-09-13T17:13:40.682982",
+      "sent_at": null,
+      "channels": [],
+      "metadata": {
+        "monitoring_result": {
+          "status": "changed",
+          "change_type": "content",
+          "error_message": null,
+          "response_time": 0.409341,
+          "previous_hash": "38c116f588bd7f5d9bab9b6476be7d10",
+          "current_hash": "b4b39b168a98968163c0e05c3ac6355c"
+        }
+      }
+    },
+    {
+      "id": "인천광역시_남동구_info_url_20250913_171347",
+      "priority": "medium",
+      "title": "[CHANGED] 인천광역시 남동구 배출정보 변경 감지",
+      "message": "지역: 인천광역시 남동구\n항목: 배출정보\n변경 유형: 내용 변경",
+      "district_key": "인천광역시_남동구",
+      "url_type": "info_url",
+      "created_at": "2025-09-13T17:13:42.300491",
+      "sent_at": null,
+      "channels": [],
+      "metadata": {
+        "monitoring_result": {
+          "status": "changed",
+          "change_type": "content",
+          "error_message": null,
+          "response_time": 0.413849,
+          "previous_hash": "4a32c52d709fa38fe3ac5cedf09372eb",
+          "current_hash": "fae52b4cfe9c88331cee6171a60a0952"
+        }
+      }
+    },
+    {
+      "id": "인천광역시_남동구_system_url_20250913_171348",
+      "priority": "medium",
+      "title": "[CHANGED] 인천광역시 남동구 시스템 변경 감지",
+      "message": "지역: 인천광역시 남동구\n항목: 시스템\n변경 유형: 내용 변경",
+      "district_key": "인천광역시_남동구",
+      "url_type": "system_url",
+      "created_at": "2025-09-13T17:13:42.829241",
+      "sent_at": null,
+      "channels": [],
+      "metadata": {
+        "monitoring_result": {
+          "status": "changed",
+          "change_type": "content",
+          "error_message": null,
+          "response_time": 0.469507,
+          "previous_hash": "38a820fb7205a724cb2be0c8b9c4e00d",
+          "current_hash": "3d9e6043f8a1b645c2e9d506e687463b"
+        }
+      }
+    },
+    {
+      "id": "인천광역시_남동구_fee_url_20250913_171348",
+      "priority": "medium",
+      "title": "[CHANGED] 인천광역시 남동구 수수료 변경 감지",
+      "message": "지역: 인천광역시 남동구\n항목: 수수료\n변경 유형: 내용 변경",
+      "district_key": "인천광역시_남동구",
+      "url_type": "fee_url",
+      "created_at": "2025-09-13T17:13:43.187868",
+      "sent_at": null,
+      "channels": [],
+      "metadata": {
+        "monitoring_result": {
+          "status": "changed",
+          "change_type": "content",
+          "error_message": null,
+          "response_time": 0.346622,
+          "previous_hash": "58d8565823f735942030a0367bade460",
+          "current_hash": "16e4fc9b7fa60e3b85f51bb96d153732"
+        }
+      }
+    },
+    {
+      "id": "인천광역시_부평구_system_url_20250913_171348",
+      "priority": "medium",
+      "title": "[CHANGED] 인천광역시 부평구 시스템 변경 감지",
+      "message": "지역: 인천광역시 부평구\n항목: 시스템\n변경 유형: 내용 변경",
+      "district_key": "인천광역시_부평구",
+      "url_type": "system_url",
+      "created_at": "2025-09-13T17:13:43.981713",
+      "sent_at": null,
+      "channels": [],
+      "metadata": {
+        "monitoring_result": {
+          "status": "changed",
+          "change_type": "content",
+          "error_message": null,
+          "response_time": 0.291923,
+          "previous_hash": "b1bcbd0d9bd644353dada61a384d2ecb",
+          "current_hash": "c785125cd6c3670e2ace956fd4143bd8"
+        }
+      }
+    },
+    {
+      "id": "인천광역시_계양구_info_url_20250913_171348",
+      "priority": "medium",
+      "title": "[CHANGED] 인천광역시 계양구 배출정보 변경 감지",
+      "message": "지역: 인천광역시 계양구\n항목: 배출정보\n변경 유형: 내용 변경",
+      "district_key": "인천광역시_계양구",
+      "url_type": "info_url",
+      "created_at": "2025-09-13T17:13:44.894386",
+      "sent_at": null,
+      "channels": [],
+      "metadata": {
+        "monitoring_result": {
+          "status": "changed",
+          "change_type": "content",
+          "error_message": null,
+          "response_time": 0.34871,
+          "previous_hash": "de034a4720c4936a55b88c12cc2891bb",
+          "current_hash": "0aed4d5fe97566ca21b053fec83450b8"
+        }
+      }
+    },
+    {
+      "id": "인천광역시_계양구_system_url_20250913_171348",
+      "priority": "medium",
+      "title": "[CHANGED] 인천광역시 계양구 시스템 변경 감지",
+      "message": "지역: 인천광역시 계양구\n항목: 시스템\n변경 유형: 내용 변경",
+      "district_key": "인천광역시_계양구",
+      "url_type": "system_url",
+      "created_at": "2025-09-13T17:13:45.137093",
+      "sent_at": null,
+      "channels": [],
+      "metadata": {
+        "monitoring_result": {
+          "status": "changed",
+          "change_type": "content",
+          "error_message": null,
+          "response_time": 0.237707,
+          "previous_hash": "68ccfd7c8e9ec62fca9e7e9bad0fd5e6",
+          "current_hash": "637f4a235c26df7b2da8abf7de02b510"
+        }
+      }
+    },
+    {
+      "id": "인천광역시_계양구_fee_url_20250913_171348",
+      "priority": "medium",
+      "title": "[CHANGED] 인천광역시 계양구 수수료 변경 감지",
+      "message": "지역: 인천광역시 계양구\n항목: 수수료\n변경 유형: 내용 변경",
+      "district_key": "인천광역시_계양구",
+      "url_type": "fee_url",
+      "created_at": "2025-09-13T17:13:45.409579",
+      "sent_at": null,
+      "channels": [],
+      "metadata": {
+        "monitoring_result": {
+          "status": "changed",
+          "change_type": "content",
+          "error_message": null,
+          "response_time": 0.266222,
+          "previous_hash": "3dc8cc06b72a2fefaabb12bacfb8aa74",
+          "current_hash": "c9dc13d79050b0ed785b70f8e5668780"
+        }
+      }
+    },
+    {
+      "id": "인천광역시_강화군_info_url_20250913_171348",
+      "priority": "medium",
+      "title": "[CHANGED] 인천광역시 강화군 배출정보 변경 감지",
+      "message": "지역: 인천광역시 강화군\n항목: 배출정보\n변경 유형: 내용 변경",
+      "district_key": "인천광역시_강화군",
+      "url_type": "info_url",
+      "created_at": "2025-09-13T17:13:46.022304",
+      "sent_at": null,
+      "channels": [],
+      "metadata": {
+        "monitoring_result": {
+          "status": "changed",
+          "change_type": "content",
+          "error_message": null,
+          "response_time": 0.397781,
+          "previous_hash": "073df5b05d8633c6f381aa0efda21f40",
+          "current_hash": "eb237d05f3b73c52a348f29f6f407877"
+        }
+      }
+    },
+    {
+      "id": "인천광역시_강화군_fee_url_20250913_171348",
+      "priority": "medium",
+      "title": "[CHANGED] 인천광역시 강화군 수수료 변경 감지",
+      "message": "지역: 인천광역시 강화군\n항목: 수수료\n변경 유형: 파일 변경",
+      "district_key": "인천광역시_강화군",
+      "url_type": "fee_url",
+      "created_at": "2025-09-13T17:13:46.024049",
+      "sent_at": null,
+      "channels": [],
+      "metadata": {
+        "monitoring_result": {
+          "status": "changed",
+          "change_type": "file",
+          "error_message": null,
+          "response_time": null,
+          "previous_hash": null,
+          "current_hash": "2c6cd8d89f24e15a1bf807fddb576b9f"
+        }
+      }
     }
   ],
   "metadata": {
     "created_at": "2025-09-08T00:07:06.879643",
-    "last_updated": "2025-09-09T09:18:36.795205"
+    "last_updated": "2025-09-13T17:13:48.361837"
   }
 }
