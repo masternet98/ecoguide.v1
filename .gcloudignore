@@ -62,6 +62,7 @@ yolov8n-hands.pt
 # .streamlit/
 
 # Documentation files (개발용)
+instructions/done/
 AGENTS.md
 REFACTORING_SUMMARY.md
 sc_*.md

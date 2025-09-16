@@ -18,6 +18,7 @@ venv
 run.bat
 Dockerfile
 test_*.py
+instructions/done/
 
 # Directories not needed in the image
 downloads

@@ -60,6 +60,8 @@ tmp/
 temp/
 
 # Development documentation (일시적)
+instructions/done/
+instructions/review/
 sc_*.md
 
 # Claude Code specific
