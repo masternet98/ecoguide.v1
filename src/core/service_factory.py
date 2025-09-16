@@ -114,9 +114,9 @@ class ServiceFactory:
             
             # 인스턴스 생성
             if dependencies:
-                instance = service_class(config=self.config, **dependencies)
+                instance = self._create_service_instance(service_class, service_name, **dependencies)
             else:
-                instance = service_class(config=self.config)
+                instance = self._create_service_instance(service_class, service_name)
             
             # Singleton 캐싱
             if descriptor.singleton:
@@ -137,6 +137,21 @@ class ServiceFactory:
             if not descriptor.is_optional:
                 raise
             return None
+    
+    def _create_service_instance(self, service_class, service_name: str, **dependencies):
+        """서비스별 특수한 설정을 처리하여 인스턴스를 생성합니다."""
+        if service_name == 'prompt_service':
+            # PromptService는 PromptConfig를 필요로 함
+            return service_class(config=self.config.prompts, **dependencies)
+        elif service_name == 'vision_service':
+            # VisionService는 VisionConfig를 필요로 함
+            return service_class(config=self.config.vision, **dependencies)
+        elif service_name == 'district_service':
+            # DistrictService는 DistrictConfig를 필요로 함
+            return service_class(config=self.config.district, **dependencies)
+        else:
+            # 기본적으로 전체 Config 전달
+            return service_class(config=self.config, **dependencies)
 
 
 class DependencyResolver:
@@ -173,6 +188,7 @@ def create_default_service_registry(config: Config) -> ServiceRegistry:
     registry.set_feature_flag('vision_enabled', True)  # 기본적으로 비전 기능 활성화
     registry.set_feature_flag('tunnel_enabled', True)   # 터널 기능 활성화
     registry.set_feature_flag('district_enabled', True) # 행정구역 기능 활성화
+    registry.set_feature_flag('prompt_enabled', True)   # 프롬프트 관리 기능 활성화
     
     # OpenAI Service 등록
     registry.register_service(
@@ -214,6 +230,17 @@ def create_default_service_registry(config: Config) -> ServiceRegistry:
         dependencies=[],
         is_optional=True,
         feature_flag='district_enabled',
+        singleton=True
+    )
+    
+    # Prompt Service 등록
+    registry.register_service(
+        name='prompt_service',
+        service_class=type('PromptService', (), {}),
+        module_path='src.services.prompt_service',
+        dependencies=[],
+        is_optional=False,
+        feature_flag='prompt_enabled',
         singleton=True
     )
     

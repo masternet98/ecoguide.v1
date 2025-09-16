@@ -88,7 +88,8 @@ class DependencyChecker:
             """웹 관련 의존성 체크"""
             try:
                 import requests
-                import beautifulsoup4
+                import bs4
+                from bs4 import BeautifulSoup
                 return True, "Web dependencies available"
             except ImportError as e:
                 return False, f"Missing web dependencies: {e}"
@@ -116,7 +117,11 @@ class DependencyChecker:
             else:
                 # 일반적인 import 체크
                 try:
-                    __import__(dep)
+                    # 특수한 경우 처리: beautifulsoup4는 bs4로 import
+                    if dep == 'beautifulsoup4':
+                        __import__('bs4')
+                    else:
+                        __import__(dep)
                 except ImportError:
                     errors.append(f"Missing dependency: {dep}")
         

@@ -255,6 +255,24 @@ class EcoGuideLogger:
 logger = EcoGuideLogger()
 
 
+def get_logger(name: str = None) -> logging.Logger:
+    """
+    표준 Python 로거를 반환합니다.
+    
+    Args:
+        name: 로거 이름 (기본값: 호출한 모듈 이름)
+        
+    Returns:
+        logging.Logger 인스턴스
+    """
+    if name is None:
+        import inspect
+        frame = inspect.currentframe().f_back
+        name = frame.f_globals.get('__name__', 'unknown')
+    
+    return logging.getLogger(name)
+
+
 def log_function(category: LogCategory, 
                 step_name: Optional[str] = None,
                 include_args: bool = False,

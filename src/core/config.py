@@ -9,6 +9,7 @@ from typing import List, Optional, Dict, Any
 import os
 
 from src.services.vision_types import VisionConfig
+from src.core.prompt_types import PromptConfig
 
 
 @dataclass
@@ -112,6 +113,9 @@ class Config:
     
     # Search Provider configuration
     search_providers: SearchProviderConfig = field(default_factory=SearchProviderConfig)
+    
+    # Prompt management configuration
+    prompts: PromptConfig = field(default_factory=PromptConfig)
 
 
 def load_config() -> Config:
