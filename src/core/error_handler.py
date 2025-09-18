@@ -300,14 +300,17 @@ class ErrorHandler:
     
     def _handle_unknown_error(self, exception: Exception) -> ErrorInfo:
         """알 수 없는 예외 처리"""
+        exception_type = type(exception).__name__
+        exception_message = str(exception)
+
         return ErrorInfo(
             error_id=f"unknown_{id(exception)}",
             category=ErrorCategory.UNKNOWN,
             severity=ErrorSeverity.MEDIUM,
             title="예상치 못한 오류",
-            message="예상치 못한 오류가 발생했습니다.",
+            message=f"예상치 못한 오류가 발생했습니다: {exception_type} - {exception_message}",
             suggestion="문제가 지속되면 관리자에게 문의해주세요.",
-            details=str(exception)
+            details=f"Exception: {exception_type}\nMessage: {exception_message}\nArgs: {exception.args}"
         )
     
     def _log_error(self, error_info: ErrorInfo) -> None:
@@ -318,10 +321,31 @@ class ErrorHandler:
             ErrorSeverity.HIGH: logging.ERROR,
             ErrorSeverity.CRITICAL: logging.CRITICAL
         }.get(error_info.severity, logging.ERROR)
-        
+
+        # 기본 로그 메시지
+        log_message = f"[{error_info.error_id}] {error_info.title}: {error_info.message}"
+
+        # 상세 정보가 있으면 추가
+        if error_info.details:
+            log_message += f"\nDetails: {error_info.details}"
+
+        # 컨텍스트 정보가 있으면 추가
+        if error_info.context:
+            context_info = []
+            if error_info.context.service_name:
+                context_info.append(f"Service: {error_info.context.service_name}")
+            if error_info.context.function_name:
+                context_info.append(f"Function: {error_info.context.function_name}")
+            if context_info:
+                log_message += f"\nContext: {', '.join(context_info)}"
+
+        # 스택 트레이스가 있으면 포함 (UNKNOWN 카테고리인 경우)
+        if error_info.category == ErrorCategory.UNKNOWN and error_info.stack_trace:
+            log_message += f"\nStack trace:\n{error_info.stack_trace}"
+
         logger.log(
             log_level,
-            f"[{error_info.error_id}] {error_info.title}: {error_info.message}",
+            log_message,
             extra={'error_info': error_info}
         )
     
