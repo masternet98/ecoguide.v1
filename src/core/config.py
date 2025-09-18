@@ -89,6 +89,33 @@ class SearchProviderConfig:
 
 
 @dataclass
+class LocationConfig:
+    """
+    위치 기반 서비스 관련 설정을 포함하는 데이터 클래스입니다.
+    VWorld (브이월드) API를 사용한 역지오코딩 서비스
+    """
+    # VWorld API 설정
+    vworld_api_key: Optional[str] = field(default_factory=lambda: os.environ.get('VWORLD_API_KEY'))
+
+    # VWorld API 엔드포인트
+    vworld_geocode_url: str = "https://api.vworld.kr/req/address"
+
+    # 기본 설정
+    default_timeout: int = 10
+    max_retry_attempts: int = 2
+    enable_gps: bool = True
+    enable_manual_selection: bool = True
+
+    # 위치 정확도 설정
+    coordinate_precision: int = 6  # 소수점 자리수
+    location_cache_duration: int = 3600  # 위치 캐시 지속시간 (초)
+
+    # UI 설정
+    location_selector_expanded: bool = False  # 위치 선택기 기본 확장 여부
+    show_coordinate_info: bool = False  # 좌표 정보 표시 여부
+
+
+@dataclass
 class Config:
     """
     애플리케이션의 모든 설정을 포함하는 데이터 클래스입니다.
@@ -107,15 +134,18 @@ class Config:
 
     # Vision-specific configuration (uses VisionConfig from src.services.vision_types)
     vision: VisionConfig = field(default_factory=VisionConfig)
-    
+
     # District-specific configuration
     district: DistrictConfig = field(default_factory=DistrictConfig)
-    
+
     # Search Provider configuration
     search_providers: SearchProviderConfig = field(default_factory=SearchProviderConfig)
-    
+
     # Prompt management configuration
     prompts: PromptConfig = field(default_factory=PromptConfig)
+
+    # Location-specific configuration
+    location: LocationConfig = field(default_factory=LocationConfig)
 
 
 def load_config() -> Config:

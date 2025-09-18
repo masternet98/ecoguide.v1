@@ -9,6 +9,7 @@ from src.components.analysis.image_analysis import ImageAnalysisComponent
 from src.components.analysis.results_display import ResultsDisplayComponent
 from src.components.prompts.prompt_manager import PromptManagerComponent
 from src.components.prompts.prompt_selector import PromptSelectorComponent
+from src.components.location_selector import LocationSelectorComponent
 from src.core.session_state import SessionStateManager
 
 
@@ -31,23 +32,43 @@ class AnalysisInterfaceComponent(BaseComponent):
         self.results_display = ResultsDisplayComponent(app_context)
         self.prompt_manager = PromptManagerComponent(app_context)
         self.prompt_selector = PromptSelectorComponent(app_context)
+        self.location_selector = LocationSelectorComponent(app_context)
     
     def render(self, model: str) -> None:
         """
         이미지 분석 인터페이스를 렌더링합니다.
-        
+
         Args:
             model: 사용할 모델명
         """
+        # 위치 선택 UI 먼저 렌더링
+        location_selected = self.location_selector.render()
+
+        # 위치 정보 요약 표시 (위치가 선택된 경우)
+        location_summary = SessionStateManager.get_current_location_summary()
+        if location_summary:
+            st.info(f"📍 **선택된 위치**: {location_summary}")
+
+        st.markdown("---")  # 구분선 추가
+
         # 프롬프트 관리 시스템 사용
         default_prompt = self.config.default_prompt if self.config else ""
         prompt = self.prompt_manager.get_managed_prompt("camera_analysis", default_prompt)
-        
+
+        # 위치 정보가 있으면 프롬프트에 위치 컨텍스트 추가
+        if location_selected and location_selected.get('success'):
+            location_data = location_selected['data']
+            sido = location_data.get('sido', '')
+            sigungu = location_data.get('sigungu', '')
+            if sido and sigungu:
+                location_context = f"\n\n[위치 정보: {sido} {sigungu} 지역]"
+                prompt = prompt + location_context
+
         st.subheader("📝 프롬프트 설정")
-        
+
         # 관리되는 프롬프트 선택 UI
         self.prompt_selector.render("camera_analysis")
-        
+
         # 프롬프트 입력/편집 UI
         prompt = st.text_area(label="입력 프롬프트", value=prompt, height=100, key="prompt_input")
         

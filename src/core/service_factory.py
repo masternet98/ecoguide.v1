@@ -149,6 +149,9 @@ class ServiceFactory:
         elif service_name == 'district_service':
             # DistrictService는 DistrictConfig를 필요로 함
             return service_class(config=self.config.district, **dependencies)
+        elif service_name == 'location_service':
+            # LocationService는 LocationConfig를 필요로 함
+            return service_class(config=self.config.location, **dependencies)
         else:
             # 기본적으로 전체 Config 전달
             return service_class(config=self.config, **dependencies)
@@ -189,6 +192,7 @@ def create_default_service_registry(config: Config) -> ServiceRegistry:
     registry.set_feature_flag('tunnel_enabled', True)   # 터널 기능 활성화
     registry.set_feature_flag('district_enabled', True) # 행정구역 기능 활성화
     registry.set_feature_flag('prompt_enabled', True)   # 프롬프트 관리 기능 활성화
+    registry.set_feature_flag('location_enabled', True) # 위치 서비스 기능 활성화
     
     # OpenAI Service 등록
     registry.register_service(
@@ -243,7 +247,18 @@ def create_default_service_registry(config: Config) -> ServiceRegistry:
         feature_flag='prompt_enabled',
         singleton=True
     )
-    
+
+    # Location Service 등록
+    registry.register_service(
+        name='location_service',
+        service_class=type('LocationService', (), {}),
+        module_path='src.services.location_service',
+        dependencies=[],
+        is_optional=True,
+        feature_flag='location_enabled',
+        singleton=True
+    )
+
     return registry
 
 

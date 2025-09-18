@@ -6,6 +6,7 @@
 """
 from typing import Optional
 import logging
+from dotenv import load_dotenv
 
 from src.core.config import Config, load_config
 from src.core.config_validator import ensure_valid_config
@@ -57,6 +58,13 @@ class ApplicationFactory:
             ApplicationContext: 초기화된 애플리케이션 컨텍스트
         """
         logger.info("Creating application context...")
+        
+        # Load environment variables from .env (if present), without overriding existing env
+        try:
+            load_dotenv(override=False)
+            logger.info(".env loaded (if present)")
+        except Exception as e:
+            logger.warning(f"Failed to load .env: {e}")
         
         try:
             # 1. 설정 로드 및 검증

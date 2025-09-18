@@ -36,6 +36,7 @@ def main():
     # 체계적인 세션 상태 관리
     SessionStateManager.init_image_state()
     SessionStateManager.init_ui_state()
+    SessionStateManager.init_location_state()
     
     # 레이아웃 및 페이지 컴포넌트 초기화
     layout = MainLayoutComponent(app_context)
