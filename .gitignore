@@ -66,3 +66,5 @@ sc_*.md
 
 # Claude Code specific
 .claude/
+uploads/dong_cache/
+uploads/dong_cache
