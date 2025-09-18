@@ -145,9 +145,11 @@ st.header("환경 및 키 설정")
 st.write("현재 .env 로드 우선순위: Streamlit secrets → 환경변수 → .env 파일")
 if st.button("환경변수(.env) 다시 로드"):
     try:
-        rerun_fn = getattr(st, "experimental_rerun", None)
-        if callable(rerun_fn):
-            rerun_fn()
+        # 최신 Streamlit에서는 st.rerun() 사용
+        if hasattr(st, "rerun"):
+            st.rerun()
+        elif hasattr(st, "experimental_rerun"):
+            st.experimental_rerun()
         else:
             st.session_state["_admin_rerun_toggle"] = not st.session_state.get("_admin_rerun_toggle", False)
     except Exception:
