@@ -531,6 +531,9 @@ def process_district_csv(csv_content: bytes, output_filename: Optional[str] = No
                 f"시도명+시군구명 조합별 중복 계산 - 고유 시도시군구: {len(duplicate_counts):,}개"
             )
             
+            # 중복 제거 전 원본 데이터 백업 (dong_hierarchy 생성용)
+            df_original_for_dong = df.copy()
+
             # 시도명+시군구명 조합 기준으로 중복 제거 (첫 번째 행 유지)
             before_dedup = len(df)
             df_unique = df.drop_duplicates(subset=['시도명', '시군구명'], keep='first')
@@ -566,6 +569,67 @@ def process_district_csv(csv_content: bytes, output_filename: Optional[str] = No
                 f"JSON 변환 시작 - 최종 데이터 수: {unique_count:,}"
             )
             
+            # 동 계층구조 생성 (법정동 데이터를 시도>시군구>법정동으로 구조화)
+            log_info(
+                LogCategory.CSV_PROCESSING, module_name, function_name, "동_계층구조_생성_시작",
+                f"동 계층구조 생성 시작 - 원본 데이터: {len(df_original_for_dong):,}개"
+            )
+
+            dong_hierarchy = {}
+            dong_count = 0
+
+            def _normalize_admin_field(value: Any) -> str:
+                # ???? ???? ???NaN? ??
+                if value is None or pd.isna(value):
+                    return ""
+                text = str(value).strip()
+                if not text or text.lower() == "nan":
+                    return ""
+                return text
+
+            for _, row in df_original_for_dong.iterrows():
+                sido = _normalize_admin_field(row.get('시도명'))
+                sigungu = _normalize_admin_field(row.get('시군구명'))
+                dong = _normalize_admin_field(row.get('읍면동명'))
+                code = _normalize_admin_field(row.get('법정동코드'))
+
+                # 빈 값 체크
+                if not sido or not sigungu or not dong or not code:
+                    continue
+
+                # 계층구조 생성
+                if sido not in dong_hierarchy:
+                    dong_hierarchy[sido] = {}
+                if sigungu not in dong_hierarchy[sido]:
+                    dong_hierarchy[sido][sigungu] = []
+
+                # 동 정보 추가 (중복 방지)
+                dong_info = {
+                    "dong": dong,
+                    "code": code,
+                    "type": "법정동"
+                }
+
+                # 같은 시도-시군구-동 조합의 중복 방지
+                existing_dong = next(
+                    (item for item in dong_hierarchy[sido][sigungu] if item["dong"] == dong),
+                    None
+                )
+
+                if not existing_dong:
+                    dong_hierarchy[sido][sigungu].append(dong_info)
+                    dong_count += 1
+
+            # 동 목록을 가나다순으로 정렬
+            for sido in dong_hierarchy:
+                for sigungu in dong_hierarchy[sido]:
+                    dong_hierarchy[sido][sigungu].sort(key=lambda x: x["dong"])
+
+            log_info(
+                LogCategory.CSV_PROCESSING, module_name, function_name, "동_계층구조_생성_완료",
+                f"동 계층구조 생성 완료 - 시도: {len(dong_hierarchy)}개, 총 동: {dong_count}개"
+            )
+
             # JSON으로 변환할 데이터 준비 (타입 변환 포함)
             json_data = {
                 "metadata": {
@@ -575,25 +639,33 @@ def process_district_csv(csv_content: bytes, output_filename: Optional[str] = No
                     "after_cleanup_count": int(after_cleanup_count),
                     "unique_districts_count": int(unique_count),
                     "removed_duplicates": int(after_cleanup_count - unique_count),
+                    "dong_hierarchy_count": int(dong_count),
                     "processing_notes": "삭제일자가 있는 폐지된 법정동은 제외됨"
                 },
-                "districts": df_unique.to_dict('records')
+                "districts": df_unique.to_dict('records'),
+                "dong_hierarchy": dong_hierarchy
             }
             
             # DataFrame의 데이터 타입을 표준 Python 타입으로 변환
             for district in json_data["districts"]:
                 for key, value in district.items():
+                    if isinstance(value, str):
+                        normalized_value = value.strip()
+                        if not normalized_value or normalized_value.lower() == "nan":
+                            district[key] = None
+                        else:
+                            district[key] = normalized_value
+                        continue
                     if pd.isna(value):
                         district[key] = None
                     elif isinstance(value, (pd.Int64Dtype, pd.Timestamp)):
                         district[key] = str(value)
-                    elif hasattr(value, 'item'):  # numpy/pandas 스칼라 타입
+                    elif hasattr(value, 'item'):  # numpy/pandas ??? ??
                         district[key] = value.item()
-                    elif isinstance(value, (int, float, str, bool)):
+                    elif isinstance(value, (int, float, bool)):
                         district[key] = value
                     else:
                         district[key] = str(value)
-            
             # 출력 파일명 생성
             if not output_filename:
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -757,6 +829,90 @@ def get_district_files(config: Optional[DistrictConfig] = None) -> List[Dict[str
     # 생성일시 기준 내림차순 정렬
     files.sort(key=lambda x: x["created_time"], reverse=True)
     return files
+
+
+def get_latest_district_file(config: Optional[DistrictConfig] = None) -> Optional[str]:
+    """
+    가장 최근에 성공적으로 업데이트된 행정구역 JSON 파일의 경로를 반환합니다.
+
+    우선순위:
+    1. 파일 수정 시간이 가장 최근인 파일
+    2. dong_hierarchy가 포함된 파일 우선
+    3. force 업데이트 파일 우선
+
+    Args:
+        config: District 설정 (None이면 기본 config 사용)
+
+    Returns:
+        최신 파일의 전체 경로 또는 None
+    """
+    # Config 로드
+    if config is None:
+        from src.core.config import load_config
+        config = load_config().district
+
+    uploads_dir = config.uploads_dir
+    if not os.path.exists(uploads_dir):
+        return None
+
+    # 모든 district 파일 찾기
+    all_files = []
+    for filename in os.listdir(uploads_dir):
+        if filename.startswith(f"{config.file_prefix}_") and filename.endswith(f".{config.file_extension}"):
+            file_path = os.path.join(uploads_dir, filename)
+            try:
+                stat = os.stat(file_path)
+
+                # JSON 파일 유효성 및 dong_hierarchy 존재 여부 확인
+                has_dong_hierarchy = False
+                is_valid = False
+                try:
+                    with open(file_path, 'r', encoding='utf-8') as f:
+                        data = json.load(f)
+                        is_valid = True
+                        has_dong_hierarchy = 'dong_hierarchy' in data and bool(data['dong_hierarchy'])
+                except:
+                    pass
+
+                # 우선순위 계산
+                priority = 0
+
+                # 1. dong_hierarchy 포함 파일에 높은 우선순위
+                if has_dong_hierarchy:
+                    priority += 1000
+
+                # 2. force 업데이트 파일에 중간 우선순위
+                if '_force_' in filename:
+                    priority += 100
+
+                # 3. 파일 수정 시간을 초 단위로 추가 (최근일수록 높음)
+                priority += int(stat.st_mtime)
+
+                all_files.append({
+                    "filename": filename,
+                    "file_path": file_path,
+                    "mtime": stat.st_mtime,
+                    "has_dong_hierarchy": has_dong_hierarchy,
+                    "is_force": '_force_' in filename,
+                    "is_valid": is_valid,
+                    "priority": priority
+                })
+
+            except OSError:
+                continue
+
+    if not all_files:
+        return None
+
+    # 유효한 파일만 필터링
+    valid_files = [f for f in all_files if f["is_valid"]]
+    if not valid_files:
+        return None
+
+    # 우선순위 기준 내림차순 정렬
+    valid_files.sort(key=lambda x: x["priority"], reverse=True)
+
+    return valid_files[0]["file_path"]
 
 
 def preview_district_file(file_path: str, limit: int = 10) -> Dict[str, Any]:
@@ -1898,3 +2054,164 @@ def delete_all_district_files(config: Optional[DistrictConfig] = None) -> Dict[s
             "failed_count": failed_count,
             "update_info_cleared": clear_result["success"] if failed_count == 0 else False
         }
+
+
+@log_function(LogCategory.WEB_SCRAPING, "강제_업데이트", include_args=False, include_result=False)
+def force_update_district_data(config: Optional[DistrictConfig] = None) -> Dict[str, Any]:
+    """
+    data.go.kr에서 날짜 체크 없이 강제로 데이터를 다운로드하고 처리합니다.
+    dong_hierarchy를 포함한 완전한 구조의 데이터를 생성합니다.
+
+    Args:
+        config: District 설정 (None이면 기본 config 사용)
+
+    Returns:
+        강제 업데이트 결과
+    """
+    module_name = "district_service"
+    function_name = "force_update_district_data"
+
+    # Config 로드
+    if config is None:
+        from src.core.config import load_config
+        config = load_config().district
+
+    log_info(
+        LogCategory.WEB_SCRAPING, module_name, function_name, "강제_업데이트_시작",
+        "data.go.kr 강제 업데이트 프로세스 시작 (날짜 체크 우회)"
+    )
+
+    # 1. 웹사이트에서 수정일 확인 (정보 수집 목적)
+    with log_step(LogCategory.WEB_SCRAPING, module_name, function_name, "웹사이트_확인"):
+        log_info(
+            LogCategory.WEB_SCRAPING, module_name, function_name, "수정일_확인_시작",
+            "웹사이트에서 데이터 수정일 확인 시작"
+        )
+
+        check_result = check_data_go_kr_update(config=config)
+        web_modification_date = None
+        if check_result["success"]:
+            web_modification_date = check_result["modification_date"]
+            log_info(
+                LogCategory.WEB_SCRAPING, module_name, function_name, "수정일_확인_완료",
+                f"웹사이트 수정일 확인 완료: {web_modification_date}"
+            )
+        else:
+            log_warning(
+                LogCategory.WEB_SCRAPING, module_name, function_name, "수정일_확인_실패",
+                f"웹사이트 수정일 확인 실패 (계속 진행): {check_result['message']}"
+            )
+
+    # 2. 로컬 업데이트 정보 확인 (정보 수집 목적)
+    with log_step(LogCategory.FILE_OPERATION, module_name, function_name, "로컬_정보_확인"):
+        local_info = get_last_update_info(config)
+        local_modification_date = local_info.get("last_modification_date")
+
+        log_info(
+            LogCategory.FILE_OPERATION, module_name, function_name, "강제_업데이트_모드",
+            f"강제 업데이트 모드 - 날짜 비교 우회. 웹: {web_modification_date}, 로컬: {local_modification_date}"
+        )
+
+    # 3. 강제 다운로드 진행
+    with log_step(LogCategory.WEB_SCRAPING, module_name, function_name, "강제_다운로드"):
+        log_info(
+            LogCategory.WEB_SCRAPING, module_name, function_name, "강제_다운로드_시작",
+            "강제 다운로드 시작 (날짜 체크 없이 무조건 다운로드)"
+        )
+
+        download_result = download_district_data_from_web(config)
+        if not download_result["success"]:
+            error_message = download_result["message"]
+
+            # 디버그 정보 추가
+            if "debug_info" in download_result:
+                debug_info = download_result["debug_info"]
+                if "page_size" in debug_info and debug_info.get("found_params") == False:
+                    error_message += "\n\n🔍 가능한 해결방법:\n"
+                    error_message += "1. 웹사이트 구조가 변경되어 다운로드 파라미터를 찾을 수 없습니다\n"
+                    error_message += "2. 수동으로 CSV 파일을 다운로드하여 업로드해 주세요\n"
+                    error_message += f"3. 페이지 주소: {config.page_url}"
+
+            log_error(
+                LogCategory.WEB_SCRAPING, module_name, function_name, "강제_다운로드_실패",
+                f"강제 다운로드 실패: {error_message}"
+            )
+            return {
+                "success": False,
+                "action": "download_failed",
+                "message": f"강제 다운로드 실패: {error_message}",
+                "web_date": web_modification_date,
+                "local_date": local_modification_date
+            }
+
+        data_size = len(download_result.get("csv_data", b""))
+        log_info(
+            LogCategory.WEB_SCRAPING, module_name, function_name, "강제_다운로드_완료",
+            f"강제 다운로드 완료 - 크기: {data_size:,} bytes"
+        )
+
+    # 4. 다운로드된 데이터 처리 (dong_hierarchy 포함)
+    with log_step(LogCategory.CSV_PROCESSING, module_name, function_name, "강제_데이터_처리"):
+        # config를 사용하여 파일명 생성 (강제 업데이트 표시)
+        if web_modification_date:
+            date_str = web_modification_date.replace("-", "")
+            filename = f"{config.file_prefix}_force_{date_str}.{config.file_extension}"
+        else:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"{config.file_prefix}_force_{timestamp}.{config.file_extension}"
+
+        log_info(
+            LogCategory.CSV_PROCESSING, module_name, function_name, "강제_처리_시작",
+            f"강제 다운로드 데이터 처리 시작 (dong_hierarchy 포함) - 출력 파일: {filename}"
+        )
+
+        # 새로운 process_district_csv 함수 사용 (dong_hierarchy 포함)
+        process_result = process_district_csv(download_result["csv_data"], filename, config)
+
+        if not process_result["success"]:
+            log_error(
+                LogCategory.CSV_PROCESSING, module_name, function_name, "강제_처리_실패",
+                f"강제 데이터 처리 실패: {process_result['message']}"
+            )
+            return {
+                "success": False,
+                "action": "process_failed",
+                "message": f"강제 데이터 처리 실패: {process_result['message']}",
+                "web_date": web_modification_date,
+                "local_date": local_modification_date
+            }
+
+        log_info(
+            LogCategory.CSV_PROCESSING, module_name, function_name, "강제_처리_완료",
+            f"강제 데이터 처리 완료 (dong_hierarchy 포함) - 저장 경로: {process_result['file_path']}"
+        )
+
+    # 5. 업데이트 정보 저장
+    with log_step(LogCategory.FILE_OPERATION, module_name, function_name, "업데이트_정보_저장"):
+        if web_modification_date:
+            save_update_info(web_modification_date, config)
+            log_info(
+                LogCategory.FILE_OPERATION, module_name, function_name, "정보_저장_완료",
+                f"업데이트 정보 저장 완료 - 수정일: {web_modification_date}"
+            )
+        else:
+            log_warning(
+                LogCategory.FILE_OPERATION, module_name, function_name, "정보_저장_스킵",
+                "웹사이트 수정일을 확인할 수 없어 업데이트 정보 저장을 건너뜁니다"
+            )
+
+    # 6. 성공 결과 반환
+    log_info(
+        LogCategory.WEB_SCRAPING, module_name, function_name, "강제_업데이트_완료",
+        "data.go.kr 강제 업데이트 프로세스 완료"
+    )
+
+    return {
+        "success": True,
+        "action": "force_updated",
+        "message": f"강제 업데이트가 성공적으로 완료되었습니다. dong_hierarchy를 포함한 완전한 데이터 구조가 생성되었습니다.",
+        "file_path": process_result["file_path"],
+        "statistics": process_result["statistics"],
+        "web_date": web_modification_date,
+        "local_date": local_modification_date
+    }

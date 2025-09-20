@@ -5,6 +5,8 @@ Streamlit 세션 상태를 체계적으로 관리하는 모듈입니다.
 import streamlit as st
 from dataclasses import dataclass, field
 from typing import Optional, Dict, Any
+from datetime import datetime
+from pathlib import Path
 
 
 @dataclass
@@ -43,7 +45,51 @@ class LocationSessionState:
 
 
 class SessionStateManager:
-    """세션 상태를 체계적으로 관리하는 매니저 클래스"""
+    """세션 상태 전반을 관리하는 헬퍼 클래스"""
+
+    @staticmethod
+    def _get_uploads_dir(create: bool = False) -> Path:
+        """Resolve the absolute uploads directory."""
+        try:
+            base_dir = Path(__file__).resolve().parents[2]
+        except IndexError:
+            base_dir = Path.cwd()
+
+        if not base_dir.exists():
+            base_dir = Path.cwd()
+
+        uploads_dir = base_dir / 'uploads'
+        if create:
+            uploads_dir.mkdir(parents=True, exist_ok=True)
+        return uploads_dir
+
+    @staticmethod
+    def persist_user_location(location_data: Dict[str, Any], method: str) -> Dict[str, Any]:
+        """파일에 사용자 위치 정보를 저장하고 저장 결과를 반환합니다."""
+        import json
+
+        saved_location = {
+            'location_data': location_data,
+            'method': method,
+            'saved_at': datetime.now().isoformat(),
+            'version': '1.0'
+        }
+
+        storage_dir = SessionStateManager._get_uploads_dir(create=True)
+        storage_file = storage_dir / 'user_location.json'
+        storage_file.write_text(
+            json.dumps(saved_location, ensure_ascii=False, indent=2),
+            encoding='utf-8'
+        )
+
+        return saved_location
+
+    @staticmethod
+    def set_saved_location_session(saved_location: Dict[str, Any]) -> None:
+        """세션 상태에 저장된 위치 정보를 반영합니다."""
+        st.session_state.saved_user_location = saved_location
+
+
     
     @staticmethod
     def init_image_state() -> ImageSessionState:
@@ -148,7 +194,9 @@ class SessionStateManager:
         """위치 관련 세션 상태를 초기화하거나 가져옵니다"""
         location_keys = [
             'current_location', 'selected_sido', 'selected_sigungu',
-            'location_method', 'location_last_update', 'location_coordinates'
+            'location_method', 'location_last_update', 'location_coordinates',
+            # 동 정보 필드들 추가
+            'selected_dong', 'selected_legal_dong', 'selected_admin_dong', 'dong_type'
         ]
 
         for key in location_keys:
@@ -164,7 +212,12 @@ class SessionStateManager:
             selected_sigungu=st.session_state.selected_sigungu,
             location_method=st.session_state.location_method,
             last_update=st.session_state.location_last_update,
-            coordinates=st.session_state.location_coordinates
+            coordinates=st.session_state.location_coordinates,
+            # 동 정보 필드들 포함
+            selected_dong=st.session_state.selected_dong,
+            selected_legal_dong=st.session_state.selected_legal_dong,
+            selected_admin_dong=st.session_state.selected_admin_dong,
+            dong_type=st.session_state.dong_type
         )
 
     @staticmethod
@@ -216,23 +269,10 @@ class SessionStateManager:
 
     @staticmethod
     def save_user_location(location_data: Dict[str, Any], method: str) -> None:
-        """사용자 위치를 브라우저 로컬 스토리지에 저장합니다"""
+        """사용자 위치를 영구 저장하고 세션에도 반영합니다"""
         try:
-            import json
-
-            # 저장할 위치 데이터 구성
-            saved_location = {
-                'location_data': location_data,
-                'method': method,
-                'saved_at': location_data.get('last_update'),
-                'version': '1.0'
-            }
-
-            # 세션 스토리지에 저장 (브라우저 세션 유지)
-            st.session_state.saved_user_location = saved_location
-
-            # 추가적으로 Streamlit secrets에도 저장 가능 (선택사항)
-
+            saved_location = SessionStateManager.persist_user_location(location_data, method)
+            SessionStateManager.set_saved_location_session(saved_location)
         except Exception as e:
             st.warning(f"⚠️ 사용자 위치 저장 실패: {str(e)}")
 
@@ -240,18 +280,72 @@ class SessionStateManager:
     def load_user_location() -> Optional[Dict[str, Any]]:
         """저장된 사용자 위치를 로드합니다"""
         try:
+            # 1. 세션 스토리지에서 먼저 확인
             saved_location = st.session_state.get('saved_user_location')
             if saved_location:
                 return saved_location
-            return None
+
+            # 2. 파일에서 로드 시도
+            return SessionStateManager._load_from_file()
+
         except Exception as e:
             st.warning(f"⚠️ 사용자 위치 로드 실패: {str(e)}")
             return None
 
     @staticmethod
+    def _load_from_file() -> Optional[Dict[str, Any]]:
+        """파일에서 위치 정보를 로드합니다"""
+        try:
+            import json
+
+            storage_dir = SessionStateManager._get_uploads_dir(create=False)
+            storage_file = storage_dir / 'user_location.json'
+
+            if storage_file.exists():
+                with storage_file.open('r', encoding='utf-8') as f:
+                    saved_location = json.load(f)
+
+                # 세션 상태에도 로드
+                st.session_state.saved_user_location = saved_location
+                return saved_location
+
+            return None
+
+        except Exception as e:
+            st.warning(f"⚠️ 파일에서 위치 데이터 로드 실패: {str(e)}")
+            return None
+
+    @staticmethod
     def has_saved_user_location() -> bool:
         """저장된 사용자 위치가 있는지 확인합니다"""
-        return st.session_state.get('saved_user_location') is not None
+        # 1. 세션에서 먼저 확인
+        if st.session_state.get('saved_user_location') is not None:
+            return True
+
+        # 2. 파일에서 확인
+        try:
+            storage_dir = SessionStateManager._get_uploads_dir(create=False)
+            storage_file = storage_dir / 'user_location.json'
+            return storage_file.exists()
+        except Exception:
+            return False
+
+    @staticmethod
+    def delete_saved_user_location() -> None:
+        """저장된 사용자 위치를 삭제합니다"""
+        try:
+
+            # 1. 세션에서 삭제
+            st.session_state.saved_user_location = None
+
+            # 2. 파일에서 삭제
+            storage_dir = SessionStateManager._get_uploads_dir(create=False)
+            storage_file = storage_dir / 'user_location.json'
+            if storage_file.exists():
+                storage_file.unlink()
+
+        except Exception as e:
+            st.warning(f"⚠️ 사용자 위치 삭제 실패: {str(e)}")
 
     @staticmethod
     def get_current_location_summary() -> Optional[str]:

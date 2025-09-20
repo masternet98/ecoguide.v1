@@ -30,37 +30,36 @@ class LocationService:
     def _load_districts_data(self) -> None:
         """행정구역 데이터를 로드합니다."""
         try:
-            # districts 데이터 파일 찾기
-            uploads_dir = os.path.join(os.getcwd(), "uploads", "districts")
-            if not os.path.exists(uploads_dir):
+            # district_service의 get_latest_district_file 함수 사용
+            from src.services.district_service import get_latest_district_file
+
+            latest_file_path = get_latest_district_file()
+            if not latest_file_path:
                 log_warning(
                     LogCategory.FILE_OPERATION, "location_service", "_load_districts_data",
-                    "districts 디렉토리가 존재하지 않음",
-                    f"경로: {uploads_dir}"
+                    "사용 가능한 districts 파일이 없음",
+                    "uploads/districts 폴더를 확인하세요"
                 )
                 return
 
-            # 가장 최근 districts JSON 파일 찾기
-            district_files = [f for f in os.listdir(uploads_dir) if f.startswith('districts_') and f.endswith('.json')]
-            if not district_files:
-                log_warning(
-                    LogCategory.FILE_OPERATION, "location_service", "_load_districts_data",
-                    "districts 파일이 존재하지 않음",
-                    f"디렉토리: {uploads_dir}"
-                )
-                return
-
-            # 가장 최근 파일 선택 (파일명 기준 정렬)
-            latest_file = sorted(district_files)[-1]
-            file_path = os.path.join(uploads_dir, latest_file)
-
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(latest_file_path, 'r', encoding='utf-8') as f:
                 self.districts_data = json.load(f)
+
+            # 파일명만 추출 (로그용)
+            filename = os.path.basename(latest_file_path)
+
+            # dong_hierarchy 존재 여부 확인
+            has_dong_hierarchy = 'dong_hierarchy' in self.districts_data and bool(self.districts_data['dong_hierarchy'])
+            dong_count = 0
+            if has_dong_hierarchy:
+                for sido, sigungu_dict in self.districts_data['dong_hierarchy'].items():
+                    for sigungu, dong_list in sigungu_dict.items():
+                        dong_count += len(dong_list)
 
             log_info(
                 LogCategory.FILE_OPERATION, "location_service", "_load_districts_data",
                 "districts 데이터 로드 완료",
-                f"파일: {latest_file}, 지역 수: {len(self.districts_data.get('districts', []))}"
+                f"파일: {filename}, 지역 수: {len(self.districts_data.get('districts', []))}, dong_hierarchy: {has_dong_hierarchy}, 동 수: {dong_count}"
             )
 
         except Exception as e:
@@ -409,6 +408,9 @@ class LocationService:
 
     def get_api_status(self) -> Dict[str, Any]:
         """위치 서비스 API 상태를 확인합니다."""
+        # 현재 사용 중인 파일 정보 가져오기
+        current_file_info = self.get_current_district_file_info()
+
         status = {
             'vworld_api': {
                 'available': bool(self.config.vworld_api_key),
@@ -416,11 +418,52 @@ class LocationService:
             },
             'districts_data': {
                 'loaded': bool(self.districts_data),
-                'count': len(self.districts_data.get('districts', [])) if self.districts_data else 0
+                'count': len(self.districts_data.get('districts', [])) if self.districts_data else 0,
+                'has_dong_hierarchy': bool(self.districts_data and 'dong_hierarchy' in self.districts_data and self.districts_data['dong_hierarchy']),
+                'current_file': current_file_info
             }
         }
 
         return status
+
+    def get_current_district_file_info(self) -> Optional[Dict[str, Any]]:
+        """현재 사용 중인 district 파일 정보를 반환합니다."""
+        try:
+            from src.services.district_service import get_latest_district_file
+
+            latest_file_path = get_latest_district_file()
+            if not latest_file_path:
+                return None
+
+            stat = os.stat(latest_file_path)
+            filename = os.path.basename(latest_file_path)
+
+            # dong_hierarchy 정보 확인
+            dong_count = 0
+            has_dong_hierarchy = False
+            if self.districts_data and 'dong_hierarchy' in self.districts_data:
+                has_dong_hierarchy = bool(self.districts_data['dong_hierarchy'])
+                if has_dong_hierarchy:
+                    for sido, sigungu_dict in self.districts_data['dong_hierarchy'].items():
+                        for sigungu, dong_list in sigungu_dict.items():
+                            dong_count += len(dong_list)
+
+            return {
+                'filename': filename,
+                'file_path': latest_file_path,
+                'size_mb': round(stat.st_size / 1024 / 1024, 2),
+                'modified_time': datetime.fromtimestamp(stat.st_mtime).strftime("%Y-%m-%d %H:%M:%S"),
+                'is_force_update': '_force_' in filename,
+                'has_dong_hierarchy': has_dong_hierarchy,
+                'dong_count': dong_count
+            }
+
+        except Exception as e:
+            log_error(
+                LogCategory.FILE_OPERATION, "location_service", "get_current_district_file_info",
+                "현재 파일 정보 조회 실패", f"오류: {str(e)}", error=e
+            )
+            return None
 
     def clear_cache(self) -> None:
         """위치 캐시를 모두 삭제합니다."""
@@ -433,6 +476,71 @@ class LocationService:
     # =================================================================
     # 동 단위 데이터 관리 시스템 (Phase 2 추가)
     # =================================================================
+
+    def get_dong_list_by_sigungu_from_json(self, sido_name: str, sigungu_name: str) -> List[Dict[str, str]]:
+        """
+        JSON 데이터의 dong_hierarchy에서 동 목록을 반환합니다.
+
+        Args:
+            sido_name: 시/도명
+            sigungu_name: 시/군/구명
+
+        Returns:
+            동 정보 리스트 (기존 캐시 형식과 호환)
+        """
+        try:
+            if not self.districts_data:
+                log_warning(
+                    LogCategory.FILE_OPERATION, "location_service", "get_dong_list_by_sigungu_from_json",
+                    "districts 데이터 없음", "districts_data가 로드되지 않음"
+                )
+                return []
+
+            dong_hierarchy = self.districts_data.get('dong_hierarchy', {})
+
+            if sido_name not in dong_hierarchy:
+                log_info(
+                    LogCategory.FILE_OPERATION, "location_service", "get_dong_list_by_sigungu_from_json",
+                    "시도 데이터 없음", f"시도: {sido_name}"
+                )
+                return []
+
+            if sigungu_name not in dong_hierarchy[sido_name]:
+                log_info(
+                    LogCategory.FILE_OPERATION, "location_service", "get_dong_list_by_sigungu_from_json",
+                    "시군구 데이터 없음", f"시도: {sido_name}, 시군구: {sigungu_name}"
+                )
+                return []
+
+            dong_list_raw = dong_hierarchy[sido_name][sigungu_name]
+
+            # 기존 캐시 형식과 호환되도록 변환
+            dong_list = []
+            for dong_info in dong_list_raw:
+                dong_entry = {
+                    'dong': dong_info.get('dong', ''),
+                    'legal_dong': dong_info.get('dong', ''),  # 법정동으로 간주
+                    'admin_dong': '',  # 행정동 정보는 별도 관리 필요시 추가
+                    'dong_type': dong_info.get('type', '법정동')
+                }
+                dong_list.append(dong_entry)
+
+            log_info(
+                LogCategory.FILE_OPERATION, "location_service", "get_dong_list_by_sigungu_from_json",
+                "JSON에서 동 목록 조회 성공",
+                f"시도: {sido_name}, 시군구: {sigungu_name}, 동 수: {len(dong_list)}"
+            )
+
+            return dong_list
+
+        except Exception as e:
+            log_error(
+                LogCategory.FILE_OPERATION, "location_service", "get_dong_list_by_sigungu_from_json",
+                "JSON 동 목록 조회 실패",
+                f"시도: {sido_name}, 시군구: {sigungu_name}, 오류: {str(e)}",
+                error=e
+            )
+            return []
 
     def get_dong_list_by_sigungu(self, sido_name: str, sigungu_name: str) -> List[Dict[str, str]]:
         """특정 시/도, 시/군/구의 동 목록을 반환합니다."""
@@ -526,23 +634,23 @@ class LocationService:
         if not base_validation['valid']:
             return base_validation
 
-        # 동이 제공된 경우 추가 검증
+        # 동이 제공된 경우 JSON 데이터에서 검증
         if dong:
-            dong_list = self.get_dong_list_by_sigungu(sido, sigungu)
+            # JSON 데이터에서 동 목록 가져오기 (캐시 의존성 제거)
+            dong_list = self.get_dong_list_by_sigungu_from_json(sido, sigungu)
 
             # 동 목록에서 일치하는 동 찾기
             matching_dong = None
             for dong_info in dong_list:
-                if (dong_info.get('dong') == dong or
-                    dong_info.get('legal_dong') == dong or
-                    dong_info.get('admin_dong') == dong):
+                if dong_info.get('dong') == dong:
                     matching_dong = dong_info
                     break
 
             if not matching_dong:
+                # 캐시 오류 메시지 제거 - 단순히 유효하지 않다고 안내
                 return {
                     'valid': False,
-                    'message': f'"{sido} {sigungu} {dong}"는 캐시에 없는 동입니다. GPS로 해당 지역을 먼저 탐색해보세요.'
+                    'message': f'"{sido} {sigungu} {dong}"는 유효하지 않은 동입니다.'
                 }
 
             return {
@@ -601,9 +709,27 @@ class LocationService:
 
     def get_dong_list_by_sampling(self, sido: str, sigungu: str, sample_count: int = 10) -> List[Dict[str, str]]:
         """
-        시/군/구 영역을 샘플링하여 실시간으로 동 목록을 수집합니다.
-        해당 지역의 여러 좌표를 VWorld API로 조회하여 동 정보를 수집합니다.
+        ⚠️  DEPRECATED: 실시간 API 호출 방식에서 JSON 기반 방식으로 변경됨
+
+        이 메서드는 더 이상 실시간 API 호출을 하지 않습니다.
+        대신 get_dong_list_by_sigungu_from_json() 메서드를 호출합니다.
+
+        Args:
+            sido: 시/도명
+            sigungu: 시/군/구명
+            sample_count: 무시됨 (하위 호환성을 위해 유지)
+
+        Returns:
+            동 정보 리스트
         """
+        log_info(
+            LogCategory.WEB_API, "location_service", "get_dong_list_by_sampling",
+            "DEPRECATED 메서드 호출됨 - JSON 기반 메서드로 리다이렉트",
+            f"시도: {sido}, 시군구: {sigungu}"
+        )
+
+        # 새로운 JSON 기반 메서드로 리다이렉트
+        return self.get_dong_list_by_sigungu_from_json(sido, sigungu)
         log_info(
             LogCategory.WEB_API, "location_service", "get_dong_list_by_sampling",
             "실시간 동 목록 수집 시작", f"시도: {sido}, 시군구: {sigungu}, 샘플: {sample_count}개"
