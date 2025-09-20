@@ -44,10 +44,10 @@ class AnalysisInterfaceComponent(BaseComponent):
         # 위치 선택 UI 먼저 렌더링
         location_selected = self.location_selector.render()
 
-        # 위치 정보 요약 표시 (위치가 선택된 경우)
-        location_summary = SessionStateManager.get_current_location_summary()
-        if location_summary:
-            st.info(f"📍 **선택된 위치**: {location_summary}")
+        # # 위치 정보 요약 표시 (위치가 선택된 경우)
+        # location_summary = SessionStateManager.get_current_location_summary()
+        # if location_summary:
+        #     st.info(f"📍 **선택된 위치**: {location_summary}")
 
         st.markdown("---")  # 구분선 추가
 

@@ -46,7 +46,9 @@
       "Bash(git restore:*)",
       "Bash(cat:*)",
       "Bash(powershell:*)",
-      "Bash(timeout 10 streamlit run:*)"
+      "Bash(timeout 10 streamlit run:*)",
+      "Bash(del test_location_save.py test_location_load.py test_session_manager.py)",
+      "WebFetch(domain:pypi.org)"
     ],
     "deny": [],
     "ask": []
