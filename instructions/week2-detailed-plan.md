@@ -31,10 +31,10 @@
 
 ### 작업 체크리스트
 - [ ] 백업 커밋 (`git commit -am "week2 day9 backup"`)
-- [ ] 새로운 모듈 생성 & 공용 로거/설정 import 구성
-- [ ] 메일/웹훅 발송 함수, 템플릿 렌더 함수 이전
-- [ ] 기존 서비스에서 새 모듈을 import하도록 수정
-- [ ] `python -m py_compile`로 문법 검증
+- [x] 새로운 모듈 생성 & 공용 로거/설정 import 구성
+- [x] 메일/웹훅 발송 함수, 템플릿 렌더 함수 이전
+- [x] 기존 서비스에서 새 모듈을 import하도록 수정
+- [x] `python -m py_compile`로 문법 검증
 - [ ] 주요 발송 시나리오 수동 테스트 기록
 
 ---
@@ -59,9 +59,9 @@
 설정/DTO/밸리데이션 로직을 정돈해 API 계층에서 재사용하도록 만든다.
 
 ### 작업 체크리스트
-- [ ] 설정 데이터 클래스/헬퍼 함수 이전
+- [x] 설정 데이터 클래스/헬퍼 함수 이전
 - [ ] `.env`/`secrets.toml` 참조 경로 확인
-- [ ] sender/scheduler 모듈에서 새 설정 모듈 사용하도록 리팩토링
+- [x] sender/scheduler 모듈에서 새 설정 모듈 사용하도록 리팩토링
 - [ ] 통합 테스트 (발송 + 스케줄) 실행 및 결과 기록
 - [ ] 단계별 커밋 (sender → scheduler → config → cleanup)
 
@@ -121,7 +121,7 @@ CRUD와 렌더링 로직을 각각의 모듈로 이동한다.
 ---
 
 ## ✅ Week2 완료 조건
-- [ ] `notification_service.py` 3개 모듈로 분할 및 인터페이스 안정화
+- [x] `notification_service.py` 3개 모듈로 분할 및 인터페이스 안정화
 - [ ] `prompt_service.py` 3개 모듈로 분할 및 기존 기능 유지
 - [ ] 모든 변경 건에 대한 테스트/검증 로그 존재
 - [ ] 주요 문서(quick-start, practical-plan, claude 로그) 업데이트
