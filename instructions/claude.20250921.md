@@ -215,11 +215,11 @@ src/services/
 - 기존 기능 확인: python -X utf8 test_validator_integration.py 통과 (clean_admin_code 소수점 입력 케이스는 기존과 동일)
 - 다음 단계 준비: Day 5 체크리스트 중 캐시/검증/로더 통합 완료, 다음 Day 6 모니터링 UI 분해 착수 예정
 
-## ?? Day 6 ���� ��Ȳ (2025-09-26)
-- `src/components/monitoring_dashboard.py` �ż�: ��ú��塤���� ���ˡ���ġ���˸������� UI �Լ� 6�� �и�
-- `src/components/monitoring_ui.py`�� �� ���ɽ�Ʈ���̼ǰ� �ʱ�ȭ ��ƾ�� ����, �� ��� �Լ� ����Ʈ
-- `python -m py_compile src/components/monitoring_dashboard.py src/components/monitoring_ui.py`�� �⺻ ���� �Ϸ�
-- ���� �ܰ�: Day 7���� �����͡���Ʈ ���� ��� �и��� ��� ���� ����
+## ?? Day 6 ���� ��Ȳ (2025-09-26)
+- `src/components/monitoring_dashboard.py` �ż�: ��ú��塤���� ���ˡ���ġ���˸������� UI �Լ� 6�� �и�
+- `src/components/monitoring_ui.py`�� �� ���ɽ�Ʈ���̼ǰ� �ʱ�ȭ ��ƾ�� ����, �� ��� �Լ� ����Ʈ
+- `python -m py_compile src/components/monitoring_dashboard.py src/components/monitoring_ui.py`�� �⺻ ���� �Ϸ�
+- ���� �ܰ�: Day 7���� �����͡���Ʈ ���� ��� �и��� ��� ���� ����
 ## ✅ Day 7 진행 상황 (2025-09-27)
 - `src/components/monitoring_data.py` 생성: 변경/오류 테이블 데이터 정제, 상태 아이콘/라벨 변환 유틸리티 추가
 - `src/components/monitoring_charts.py` 신설: 세부 모니터링 결과 렌더링과 테이블 출력 역할 분리
@@ -227,3 +227,78 @@ src/services/
 - `python -m py_compile`로 분리된 컴포넌트 모듈 유효성 검증 완료
 - 후속 작업: Day7 계획에 따라 데이터/차트 모듈 지속 활용, 이후 안정화 단계 대비 테스트 확대 필요
 - 페이지에서 강제 업데이트 버튼 복원: `pages/01_district_config.py`에 `force_update_district_data` 호출을 추가해 날짜 비교 없이 최신 데이터를 받아올 수 있도록 UI를 재구성함
+
+## 🚀 Week 2 Day 8 진행 상황 (2025-09-21)
+
+### 📋 notification_service 분석 완료
+- **현황 확인**: notification_service.py는 이미 리팩토링 완료 상태
+- **모듈 구조 분석**:
+  - `notification_service.py`: 140줄 - 메인 진입점, 모니터링 결과 처리
+  - `notification_config.py`: 293줄 - 설정 관리, 환경변수, 저장소 유틸리티
+  - `notification_scheduler.py`: 260줄 - 배치 처리, 우선순위 결정, 이벤트 생성
+  - `notification_sender.py`: 399줄 - SMTP 발송, 이메일 템플릿, 오류 처리
+
+### 🔍 의존성 분석 완료
+- **외부 라이브러리**: `smtplib` (내장), `email.mime.*` (내장)
+- **환경 변수**:
+  - `NOTIFICATION_EMAIL_USER`: 발송자 이메일
+  - `NOTIFICATION_EMAIL_PASSWORD`: 이메일 비밀번호
+- **내부 의존성**: monitoring_service, core.config, core.logger
+
+### 📚 모듈 책임 확인
+- **notification_config.py**: ✅ 이미 존재
+  - 설정 데이터클래스 (NotificationConfig, NotificationEvent)
+  - 환경변수 로딩 및 설정 저장/로딩
+  - 파일 경로 관리 및 히스토리 관리
+- **notification_scheduler.py**: ✅ 이미 존재
+  - 우선순위 결정 로직 (CRITICAL/HIGH/MEDIUM/LOW)
+  - 배치 요약 생성 및 이벤트 생성
+  - 발송 조건 확인 (스팸 방지)
+- **notification_sender.py**: ✅ 이미 존재
+  - SMTP 이메일 발송 (개별/배치/일일요약/테스트)
+  - 이메일 템플릿 생성 및 오류 처리
+  - Gmail SMTP 연동 및 인증
+
+### 🎯 Week 2 Day 8 결론
+**notification_service 리팩토링은 이미 완료된 상태입니다.**
+- Week1에서 이미 3개 모듈로 분리 완료
+- 각 모듈의 책임이 명확히 분리됨
+- 외부 의존성 최소화 및 환경변수 활용 적절
+
+## 📋 prompt_service.py 분석 완료 (Day 8 연장)
+
+### 🔍 구조 분석 결과
+- **파일 크기**: 842줄 (Week2 계획 대상)
+- **클래스 구조**: PromptService (BaseService 상속)
+- **주요 기능**: CRUD, 템플릿 렌더링, 매핑 관리, 백업, 통계, 검증
+
+### 🔗 의존성 분석
+- **외부 라이브러리**: 표준 라이브러리만 사용 (json, os, shutil, pathlib, uuid, re)
+- **환경변수**: 없음 (PromptConfig로 완전 관리)
+- **내부 의존성**: prompt_types, base_service, config, logger
+
+### 📚 3개 모듈 분리 설계 완료
+1. **prompt_manager.py** (~350줄)
+   - CRUD: create/update/delete/get/list/search_prompts
+   - 매핑: map/unmap_feature_to_prompt, get_prompts_for_feature
+   - 데이터: import/export_prompts, 로딩/저장/백업 함수들
+
+2. **prompt_renderer.py** (~150줄)
+   - render_prompt: 변수 치환 및 템플릿 렌더링
+   - _extract_variables: 템플릿 변수 추출
+   - 새 기능: validate_variables, render_with_context, preview_render
+
+3. **prompt_validator.py** (~200줄)
+   - validate_prompt_template: 기존 검증 로직
+   - 새 기능: structure/content/syntax 검증, 품질 분석, 개선사항 제안
+
+4. **prompt_service.py** (~142줄)
+   - 통합 서비스: 초기화 및 각 모듈 위임
+
+### ⚠️ 리스크 및 테스트 전략
+- **중간 복잡도**: 클래스 기반, BaseService 상속, 파일 시스템 의존성
+- **테스트**: 문법 → import → 인스턴스 생성 → 앱 실행 단계별 검증
+- **주의사항**: 캐시 공유 방식, self 참조 유지, 순환 import 방지
+
+### 🎯 다음 단계
+Day 8 분석 완료. Day 12-14 계획에 따라 prompt_service 리팩토링 실행 준비 완료.
