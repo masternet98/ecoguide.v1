@@ -73,77 +73,192 @@ def get_latest_district_file(config: Optional[DistrictConfig] = None) -> Optiona
     return latest_file
 
 
-def preview_district_file(file_path: str, limit: int = 10) -> Dict[str, Any]:
-    """
-    행정구역 JSON 파일의 미리보기 정보를 반환합니다.
 
-    Args:
-        file_path: JSON 파일 경로
-        limit: 미리보기할 데이터 개수 (기본값: 10)
+def preview_district_file(file_path: str, limit: int = 10, config: Optional[DistrictConfig] = None) -> Dict[str, Any]:
+    '''
+    Return summary preview data for a cached district JSON file.
+    '''
+    if isinstance(limit, DistrictConfig) and config is None:
+        config = limit
+        limit = 10
 
-    Returns:
-        미리보기 정보 딕셔너리
-    """
+    if config is not None and not os.path.isabs(file_path):
+        candidate_path = os.path.join(config.uploads_dir, file_path)
+        if os.path.exists(candidate_path):
+            file_path = candidate_path
+
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
 
-        # 파일 기본 정보
         file_stats = os.stat(file_path)
         file_info = {
             "file_path": file_path,
             "file_size_mb": round(file_stats.st_size / 1024 / 1024, 2),
             "created_time": datetime.fromtimestamp(file_stats.st_ctime).strftime("%Y-%m-%d %H:%M:%S"),
-            "modified_time": datetime.fromtimestamp(file_stats.st_mtime).strftime("%Y-%m-%d %H:%M:%S")
+            "modified_time": datetime.fromtimestamp(file_stats.st_mtime).strftime("%Y-%m-%d %H:%M:%S"),
         }
 
-        # 데이터 구조 분석
+        safe_limit = 10
+        if isinstance(limit, int):
+            safe_limit = max(limit, 0)
+        elif isinstance(limit, str) and limit.isdigit():
+            safe_limit = max(int(limit), 0)
+
+        metadata: Dict[str, Any] = {}
+        preview_data: List[Dict[str, Any]] = []
+        total_count = 0
+        structure_type = "unknown"
+
+        def append_row(row: Dict[str, Any]) -> None:
+            if safe_limit == 0:
+                return
+            if len(preview_data) < safe_limit:
+                preview_data.append(row)
+
         if isinstance(data, dict):
-            total_count = sum(len(regions) if isinstance(regions, dict) else 0 for regions in data.values())
-            preview_data = {}
+            raw_metadata = data.get("metadata")
+            if isinstance(raw_metadata, dict):
+                metadata = raw_metadata
 
-            for sido, regions in list(data.items())[:3]:  # 상위 3개 시도만
-                if isinstance(regions, dict):
-                    preview_data[sido] = dict(list(regions.items())[:limit])
+            districts_data = data.get("districts")
+            if districts_data is not None:
+                if isinstance(districts_data, list):
+                    structure_type = "list"
+                    total_count = len(districts_data)
+                    for row in districts_data:
+                        if isinstance(row, dict):
+                            append_row(row)
+                        else:
+                            append_row({"value": row})
+                elif isinstance(districts_data, dict):
+                    structure_type = "dict"
+
+                    def handle_nested(parent_key: Any, value: Any, code: Optional[Any] = None) -> None:
+                        nonlocal total_count
+                        if isinstance(value, list):
+                            for item in value:
+                                handle_nested(parent_key, item, code)
+                            return
+                        if isinstance(value, dict):
+                            if all(not isinstance(v, (dict, list)) for v in value.values()):
+                                total_count += 1
+                                row = {"parent": parent_key}
+                                if code is not None:
+                                    row["code"] = code
+                                row.update(value)
+                                append_row(row)
+                            else:
+                                for inner_key, inner_value in value.items():
+                                    handle_nested(parent_key, inner_value, inner_key)
+                        else:
+                            total_count += 1
+                            row = {"parent": parent_key, "value": value}
+                            if code is not None:
+                                row["code"] = code
+                            append_row(row)
+
+                    for parent_key, entries in districts_data.items():
+                        handle_nested(parent_key, entries)
                 else:
-                    preview_data[sido] = regions
+                    structure_type = type(districts_data).__name__
+                    total_count = 1
+                    append_row({"value": districts_data})
+            else:
+                if not metadata:
+                    metadata = {
+                        k: v for k, v in data.items() if not isinstance(v, (dict, list))
+                    }
 
-            return {
-                "success": True,
-                "file_info": file_info,
-                "data_stats": {
-                    "total_sido_count": len(data),
-                    "total_region_count": total_count,
-                    "structure_type": "nested_dict"
-                },
-                "preview": preview_data
-            }
+                structure_type = "nested_dict"
+
+                def handle_legacy(parent_key: Any, value: Any, code: Optional[Any] = None) -> None:
+                    nonlocal total_count
+                    if isinstance(value, list):
+                        for item in value:
+                            handle_legacy(parent_key, item)
+                        return
+                    if isinstance(value, dict):
+                        if all(not isinstance(v, (dict, list)) for v in value.values()):
+                            total_count += 1
+                            row = {"sido": parent_key}
+                            if code is not None:
+                                row["code"] = code
+                            row.update(value)
+                            append_row(row)
+                        else:
+                            for inner_key, inner_value in value.items():
+                                handle_legacy(parent_key, inner_value, inner_key)
+                    else:
+                        total_count += 1
+                        row = {"sido": parent_key, "value": value}
+                        if code is not None:
+                            row["code"] = code
+                        append_row(row)
+
+                for top_key, regions in data.items():
+                    if isinstance(regions, (dict, list)):
+                        handle_legacy(top_key, regions)
+                    else:
+                        total_count += 1
+                        append_row({"sido": top_key, "value": regions})
+
+                if total_count == 0:
+                    total_count = sum(
+                        len(v) if isinstance(v, (list, dict)) else 1 for v in data.values()
+                    )
+        elif isinstance(data, list):
+            structure_type = "list"
+            total_count = len(data)
+            for row in data:
+                if isinstance(row, dict):
+                    append_row(row)
+                else:
+                    append_row({"value": row})
         else:
             return {
                 "success": False,
-                "error": "지원되지 않는 데이터 형식입니다.",
-                "file_info": file_info
+                "error": "???? ?? ??? ?????.",
+                "file_info": file_info,
             }
 
-    except json.JSONDecodeError as e:
-        log_error(f"JSON 파싱 오류: {e}")
-        return {
-            "success": False,
-            "error": f"JSON 파싱 오류: {str(e)}"
+        data_stats = {
+            "structure_type": structure_type,
+            "total_count": total_count,
+            "preview_count": len(preview_data),
         }
-    except FileNotFoundError:
-        log_error(f"파일을 찾을 수 없습니다: {file_path}")
+        if isinstance(data, dict):
+            data_stats["top_level_keys"] = len(data)
+
         return {
-            "success": False,
-            "error": "파일을 찾을 수 없습니다."
-        }
-    except Exception as e:
-        log_error(f"파일 미리보기 중 오류 발생: {e}")
-        return {
-            "success": False,
-            "error": f"파일 처리 중 오류 발생: {str(e)}"
+            "success": True,
+            "metadata": metadata,
+            "preview_data": preview_data,
+            "total_count": total_count,
+            "file_info": file_info,
+            "data_stats": data_stats,
         }
 
+    except json.JSONDecodeError as e:
+        logger.exception("?? ?? ??", exc_info=e)
+        return {
+            "success": False,
+            "error": f"JSON ?? ?? ??: {str(e)}",
+            "file_path": file_path,
+        }
+    except FileNotFoundError:
+        return {
+            "success": False,
+            "error": "??? ???? ????.",
+            "file_path": file_path,
+        }
+    except Exception as e:
+        logger.exception("???? ?? ??", exc_info=e)
+        return {
+            "success": False,
+            "error": f"???? ?? ?? ??: {str(e)}",
+            "file_path": file_path,
+        }
 
 def delete_district_file(file_path: str, config: Optional[DistrictConfig] = None) -> Dict[str, Any]:
     """
