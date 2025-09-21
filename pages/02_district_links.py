@@ -12,8 +12,10 @@ from src.services.monitoring_admin_integration import get_error_statistics_for_d
 
 # 페이지 타이틀 설정
 config = load_config()
-st.title("🔧 Admin - 관리 페이지")
-st.caption("링크 관리, 터널 및 디버깅 도구를 관리합니다.")
+# st.title("🔧 Admin - 관리 페이지")
+# st.caption("링크 관리, 터널 및 디버깅 도구를 관리합니다.")
+st.title("🔗 대형폐기물 배출신고 링크 관리")
+st.caption("시/도, 시/군/구 단계별로 링크를 선택하고 관리합니다.")
 
 # 오류 상태 요약 표시
 try:
@@ -40,8 +42,6 @@ try:
                     st.write(", ".join(error_urls))
 except Exception as e:
     st.warning("오류 상태 정보를 불러오지 못했습니다.")
-
-st.divider()
 
 # 링크 수집기 UI 표시
 try:

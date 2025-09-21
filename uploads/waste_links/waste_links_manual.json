@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "last_updated": "2025-09-09T01:25:15.250033"
+    "last_updated": "2025-09-21T20:34:56.071838"
   },
   "links": {
     "대전광역시_동구": {
@@ -159,6 +159,23 @@
       "monitoring": {
         "enabled": true,
         "created_at": "2025-09-09T01:21:14.966810",
+        "last_checked": null,
+        "check_frequency": "daily",
+        "priority": "medium",
+        "failure_count": 0,
+        "last_failure": null
+      }
+    },
+    "서울특별시_종로구": {
+      "info_url": "https://www.jongno.go.kr/waste/pc/web/main/main.do",
+      "system_url": "https://www.jongno.go.kr/waste/pc/web/main/main.do",
+      "fee_url": "https://www.jongno.go.kr/waste/pc/web/expense/selectExpenseList.do",
+      "appliance_url": "https://15990903.or.kr/portal/main/main.do",
+      "description": "수수료 폐이징 처리되어 있음. 자동 검색 기능 구현 필요.",
+      "updated_at": "2025-09-21T20:34:56.071838",
+      "monitoring": {
+        "enabled": true,
+        "created_at": "2025-09-21T20:34:56.071838",
         "last_checked": null,
         "check_frequency": "daily",
         "priority": "medium",

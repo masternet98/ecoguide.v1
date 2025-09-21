@@ -8,7 +8,7 @@ import json
 from src.core.config import load_config
 from src.services.district_service import (
     process_district_csv, get_district_files, preview_district_file,
-    auto_update_district_data, delete_district_file, delete_all_district_files,
+    auto_update_district_data, force_update_district_data, delete_district_file, delete_all_district_files,
     clear_update_info
 )
 
@@ -137,7 +137,7 @@ with tab2:
     st.caption("공공데이터포털에서 최신 행정구역 데이터를 자동으로 확인하고 업데이트합니다.")
     
     # 현재 상태 표시
-    col1, col2 = st.columns(2)
+    col1, col2 = st.columns([1,2])
     
     with col1:
         st.subheader("📊 현재 상태")
@@ -177,7 +177,7 @@ with tab2:
                         st.info("💡 첫 다운로드가 필요합니다")
                 else:
                     st.error(f"❌ 확인 실패: {web_result['message']}")
-    
+
     st.divider()
     
     # 자동 업데이트 실행
@@ -253,6 +253,26 @@ with tab2:
                         st.error(f"❌ 처리 실패: {result['message']}")
                     else:
                         st.error(f"❌ {result['message']}")
+
+    st.divider()
+
+    st.subheader("⚠️ 강제 업데이트 실행")
+    st.caption("날짜 비교를 건너뛰고 최신 데이터를 강제로 받아옵니다. 장애 대응 시에만 사용하세요.")
+    if st.button("강제 업데이트 실행", use_container_width=True):
+        with st.spinner("강제 업데이트 실행 중..."):
+            force_result = force_update_district_data(config=district_config)
+            if force_result.get("success"):
+                st.success(force_result.get("message", "강제 업데이트가 완료되었습니다."))
+
+                stats = force_result.get("statistics")
+                if stats:
+                    st.json({"처리 통계": stats})
+
+                file_path = force_result.get("file_path")
+                if file_path:
+                    st.info(f"생성된 파일 경로: `{file_path}`")
+            else:
+                st.error(force_result.get("message", "강제 업데이트에 실패했습니다."))
     
     # 데이터 소스 정보
     st.divider()

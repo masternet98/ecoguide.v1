@@ -377,9 +377,6 @@ def show_error_summary_dashboard(config):
 
 
 def link_collector_ui():
-    """링크 수동 관리자 메인 UI"""
-    st.header("🔗 대형폐기물 배출신고 링크 관리")
-    st.caption("시/도, 시/군/구 단계별로 링크를 선택하고 관리합니다.")
 
     initialize_session_state()
 

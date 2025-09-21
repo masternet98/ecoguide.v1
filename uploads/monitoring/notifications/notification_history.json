@@ -4206,10 +4206,94 @@
           "current_hash": "2c6cd8d89f24e15a1bf807fddb576b9f"
         }
       }
+    },
+    {
+      "id": "인천광역시_서구_info_url_20250921_191019",
+      "priority": "medium",
+      "title": "[CHANGED] 인천광역시 서구 배출정보 변경 감지",
+      "message": "지역: 인천광역시 서구\n항목: 배출정보\n변경 유형: 내용 변경",
+      "district_key": "인천광역시_서구",
+      "url_type": "info_url",
+      "created_at": "2025-09-21T19:10:18.638032",
+      "sent_at": null,
+      "channels": [],
+      "metadata": {
+        "monitoring_result": {
+          "status": "changed",
+          "change_type": "content",
+          "error_message": null,
+          "response_time": 0.303748,
+          "previous_hash": "afb41ae3814a84dc022dcdcc5da9ed4a",
+          "current_hash": "62f360ec28fde458c058de44f961f058"
+        }
+      }
+    },
+    {
+      "id": "인천광역시_서구_appliance_url_20250921_191019",
+      "priority": "medium",
+      "title": "[CHANGED] 인천광역시 서구 폐가전제품 변경 감지",
+      "message": "지역: 인천광역시 서구\n항목: 폐가전제품\n변경 유형: 내용 변경",
+      "district_key": "인천광역시_서구",
+      "url_type": "appliance_url",
+      "created_at": "2025-09-21T19:10:19.059993",
+      "sent_at": null,
+      "channels": [],
+      "metadata": {
+        "monitoring_result": {
+          "status": "changed",
+          "change_type": "content",
+          "error_message": null,
+          "response_time": 0.176532,
+          "previous_hash": "1a261fc907d70c9289f3c48fca6d23b3",
+          "current_hash": "606e6b5bc35a1afe21093038a3470653"
+        }
+      }
+    },
+    {
+      "id": "인천광역시_서구_info_url_20250921_191312",
+      "priority": "medium",
+      "title": "[CHANGED] 인천광역시 서구 배출정보 변경 감지",
+      "message": "지역: 인천광역시 서구\n항목: 배출정보\n변경 유형: 내용 변경",
+      "district_key": "인천광역시_서구",
+      "url_type": "info_url",
+      "created_at": "2025-09-21T19:13:11.785589",
+      "sent_at": null,
+      "channels": [],
+      "metadata": {
+        "monitoring_result": {
+          "status": "changed",
+          "change_type": "content",
+          "error_message": null,
+          "response_time": 0.227151,
+          "previous_hash": "afb41ae3814a84dc022dcdcc5da9ed4a",
+          "current_hash": "62f360ec28fde458c058de44f961f058"
+        }
+      }
+    },
+    {
+      "id": "인천광역시_서구_appliance_url_20250921_191312",
+      "priority": "medium",
+      "title": "[CHANGED] 인천광역시 서구 폐가전제품 변경 감지",
+      "message": "지역: 인천광역시 서구\n항목: 폐가전제품\n변경 유형: 내용 변경",
+      "district_key": "인천광역시_서구",
+      "url_type": "appliance_url",
+      "created_at": "2025-09-21T19:13:12.192481",
+      "sent_at": null,
+      "channels": [],
+      "metadata": {
+        "monitoring_result": {
+          "status": "changed",
+          "change_type": "content",
+          "error_message": null,
+          "response_time": 0.219299,
+          "previous_hash": "1a261fc907d70c9289f3c48fca6d23b3",
+          "current_hash": "606e6b5bc35a1afe21093038a3470653"
+        }
+      }
     }
   ],
   "metadata": {
     "created_at": "2025-09-08T00:07:06.879643",
-    "last_updated": "2025-09-13T17:13:48.361837"
+    "last_updated": "2025-09-21T19:13:12.305477"
   }
 }
