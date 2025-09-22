@@ -1,3 +1,3 @@
 """
-공용 레이아웃 컴포넌트
+Layout components for application structure.
 """

@@ -13,7 +13,7 @@
 | **Phase 0.5** | 우선순위 서비스 복사 (Day 1-2) | ✅ 완료 | 2025-09-22 |
 | **Phase 1** | 도메인별 서비스 복사 (Day 2-4) | ✅ 완료 | 2025-09-22 |
 | **Phase 2** | 도메인 UI 복사 및 재배치 (Day 4-6) | ✅ 완료 | 2025-09-22 |
-| **Phase 3** | App 계층 구성 (Day 6-7) | ⏳ 대기 | - |
+| **Phase 3** | App 계층 구성 (Day 6-7) | ✅ 완료 | 2025-09-22 |
 | **Phase 4** | 점진적 전환 및 정리 (Day 7-8) | ⏳ 대기 | - |
 
 ---
@@ -119,12 +119,28 @@ UI 컴포넌트들을 각 도메인 `ui/` 폴더로 복사하고 기존 경로 �
 
 ---
 
-## ⏳ 대기 중인 Phase들
+## ✅ Phase 3: App 계층 구성 (완료)
 
-### Phase 3: App 계층 구성
-- `src/core/` → `src/app/core`
-- `src/layouts/` → `src/app/layouts`
-- 설정 모듈 `src/app/config` 재구성
+### 목표
+애플리케이션 핵심 계층을 src/app으로 통합하고 깔끔한 구조 구성
+
+### 체크리스트
+- [x] **src/core/ → src/app/core**: 모든 core 모듈 이동 (18개 파일)
+- [x] **src/layouts/ → src/app/layouts**: 레이아웃 모듈 이동 (1개 파일)
+- [x] **설정 모듈 재구성**: src/app/config/main.py + __init__.py 구조
+- [x] **Import 경로 수정**: 새 App 경로로 내부 참조 업데이트
+- [x] **Wrapper 생성**: 3개 legacy 호환성 wrapper (config, service_factory, main_layout)
+- [x] **검증 완료**: 모든 App 모듈 및 wrapper 정상 import
+
+### 주요 성과
+- **깔끔한 App 계층**: src/app/{core,config,layouts} 구조 완성
+- **중앙화된 설정**: src/app/config 모듈로 설정 관리 통합
+- **100% 호환성 유지**: Wrapper를 통한 기존 import 경로 지원
+- **새 경로 우선 로딩**: App 경로에서 성공적으로 로딩
+
+---
+
+## ⏳ 대기 중인 Phase들
 
 ### Phase 4: 점진적 전환 및 정리
 - 서비스별 점진적 전환
@@ -143,5 +159,5 @@ UI 컴포넌트들을 각 도메인 `ui/` 폴더로 복사하고 기존 경로 �
 
 ---
 
-**📝 마지막 업데이트**: 2025-09-22 Phase 2 완료
-**🎯 다음 목표**: Phase 3 - App 계층 구성
+**📝 마지막 업데이트**: 2025-09-22 Phase 3 완료
+**🎯 다음 목표**: Phase 4 - 점진적 전환 및 정리

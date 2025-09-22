@@ -26,14 +26,32 @@
 - Phase 1: ✅ 완료 (도메인별 서비스 복사)
 - 총 서비스 복사: 25/27개 (93%)
 
+## 완료된 작업 (추가)
+### Phase 2: 도메인 UI 복사 및 재배치 (100% 완료)
+- **Analysis 도메인 UI**: 6개 컴포넌트 복사 (analysis_page, measure_ui, analysis/*)
+- **Prompts 도메인 UI**: 4개 컴포넌트 복사 (prompt_admin_ui, prompts/*)
+- **District 도메인 UI**: 1개 컴포넌트 복사 (location_selector)
+- **Infrastructure 도메인 UI**: 2개 컴포넌트 복사 (link_collector_ui, tunnel_ui)
+- **Monitoring 도메인 UI**: 5개 컴포넌트 복사 (monitoring_*, log_viewer)
+- **Thin Wrapper 작성**: 8개 legacy 호환성 wrapper 생성
+- **검증 완료**: 모든 도메인 UI 및 wrapper 정상 import
+- **커밋 완료**: `dc243b8` Phase 2 도메인 UI 복사 및 재배치 완료
+
+### 전체 진행 상황 업데이트
+- Phase 0: ✅ 완료 (준비 및 검증)
+- Phase 0.5: ✅ 완료 (우선순위 서비스 복사)
+- Phase 1: ✅ 완료 (도메인별 서비스 복사)
+- Phase 2: ✅ 완료 (도메인 UI 복사 및 재배치)
+- 총 UI 컴포넌트 배치: 18개 (100%)
+
 ## 진행중인 작업
-### Phase 2 시작: 도메인 UI 복사 및 재배치
-- UI 컴포넌트들을 각 도메인 ui/ 폴더로 복사
-- 기존 src/components/에 thin wrapper 작성
-- 페이지별 점진적 새 경로 사용
+### Phase 3 시작: App 계층 구성
+- src/core/ → src/app/core 이동
+- src/layouts/ → src/app/layouts 이동
+- 설정 모듈 src/app/config 재구성
 
 ## 다음 작업 예정
-- Phase 2 체크리스트 실행
-- UI 컴포넌트 도메인별 분류 및 복사
-- Wrapper 컴포넌트 작성
-- Phase 2 검증 및 커밋
+- Phase 3 체크리스트 실행
+- App 계층 구조 생성 및 파일 이동
+- import 경로 수정 및 호환성 유지
+- Phase 3 검증 및 커밋
