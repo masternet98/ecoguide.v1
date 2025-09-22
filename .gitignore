@@ -60,10 +60,7 @@ tmp/
 temp/
 
 # Development documentation (일시적)
-instructions/done/
 instructions/remove/
-instructions/review/
-sc_*.md
 
 # Claude Code specific
 .claude/
