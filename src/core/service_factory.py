@@ -140,14 +140,37 @@ class ServiceFactory:
     
     def _load_service_module(self, service_name: str, fallback_module_path: str):
         """Phase 0.5 이중 경로 지원으로 서비스 모듈 로딩"""
-        # Phase 0.5에서 복사된 서비스들의 새 경로 시도
+        # Phase 1까지 복사된 서비스들의 새 경로 매핑
         domain_map = {
+            # Analysis 도메인 (Phase 0.5)
             'vision_service': 'analysis',
             'openai_service': 'analysis',
+            # Prompts 도메인 (Phase 0.5)
             'prompt_service': 'prompts',
             'prompt_manager': 'prompts',
             'prompt_renderer': 'prompts',
-            'prompt_validator': 'prompts'
+            'prompt_validator': 'prompts',
+            # District 도메인 (Phase 1)
+            'district_service': 'district',
+            'district_api': 'district',
+            'district_cache': 'district',
+            'district_loader': 'district',
+            'district_validator': 'district',
+            'location_service': 'district',
+            # Infrastructure 도메인 (Phase 1)
+            'search_manager': 'infrastructure',
+            'search_providers': 'infrastructure',
+            'link_collector_service': 'infrastructure',
+            'tunnel_service': 'infrastructure',
+            'batch_service': 'infrastructure',
+            'file_source_validator': 'infrastructure',
+            # Monitoring 도메인 (Phase 1)
+            'monitoring_service': 'monitoring',
+            'monitoring_admin_integration': 'monitoring',
+            'notification_service': 'monitoring',
+            'notification_sender': 'monitoring',
+            'notification_scheduler': 'monitoring',
+            'notification_config': 'monitoring'
         }
 
         if service_name in domain_map:
