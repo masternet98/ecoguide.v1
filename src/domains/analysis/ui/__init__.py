@@ -1,3 +1,3 @@
 """
-이미지 분석 도메인 UI 컴포넌트
+Analysis components for image processing and analysis.
 """

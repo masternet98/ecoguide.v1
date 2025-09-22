@@ -1,3 +1,3 @@
 """
-프롬프트 도메인 UI 컴포넌트
+Prompt management components.
 """
