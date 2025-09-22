@@ -3,10 +3,10 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 
-from src.core.config import Config
-from src.core.logger import LogCategory, log_info
-from src.services.monitoring_service import MonitoringResult
-from src.services.notification_config import (
+from src.app.core.config import Config
+from src.app.core.logger import LogCategory, log_info
+from src.domains.analysis.services.monitoring_service import MonitoringResult
+from src.domains.analysis.services.notification_config import (
     NotificationConfig,
     NotificationEvent,
     NotificationPriority,
@@ -19,7 +19,7 @@ from src.services.notification_config import (
     save_notification_event,
     save_notification_settings,
 )
-from src.services.notification_scheduler import (
+from src.domains.analysis.services.notification_scheduler import (
     create_batch_notification_summary,
     create_notification_event,
     determine_notification_priority,
@@ -27,7 +27,7 @@ from src.services.notification_scheduler import (
     log_notification,
     should_send_batch_email,
 )
-from src.services.notification_sender import (
+from src.domains.analysis.services.notification_sender import (
     create_daily_summary_email,
     send_batch_summary_email,
     send_daily_summary_email,

@@ -15,7 +15,7 @@ from ultralytics import YOLO
 from rembg import remove
 import streamlit as st
 
-from src.services.vision_types import (
+from src.domains.analysis.vision_types import (
     VisionConfig,
     HandDetection,
     ObjectDetection,

@@ -8,9 +8,9 @@ from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from src.core.config import Config
-from src.core.logger import LogCategory, log_error
-from src.services.monitoring_service import get_monitoring_storage_path
+from src.app.core.config import Config
+from src.app.core.logger import LogCategory, log_error
+from src.domains.monitoring.services.monitoring_service import get_monitoring_storage_path
 
 class NotificationPriority(Enum):
     """알림 우선순위"""

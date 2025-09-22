@@ -4,7 +4,7 @@
 import streamlit as st
 from typing import Optional
 from src.components.base import BaseComponent
-from src.core.session_state import SessionStateManager
+from src.app.core.session_state import SessionStateManager
 
 
 class ImageInputComponent(BaseComponent):

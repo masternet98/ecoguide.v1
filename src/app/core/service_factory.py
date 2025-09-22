@@ -108,7 +108,7 @@ class ServiceFactory:
             # 의존성 해결
             dependencies = self._dependency_resolver.resolve_dependencies(descriptor.dependencies)
             
-            # 모듈 동적 임포트 (Phase 0.5 이중 경로 지원)
+            # 모듈 동적 임포트 (Phase 4: 도메인 경로만 지원)
             module = self._load_service_module(service_name, descriptor.module_path)
             service_class = getattr(module, descriptor.service_class.__name__)
             
@@ -139,32 +139,32 @@ class ServiceFactory:
             return None
     
     def _load_service_module(self, service_name: str, fallback_module_path: str):
-        """Phase 0.5 이중 경로 지원으로 서비스 모듈 로딩"""
-        # Phase 1까지 복사된 서비스들의 새 경로 매핑
-        domain_map = {
-            # Analysis 도메인 (Phase 0.5)
+        """Phase 4: 도메인 경로만 지원하는 서비스 모듈 로딩"""
+        # 최종 도메인별 서비스 매핑
+        SERVICE_DOMAIN_MAP = {
+            # Analysis 도메인
             'vision_service': 'analysis',
             'openai_service': 'analysis',
-            # Prompts 도메인 (Phase 0.5)
+            # Prompts 도메인
             'prompt_service': 'prompts',
             'prompt_manager': 'prompts',
             'prompt_renderer': 'prompts',
             'prompt_validator': 'prompts',
-            # District 도메인 (Phase 1)
+            # District 도메인
             'district_service': 'district',
             'district_api': 'district',
             'district_cache': 'district',
             'district_loader': 'district',
             'district_validator': 'district',
             'location_service': 'district',
-            # Infrastructure 도메인 (Phase 1)
+            # Infrastructure 도메인
             'search_manager': 'infrastructure',
             'search_providers': 'infrastructure',
             'link_collector_service': 'infrastructure',
             'tunnel_service': 'infrastructure',
             'batch_service': 'infrastructure',
             'file_source_validator': 'infrastructure',
-            # Monitoring 도메인 (Phase 1)
+            # Monitoring 도메인
             'monitoring_service': 'monitoring',
             'monitoring_admin_integration': 'monitoring',
             'notification_service': 'monitoring',
@@ -173,18 +173,13 @@ class ServiceFactory:
             'notification_config': 'monitoring'
         }
 
-        if service_name in domain_map:
-            try:
-                domain = domain_map[service_name]
-                new_module_path = f"src.domains.{domain}.services.{service_name}"
-                logger.info(f"Trying new path for {service_name}: {new_module_path}")
-                return importlib.import_module(new_module_path)
-            except ImportError as e:
-                logger.warning(f"New path failed for {service_name}, falling back to legacy: {e}")
+        domain = SERVICE_DOMAIN_MAP.get(service_name)
+        if not domain:
+            raise ValueError(f"Unknown service: {service_name}")
 
-        # 기존 경로 fallback
-        logger.info(f"Using legacy path for {service_name}: {fallback_module_path}")
-        return importlib.import_module(fallback_module_path)
+        module_path = f"src.domains.{domain}.services.{service_name}"
+        logger.info(f"Loading service {service_name} from domain path: {module_path}")
+        return importlib.import_module(module_path)
 
     def _create_service_instance(self, service_class, service_name: str, **dependencies):
         """서비스별 특수한 설정을 처리하여 인스턴스를 생성합니다."""

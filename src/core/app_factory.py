@@ -8,11 +8,11 @@ from typing import Optional
 import logging
 from dotenv import load_dotenv
 
-from src.core.config import Config, load_config
-from src.core.config_validator import ensure_valid_config
-from src.core.service_factory import ServiceFactory, create_default_service_registry
-from src.core.feature_registry import FeatureRegistry, create_default_feature_registry
-from src.core.error_handler import get_error_handler, setup_streamlit_context_provider
+from src.app.core.config import Config, load_config
+from src.app.core.config_validator import ensure_valid_config
+from src.app.core.service_factory import ServiceFactory, create_default_service_registry
+from src.app.core.feature_registry import FeatureRegistry, create_default_feature_registry
+from src.app.core.error_handler import get_error_handler, setup_streamlit_context_provider
 
 logger = logging.getLogger(__name__)
 
@@ -150,7 +150,7 @@ def reset_application() -> None:
 
 def create_minimal_application(config: Config) -> ApplicationContext:
     """최소한의 애플리케이션 컨텍스트를 생성합니다 (테스트용)."""
-    from src.core.service_factory import ServiceRegistry
+    from src.app.core.service_factory import ServiceRegistry
     
     # 빈 레지스트리들 생성
     service_registry = ServiceRegistry()

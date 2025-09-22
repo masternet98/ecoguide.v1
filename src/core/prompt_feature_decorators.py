@@ -6,8 +6,8 @@
 """
 from functools import wraps
 from typing import List, Optional, Dict, Any, Callable
-from src.core.prompt_feature_registry import get_prompt_feature_registry, register_prompt_feature
-from src.core.logger import get_logger
+from src.app.core.prompt_feature_registry import get_prompt_feature_registry, register_prompt_feature
+from src.app.core.logger import get_logger
 
 logger = get_logger(__name__)
 

@@ -10,7 +10,7 @@ from typing import Optional, List
 import plotly.express as px
 import plotly.graph_objects as go
 
-from src.core.logger import logger, LogLevel, LogCategory, LogEntry
+from src.app.core.logger import logger, LogLevel, LogCategory, LogEntry
 
 
 def render_log_viewer():

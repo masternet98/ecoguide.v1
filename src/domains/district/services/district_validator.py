@@ -7,7 +7,7 @@ CSV 데이터의 필드 정규화, null 값 처리, 데이터 형식 검증 등�
 
 from typing import Any, Dict, List, Optional
 import pandas as pd
-from src.core.config import DistrictConfig
+from src.app.core.config import DistrictConfig
 
 
 def normalize_admin_field(value: Any) -> str:

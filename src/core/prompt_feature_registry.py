@@ -10,7 +10,7 @@ from typing import Dict, List, Optional, Set
 from pathlib import Path
 from datetime import datetime
 
-from src.core.logger import get_logger
+from src.app.core.logger import get_logger
 
 
 @dataclass

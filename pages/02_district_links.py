@@ -5,10 +5,10 @@ Cloudflared 터널 관리, 로그 보기, 환경 변수 다시 로드 기능과
 """
 import os
 import streamlit as st
-from src.components.link_collector_ui import link_collector_ui
-from src.core.utils import get_app_state
-from src.core.config import load_config
-from src.services.monitoring_admin_integration import get_error_statistics_for_dashboard
+from src.domains.infrastructure.ui.link_collector_ui import link_collector_ui
+from src.app.core.utils import get_app_state
+from src.app.core.config import load_config
+from src.domains.monitoring.services.monitoring_admin_integration import get_error_statistics_for_dashboard
 
 # 페이지 타이틀 설정
 config = load_config()
@@ -56,7 +56,7 @@ st.divider()
 # 파일 다운로드 섹션 추가
 st.header("📁 등록된 파일 관리")
 try:
-    from src.services.link_collector_service import load_registered_links, get_attachment_file_path
+    from src.domains.infrastructure.services.link_collector_service import load_registered_links, get_attachment_file_path
     import os
     
     registered_links_data = load_registered_links(config)

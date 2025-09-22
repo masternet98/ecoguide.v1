@@ -4,9 +4,9 @@
 import streamlit as st
 from typing import Optional, Tuple
 from src.components.base import BaseComponent
-from src.core.session_state import SessionStateManager
-from src.core.error_handler import get_error_handler, create_streamlit_error_ui
-from src.services.openai_service import jpeg_bytes_from_image
+from src.app.core.session_state import SessionStateManager
+from src.app.core.error_handler import get_error_handler, create_streamlit_error_ui
+from src.domains.analysis.services.openai_service import jpeg_bytes_from_image
 
 
 class ImageAnalysisComponent(BaseComponent):

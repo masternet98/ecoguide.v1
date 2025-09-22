@@ -8,8 +8,8 @@ from dataclasses import dataclass, field
 from typing import List, Optional, Dict, Any
 import os
 
-from src.services.vision_types import VisionConfig
-from src.core.prompt_types import PromptConfig
+from src.domains.analysis.vision_types import VisionConfig
+from src.app.core.prompt_types import PromptConfig
 
 
 @dataclass
@@ -132,7 +132,7 @@ class Config:
     max_image_size: int = 1024
     jpeg_quality: int = 90
 
-    # Vision-specific configuration (uses VisionConfig from src.services.vision_types)
+    # Vision-specific configuration (uses VisionConfig from src.domains.analysis.vision_types)
     vision: VisionConfig = field(default_factory=VisionConfig)
 
     # District-specific configuration
@@ -170,8 +170,8 @@ def create_search_provider_manager(config: Config = None):
         config = load_config()
     
     # 순환 import 방지를 위해 함수 내부에서 import
-    from src.services.search_manager import SearchProviderManager, SearchManagerConfig
-    from src.services.search_providers import (
+    from src.domains.search_manager import SearchProviderManager, SearchManagerConfig
+    from src.domains.search_providers import (
         ProviderConfig, GoogleCSEProvider, BingSearchProvider, 
         HTMLParsingProvider
     )

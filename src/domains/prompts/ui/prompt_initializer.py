@@ -21,7 +21,7 @@ class PromptInitializerComponent(BaseComponent):
             prompt_service: 프롬프트 서비스 인스턴스
         """
         try:
-            from src.core.prompt_types import PromptCategory
+            from src.app.core.prompt_types import PromptCategory
             
             # 기본 카메라 분석 프롬프트 생성
             self._create_camera_analysis_prompt(prompt_service, PromptCategory)

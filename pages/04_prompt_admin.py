@@ -4,9 +4,9 @@
 관리자가 프롬프트를 생성, 수정, 삭제하고 기능에 매핑할 수 있는 인터페이스를 제공합니다.
 """
 import streamlit as st
-from src.core.app_factory import get_application
-from src.components.prompt_admin_ui import PromptAdminUI
-from src.core.error_handler import handle_errors, create_streamlit_error_ui, get_error_handler
+from src.app.core.app_factory import get_application
+from src.domains.prompts.ui.prompt_admin_ui import PromptAdminUI
+from src.app.core.error_handler import handle_errors, create_streamlit_error_ui, get_error_handler
 
 
 @handle_errors(show_user_message=True, reraise=False)
@@ -62,7 +62,7 @@ def main():
         st.subheader("📋 기능 레지스트리")
         
         try:
-            from src.core.prompt_feature_registry import get_prompt_feature_registry
+            from src.app.core.prompt_feature_registry import get_prompt_feature_registry
             feature_registry = get_prompt_feature_registry()
             
             features = feature_registry.list_features()

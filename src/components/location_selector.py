@@ -7,7 +7,7 @@ from typing import Optional, Dict, Any
 from datetime import datetime
 
 from src.components.base import BaseComponent
-from src.core.session_state import SessionStateManager
+from src.app.core.session_state import SessionStateManager
 
 # GPS 자동 감지 기능 추가
 try:

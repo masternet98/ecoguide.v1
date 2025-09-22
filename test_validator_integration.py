@@ -13,11 +13,11 @@ from io import StringIO
 # 프로젝트 루트를 path에 추가
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from src.services.district_validator import (
+from src.domains.district.services.district_validator import (
     normalize_admin_field, validate_district_row, get_validation_stats,
     validate_admin_hierarchy, clean_admin_code
 )
-from src.core.config import DistrictConfig
+from src.app.core.config import DistrictConfig
 
 def test_normalize_admin_field():
     """normalize_admin_field 함수 테스트"""
@@ -132,7 +132,7 @@ def test_import_integration():
     print("=== Import 통합 테스트 ===")
 
     try:
-        from src.services.district_service import (
+        from src.domains.district.services.district_service import (
             normalize_admin_field, validate_district_row, get_validation_stats,
             validate_admin_hierarchy, clean_admin_code
         )

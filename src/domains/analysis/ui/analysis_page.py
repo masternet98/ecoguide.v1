@@ -7,12 +7,12 @@ import json
 from typing import Optional, Dict, Any
 
 from src.components.base_ui import (
-    BaseUIComponent, UIComponent, ImageInputComponent, 
+    BaseUIComponent, UIComponent, ImageInputComponent,
     AnalysisResultComponent, AnalysisControlComponent
 )
-from src.core.session_state import SessionStateManager
-from src.core.error_handler import handle_errors, create_streamlit_error_ui, get_error_handler
-from src.services.openai_service import jpeg_bytes_from_image
+from src.app.core.session_state import SessionStateManager
+from src.app.core.error_handler import handle_errors, create_streamlit_error_ui, get_error_handler
+from src.domains.analysis.services.openai_service import jpeg_bytes_from_image
 
 
 class AnalysisPageComponent(BaseUIComponent):

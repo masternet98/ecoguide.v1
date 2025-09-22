@@ -4,9 +4,9 @@
 """
 import streamlit as st
 
-from src.core.config import Config
-from src.core.logger import log_error, log_info, LogCategory
-from src.services.batch_service import BatchConfig, initialize_batch_system
+from src.app.core.config import Config
+from src.app.core.logger import log_error, log_info, LogCategory
+from src.domains.infrastructure.services.batch_service import BatchConfig, initialize_batch_system
 
 from .monitoring_dashboard import (
     show_batch_management,

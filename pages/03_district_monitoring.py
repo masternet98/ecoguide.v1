@@ -4,8 +4,8 @@
 """
 import streamlit as st
 
-from src.core.config import load_config
-from src.components.monitoring_ui import show_monitoring_main, initialize_monitoring_system
+from src.app.core.config import load_config
+from src.domains.monitoring.ui.monitoring_ui import show_monitoring_main, initialize_monitoring_system
 
 # 페이지 설정
 st.set_page_config(

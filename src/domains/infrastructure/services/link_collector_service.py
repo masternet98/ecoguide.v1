@@ -9,8 +9,8 @@ import shutil
 from datetime import datetime
 from typing import Dict, List, Any, Optional
 
-from src.core.config import Config
-from src.core.logger import log_error, log_info, LogCategory
+from src.app.core.config import Config
+from src.app.core.logger import log_error, log_info, LogCategory
 
 def get_districts_data(config: Optional[Config] = None) -> List[Dict[str, Any]]:
     """
@@ -24,7 +24,7 @@ def get_districts_data(config: Optional[Config] = None) -> List[Dict[str, Any]]:
         시군구 데이터 리스트
     """
     if config is None:
-        from src.core.config import load_config
+        from src.app.core.config import load_config
         config = load_config()
 
     uploads_dir = config.district.uploads_dir
@@ -68,7 +68,7 @@ def get_waste_links_storage_path(config: Optional[Config] = None) -> str:
         저장 디렉토리 경로
     """
     if config is None:
-        from src.core.config import load_config
+        from src.app.core.config import load_config
         config = load_config()
 
     base_dir = os.path.dirname(config.district.uploads_dir)

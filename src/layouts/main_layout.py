@@ -5,7 +5,7 @@ import streamlit as st
 from src.components.base import BaseComponent
 from src.components.status.service_status import ServiceStatusComponent
 from src.components.status.feature_status import FeatureStatusComponent
-from src.core.ui import installation_guide_ui
+from src.app.core.ui import installation_guide_ui
 
 
 class MainLayoutComponent(BaseComponent):

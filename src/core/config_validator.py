@@ -12,8 +12,8 @@ import re
 import logging
 from pathlib import Path
 
-from src.core.config import Config
-from src.core.error_handler import ValidationError, ConfigurationError
+from src.app.core.config import Config
+from src.app.core.error_handler import ValidationError, ConfigurationError
 
 logger = logging.getLogger(__name__)
 

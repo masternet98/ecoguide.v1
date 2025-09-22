@@ -12,16 +12,16 @@ from unittest.mock import patch, MagicMock
 # 프로젝트 경로 추가
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.services.monitoring_service import (
-    MonitoringResult, MonitoringConfig, check_single_url, 
+from src.domains.monitoring.services.monitoring_service import (
+    MonitoringResult, MonitoringConfig, check_single_url,
     get_url_content_hash, get_file_content_hash,
     load_monitoring_history, save_monitoring_history
 )
-from src.services.notification_service import (
+from src.domains.monitoring.services.notification_service import (
     NotificationEvent, NotificationPriority, create_notification_event,
     determine_notification_priority
 )
-from src.services.batch_service import BatchScheduler, BatchConfig
+from src.domains.infrastructure.services.batch_service import BatchScheduler, BatchConfig
 
 def test_url_hash_calculation():
     """URL 해시 계산 기능을 테스트합니다."""

@@ -2,12 +2,12 @@
 from __future__ import annotations
 
 from datetime import datetime
-from src.core.config import Config
+from src.app.core.config import Config
 from typing import Any, Dict, List, Optional
 
-from src.core.logger import LogCategory, log_error, log_info
-from src.services.monitoring_service import MonitoringResult
-from src.services.notification_config import (
+from src.app.core.logger import LogCategory, log_error, log_info
+from src.domains.analysis.services.monitoring_service import MonitoringResult
+from src.domains.analysis.services.notification_config import (
     NotificationConfig,
     NotificationEvent,
     NotificationPriority,

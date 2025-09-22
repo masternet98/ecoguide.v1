@@ -2,8 +2,8 @@ import io
 from PIL import Image
 import pytest
 
-from src.services.vision_service import VisionService, analyze_image, get_default_service
-from src.services.vision_types import HandDetection, ObjectDetection, VisionConfig
+from src.domains.analysis.services.vision_service import VisionService, analyze_image, get_default_service
+from src.domains.analysis.vision_types import HandDetection, ObjectDetection, VisionConfig
 
 
 def make_image(width=400, height=300, color=(200, 200, 200)):

@@ -12,7 +12,7 @@ from datetime import datetime
 from collections import OrderedDict
 
 # 서비스 모듈 import
-from src.services.link_collector_service import (
+from src.domains.analysis.services.link_collector_service import (
     get_districts_data,
     load_registered_links,
     save_link,
@@ -21,7 +21,7 @@ from src.services.link_collector_service import (
     delete_attachment,
     get_attachment_file_path
 )
-from src.services.monitoring_admin_integration import (
+from src.domains.analysis.services.monitoring_admin_integration import (
     get_district_error_status,
     get_filtered_districts,
     get_all_districts_error_summary,
@@ -381,7 +381,7 @@ def link_collector_ui():
     initialize_session_state()
 
     # 설정 로드
-    from src.core.config import load_config
+    from src.app.core.config import load_config
     config = load_config()
     
     # 데이터 로드

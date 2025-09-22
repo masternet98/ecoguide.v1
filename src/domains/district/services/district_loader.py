@@ -13,11 +13,11 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
-from src.core.logger import (
+from src.app.core.logger import (
     logger, log_function, log_step, log_info, log_warning, log_error,
     LogCategory, LogLevel
 )
-from src.core.config import DistrictConfig
+from src.app.core.config import DistrictConfig
 from src.domains.infrastructure.services.file_source_validator import validate_downloaded_file, detect_website_changes
 from .district_validator import (
     normalize_admin_field,
@@ -130,7 +130,7 @@ def process_district_csv(csv_content: bytes, output_filename: Optional[str] = No
     
     # Config 로드
     if config is None:
-        from src.core.config import load_config
+        from src.app.core.config import load_config
         config = load_config().district
     
     log_info(
@@ -678,7 +678,7 @@ def check_data_go_kr_update(url: str = None, config: Optional[DistrictConfig] = 
     try:
         # Config 로드
         if config is None:
-            from src.core.config import load_config
+            from src.app.core.config import load_config
             config = load_config().district
         
         # URL이 없으면 config의 page_url 사용
@@ -759,7 +759,7 @@ def download_district_data_from_web(config: Optional[DistrictConfig] = None) -> 
     """
     # Config 로드
     if config is None:
-        from src.core.config import load_config
+        from src.app.core.config import load_config
         config = load_config().district
     
     try:
@@ -1004,7 +1004,7 @@ def try_javascript_download(session: requests.Session, params: Dict[str, str], c
     try:
         # Config 로드
         if config is None:
-            from src.core.config import load_config
+            from src.app.core.config import load_config
             config = load_config().district
             
         # 1단계: 다운로드 정보 요청 (publicDataPk, publicDataDetailPk만 사용)
@@ -1210,7 +1210,7 @@ def try_direct_links(session: requests.Session, soup: BeautifulSoup, base_url: s
     """
     # Config 로드
     if config is None:
-        from src.core.config import load_config
+        from src.app.core.config import load_config
         config = load_config().district
         
     # 다운로드 링크 찾기
@@ -1255,7 +1255,7 @@ def try_api_endpoints(session: requests.Session, soup: BeautifulSoup, base_url: 
     """
     # Config 로드
     if config is None:
-        from src.core.config import load_config
+        from src.app.core.config import load_config
         config = load_config().district
         
     # 공통적으로 사용되는 API 엔드포인트들
@@ -1295,7 +1295,7 @@ def try_fallback_download(session: requests.Session, soup: BeautifulSoup, base_u
     """
     # Config 로드
     if config is None:
-        from src.core.config import load_config
+        from src.app.core.config import load_config
         config = load_config().district
         
     # 행정안전부 법정동코드는 보통 고정된 패턴을 가짐

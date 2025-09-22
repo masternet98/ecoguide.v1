@@ -8,8 +8,8 @@ import requests
 from typing import Dict, List, Optional, Any, Tuple
 from datetime import datetime, timedelta
 
-from src.core.config import LocationConfig
-from src.core.logger import logger, log_function, log_step, log_info, log_warning, log_error, LogCategory
+from src.app.core.config import LocationConfig
+from src.app.core.logger import logger, log_function, log_step, log_info, log_warning, log_error, LogCategory
 
 
 class LocationService:
@@ -31,7 +31,7 @@ class LocationService:
         """행정구역 데이터를 로드합니다."""
         try:
             # district_service의 get_latest_district_file 함수 사용
-            from src.services.district_service import get_latest_district_file
+            from src.domains.analysis.services.district_service import get_latest_district_file
 
             latest_file_path = get_latest_district_file()
             if not latest_file_path:
@@ -429,7 +429,7 @@ class LocationService:
     def get_current_district_file_info(self) -> Optional[Dict[str, Any]]:
         """현재 사용 중인 district 파일 정보를 반환합니다."""
         try:
-            from src.services.district_service import get_latest_district_file
+            from src.domains.analysis.services.district_service import get_latest_district_file
 
             latest_file_path = get_latest_district_file()
             if not latest_file_path:

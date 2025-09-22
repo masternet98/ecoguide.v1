@@ -3,8 +3,8 @@
 """
 import streamlit as st
 from src.components.base import BaseComponent
-from src.components.analysis.analysis_interface import AnalysisInterfaceComponent
-from src.components.prompts.prompt_initializer import PromptInitializerComponent
+from src.domains.analysis.ui.analysis_interface import AnalysisInterfaceComponent
+from src.domains.prompts.ui.prompt_initializer import PromptInitializerComponent
 
 
 class CameraAnalysisPage(BaseComponent):

@@ -17,9 +17,9 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from requests.adapters import HTTPAdapter
 from urllib3.util.ssl_ import create_urllib3_context
 
-from src.core.config import Config
-from src.core.logger import log_error, log_info, LogCategory
-from src.services.link_collector_service import load_registered_links, get_storage_filepath
+from src.app.core.config import Config
+from src.app.core.logger import log_error, log_info, LogCategory
+from src.domains.infrastructure.services.link_collector_service import load_registered_links, get_storage_filepath
 
 # SSL 경고 메시지 비활성화
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -78,7 +78,7 @@ def get_monitoring_storage_path(config: Optional[Config] = None) -> str:
         모니터링 저장 디렉토리 경로
     """
     if config is None:
-        from src.core.config import load_config
+        from src.app.core.config import load_config
         config = load_config()
     
     base_dir = os.path.dirname(config.district.uploads_dir)

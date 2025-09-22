@@ -6,9 +6,9 @@ Streamlit 애플리케이션의 메인 파일입니다.
 """
 import streamlit as st
 
-from src.core.app_factory import get_application
-from src.core.session_state import SessionStateManager
-from src.core.error_handler import handle_errors, create_streamlit_error_ui, get_error_handler
+from src.app.core.app_factory import get_application
+from src.app.core.session_state import SessionStateManager
+from src.app.core.error_handler import handle_errors, create_streamlit_error_ui, get_error_handler
 from src.layouts.main_layout import MainLayoutComponent
 from src.pages.camera_analysis import CameraAnalysisPage
 

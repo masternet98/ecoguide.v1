@@ -3,14 +3,14 @@
 """
 import streamlit as st
 from src.components.base import BaseComponent
-from src.core.prompt_feature_decorators import prompt_feature
+from src.app.core.prompt_feature_decorators import prompt_feature
 from src.components.analysis.image_input import ImageInputComponent
 from src.components.analysis.image_analysis import ImageAnalysisComponent
 from src.components.analysis.results_display import ResultsDisplayComponent
 from src.components.prompts.prompt_manager import PromptManagerComponent
 from src.components.prompts.prompt_selector import PromptSelectorComponent
 from src.components.location_selector import LocationSelectorComponent
-from src.core.session_state import SessionStateManager
+from src.app.core.session_state import SessionStateManager
 
 
 @prompt_feature(

@@ -12,7 +12,7 @@ from datetime import datetime
 from collections import OrderedDict
 
 # 서비스 모듈 import
-from src.services.link_collector_service import (
+from src.domains.infrastructure.services.link_collector_service import (
     get_districts_data,
     load_registered_links,
     save_link,
@@ -381,7 +381,7 @@ def link_collector_ui():
     initialize_session_state()
 
     # 설정 로드
-    from src.core.config import load_config
+    from src.app.core.config import load_config
     config = load_config()
     
     # 데이터 로드

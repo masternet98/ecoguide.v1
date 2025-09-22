@@ -4,8 +4,8 @@
 import io
 import streamlit as st
 import qrcode
-from src.core.utils import TunnelState
-from src.services.tunnel_service import start_cloudflared_tunnel, stop_cloudflared_tunnel
+from src.app.core.utils import TunnelState
+from src.domains.analysis.services.tunnel_service import start_cloudflared_tunnel, stop_cloudflared_tunnel
 
 def tunnel_sidebar_ui(state: TunnelState):
     """Cloudflare 터널 관리를 위한 UI - 사이드바 또는 메인 관리자 페이지에서 사용할 수 있습니다."""

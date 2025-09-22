@@ -7,7 +7,7 @@ import re
 from typing import List, Dict, Optional, Any
 from datetime import datetime
 
-from src.core.prompt_types import PromptTemplate, PromptCategory, PromptConfig
+from src.app.core.prompt_types import PromptTemplate, PromptCategory, PromptConfig
 
 
 class PromptValidator:

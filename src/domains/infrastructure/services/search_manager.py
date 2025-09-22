@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 
 # 로깅 시스템 import
-from src.core.logger import (
+from src.app.core.logger import (
     logger, log_function, log_step, log_info, log_warning, log_error,
     LogLevel, LogCategory
 )

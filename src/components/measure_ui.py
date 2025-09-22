@@ -18,7 +18,7 @@ import streamlit as st
 from PIL import Image, ImageDraw
 
 from src.services.vision_service import VisionService
-from src.services.vision_types import (
+from src.domains.analysis.vision_types import (
     VisionConfig,
     HandDetection,
     ObjectDetection,

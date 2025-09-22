@@ -8,9 +8,9 @@ import json
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 
-from src.core.prompt_types import PromptTemplate, PromptCategory, PromptStatus, FeaturePromptMapping
-from src.services.prompt_service import PromptService
-from src.core.logger import get_logger
+from src.app.core.prompt_types import PromptTemplate, PromptCategory, PromptStatus, FeaturePromptMapping
+from src.domains.prompts.services.prompt_service import PromptService
+from src.app.core.logger import get_logger
 
 
 class PromptAdminUI:
@@ -293,7 +293,7 @@ class PromptAdminUI:
         st.subheader("기능-프롬프트 매핑 관리")
         
         # 동적 기능 목록 조회 (프롬프트 기능 레지스트리에서 가져옴)
-        from src.core.prompt_feature_registry import get_prompt_feature_registry
+        from src.app.core.prompt_feature_registry import get_prompt_feature_registry
         
         feature_registry = get_prompt_feature_registry()
         available_features = feature_registry.get_feature_ids(active_only=True)
@@ -414,8 +414,8 @@ class PromptAdminUI:
         st.subheader("기능 관리")
         st.markdown("프롬프트 기능을 추가, 수정, 삭제할 수 있습니다.")
         
-        from src.core.prompt_feature_registry import get_prompt_feature_registry
-        from src.core.prompt_feature_manager import get_prompt_feature_manager
+        from src.app.core.prompt_feature_registry import get_prompt_feature_registry
+        from src.app.core.prompt_feature_manager import get_prompt_feature_manager
         
         feature_registry = get_prompt_feature_registry()
         feature_manager = get_prompt_feature_manager()
@@ -546,7 +546,7 @@ class PromptAdminUI:
         active_prompts = len([p for p in all_prompts if p.status == PromptStatus.ACTIVE])
         
         # 기능 레지스트리 통계
-        from src.core.prompt_feature_registry import get_prompt_feature_registry
+        from src.app.core.prompt_feature_registry import get_prompt_feature_registry
         feature_registry = get_prompt_feature_registry()
         feature_stats = feature_registry.get_statistics()
         

@@ -10,7 +10,7 @@ import subprocess
 import shlex
 from typing import Optional
 
-from src.core.utils import TunnelState
+from src.app.core.utils import TunnelState
 
 def _find_cloudflared_path() -> Optional[str]:
     """PATH 또는 일반적인 설치 위치에서 cloudflared를 찾습니다."""

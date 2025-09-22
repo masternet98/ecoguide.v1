@@ -14,7 +14,7 @@ from bs4 import BeautifulSoup
 import random
 
 # 로깅 시스템 import
-from src.core.logger import (
+from src.app.core.logger import (
     logger, log_function, log_step, log_info, log_warning, log_error,
     LogLevel, LogCategory
 )

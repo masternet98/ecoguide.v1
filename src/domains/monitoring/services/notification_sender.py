@@ -3,14 +3,14 @@ from __future__ import annotations
 
 import smtplib
 from datetime import datetime
-from src.core.config import Config
+from src.app.core.config import Config
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from typing import Any, Dict, Optional
 
-from src.core.logger import LogCategory, log_error, log_info
-from src.services.monitoring_service import get_monitoring_summary
-from src.services.notification_config import (
+from src.app.core.logger import LogCategory, log_error, log_info
+from src.domains.analysis.services.monitoring_service import get_monitoring_summary
+from src.domains.analysis.services.notification_config import (
     NotificationConfig,
     NotificationEvent,
     get_notification_history,
@@ -170,7 +170,7 @@ def create_daily_summary_email(config: Optional[Config] = None) -> Optional[str]
     Returns:
         이메일 내용 또는 None (전송할 내용이 없는 경우)
     """
-    from src.services.monitoring_service import get_monitoring_summary
+    from src.domains.analysis.services.monitoring_service import get_monitoring_summary
     
     try:
         # 최근 1일간 모니터링 요약

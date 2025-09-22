@@ -8,10 +8,10 @@ import os
 from datetime import datetime
 from typing import Any, Dict, Optional
 
-from src.core.logger import (
+from src.app.core.logger import (
     log_function, log_step, log_info, log_warning, log_error, LogCategory
 )
-from src.core.config import DistrictConfig
+from src.app.core.config import DistrictConfig
 from .district_validator import (
     normalize_admin_field, validate_district_row, get_validation_stats,
     validate_admin_hierarchy, clean_admin_code, validate_csv_data
@@ -66,7 +66,7 @@ def get_last_update_info(config: Optional[DistrictConfig] = None) -> Dict[str, A
     """
     # Config 로드
     if config is None:
-        from src.core.config import load_config
+        from src.app.core.config import load_config
         config = load_config().district
     
     uploads_dir = config.uploads_dir
@@ -92,7 +92,7 @@ def save_update_info(modification_date: str, config: Optional[DistrictConfig] = 
     """
     # Config 로드
     if config is None:
-        from src.core.config import load_config
+        from src.app.core.config import load_config
         config = load_config().district
     
     uploads_dir = config.uploads_dir
@@ -125,7 +125,7 @@ def auto_update_district_data(config: Optional[DistrictConfig] = None) -> Dict[s
     
     # Config 로드
     if config is None:
-        from src.core.config import load_config
+        from src.app.core.config import load_config
         config = load_config().district
     
     log_info(
@@ -347,7 +347,7 @@ def clear_update_info(config: Optional[DistrictConfig] = None) -> Dict[str, Any]
     """
     # Config 로드
     if config is None:
-        from src.core.config import load_config
+        from src.app.core.config import load_config
         config = load_config().district
     
     uploads_dir = config.uploads_dir
@@ -400,7 +400,7 @@ def force_update_district_data(config: Optional[DistrictConfig] = None) -> Dict[
 
     # Config 로드
     if config is None:
-        from src.core.config import load_config
+        from src.app.core.config import load_config
         config = load_config().district
 
     log_info(

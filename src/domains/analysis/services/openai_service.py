@@ -14,9 +14,9 @@ else:
 
 from PIL import Image
 
-from src.core.base_service import BaseService
-from src.core.config import Config
-from src.core.error_handler import DependencyError, NetworkError, ValidationError, handle_errors
+from src.app.core.base_service import BaseService
+from src.app.core.config import Config
+from src.app.core.error_handler import DependencyError, NetworkError, ValidationError, handle_errors
 
 # OpenAI 클라이언트에 대한 선택적 가져오기 가드
 try:
@@ -67,7 +67,7 @@ class OpenAIService(BaseService):
             )
         
         # API 키 로드
-        from src.core.utils import resolve_api_key
+        from src.app.core.utils import resolve_api_key
         self._api_key = resolve_api_key()
         
         if not self._api_key:

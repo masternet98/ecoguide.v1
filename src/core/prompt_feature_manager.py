@@ -8,12 +8,12 @@ from pathlib import Path
 from typing import Dict, List, Set, Optional, Any
 from datetime import datetime
 
-from src.core.prompt_feature_registry import (
+from src.app.core.prompt_feature_registry import (
     get_prompt_feature_registry, 
     PromptFeatureRegistry, 
     PromptFeatureInfo
 )
-from src.core.logger import get_logger
+from src.app.core.logger import get_logger
 
 
 class PromptFeatureManager:

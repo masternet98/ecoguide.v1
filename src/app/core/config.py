@@ -8,8 +8,8 @@ from dataclasses import dataclass, field
 from typing import List, Optional, Dict, Any
 import os
 
-from src.services.vision_types import VisionConfig
-from src.core.prompt_types import PromptConfig
+from src.domains.analysis.vision_types import VisionConfig
+from src.app.core.prompt_types import PromptConfig
 
 
 @dataclass
@@ -132,7 +132,7 @@ class Config:
     max_image_size: int = 1024
     jpeg_quality: int = 90
 
-    # Vision-specific configuration (uses VisionConfig from src.services.vision_types)
+    # Vision-specific configuration (uses VisionConfig from src.domains.analysis.vision_types)
     vision: VisionConfig = field(default_factory=VisionConfig)
 
     # District-specific configuration

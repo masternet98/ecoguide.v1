@@ -5,7 +5,7 @@
 
 from typing import Any, Dict, List, Optional
 
-from src.core.config import DistrictConfig, load_config
+from src.app.core.config import DistrictConfig, load_config
 from .district_loader import (
     check_data_go_kr_update,
     download_district_data_from_web,

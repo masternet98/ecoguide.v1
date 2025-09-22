@@ -5,8 +5,8 @@ CSV 파일 업로드, 중복 제거, JSON 변환 기능을 제공합니다.
 import streamlit as st
 import os
 import json
-from src.core.config import load_config
-from src.services.district_service import (
+from src.app.core.config import load_config
+from src.domains.district.services.district_service import (
     process_district_csv, get_district_files, preview_district_file,
     auto_update_district_data, force_update_district_data, delete_district_file, delete_all_district_files,
     clear_update_info
@@ -143,7 +143,7 @@ with tab2:
         st.subheader("📊 현재 상태")
         
         # 로컬 업데이트 정보 확인
-        from src.services.district_service import get_last_update_info
+        from src.domains.district.services.district_service import get_last_update_info
         local_info = get_last_update_info(district_config)
         local_date = local_info.get("last_modification_date")
         
@@ -160,7 +160,7 @@ with tab2:
         # 웹사이트 상태 확인 버튼
         if st.button("🔍 웹사이트 수정일 확인", use_container_width=True):
             with st.spinner("웹사이트에서 수정일 확인 중..."):
-                from src.services.district_service import check_data_go_kr_update
+                from src.domains.district.services.district_service import check_data_go_kr_update
                 web_result = check_data_go_kr_update(config=district_config)
                 
                 if web_result["success"]:

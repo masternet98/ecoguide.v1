@@ -8,8 +8,8 @@ from dataclasses import dataclass, field
 from typing import List, Optional, Dict, Any
 import os
 
-from src.services.vision_types import VisionConfig
-from src.core.prompt_types import PromptConfig
+from src.domains.analysis.vision_types import VisionConfig
+from src.app.core.prompt_types import PromptConfig
 
 
 @dataclass

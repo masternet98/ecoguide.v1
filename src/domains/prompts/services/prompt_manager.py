@@ -11,7 +11,7 @@ from datetime import datetime
 from pathlib import Path
 import uuid
 
-from src.core.prompt_types import (
+from src.app.core.prompt_types import (
     PromptTemplate, FeaturePromptMapping, PromptUsageStats,
     PromptCategory, PromptStatus, PromptConfig
 )

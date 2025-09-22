@@ -6,10 +6,10 @@ from typing import Dict, List, Any, Optional
 from datetime import datetime
 from dataclasses import dataclass
 
-from src.core.config import Config
-from src.services.monitoring_service import load_monitoring_history
-from src.services.link_collector_service import load_registered_links
-from src.core.logger import log_info, log_error, LogCategory
+from src.app.core.config import Config
+from src.domains.analysis.services.monitoring_service import load_monitoring_history
+from src.domains.analysis.services.link_collector_service import load_registered_links
+from src.app.core.logger import log_info, log_error, LogCategory
 
 
 @dataclass

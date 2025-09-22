@@ -5,14 +5,14 @@
 """
 from typing import List, Dict, Optional, Any
 
-from src.core.prompt_types import (
+from src.app.core.prompt_types import (
     PromptTemplate, FeaturePromptMapping, PromptUsageStats,
     PromptCategory, PromptStatus, PromptConfig
 )
-from src.core.base_service import BaseService
-from src.services.prompt_manager import PromptManager
-from src.services.prompt_renderer import PromptRenderer
-from src.services.prompt_validator import PromptValidator
+from src.app.core.base_service import BaseService
+from src.domains.prompts.services.prompt_manager import PromptManager
+from src.domains.prompts.services.prompt_renderer import PromptRenderer
+from src.domains.prompts.services.prompt_validator import PromptValidator
 
 
 class PromptService(BaseService):
@@ -31,9 +31,9 @@ class PromptService(BaseService):
         """
         # BaseService는 Config 타입을 요구하므로, 임시로 config를 전달
         # 실제로는 PromptConfig만 사용함
-        from src.core.config import Config
+        from src.app.core.config import Config
         super().__init__(config=Config())
-        from src.core.logger import get_logger
+        from src.app.core.logger import get_logger
 
         self.config = config
         self.logger = get_logger(__name__)

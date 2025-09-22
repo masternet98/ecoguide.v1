@@ -4,9 +4,9 @@ Cloudflared 터널 관리 전용 페이지
 """
 import os
 import streamlit as st
-from src.components.tunnel_ui import tunnel_sidebar_ui
-from src.core.utils import get_app_state
-from src.core.config import load_config
+from src.domains.infrastructure.ui.tunnel_ui import tunnel_sidebar_ui
+from src.app.core.utils import get_app_state
+from src.app.core.config import load_config
 
 # 페이지 설정
 st.set_page_config(

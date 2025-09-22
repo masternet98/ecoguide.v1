@@ -10,8 +10,8 @@ import json
 from typing import Dict, List, Any, Optional
 from datetime import datetime
 
-from src.core.logger import logger, log_info, log_warning, log_error
-from src.core.config import DistrictConfig
+from src.app.core.logger import logger, log_info, log_warning, log_error
+from src.app.core.config import DistrictConfig
 
 
 def get_district_files(config: Optional[DistrictConfig] = None) -> List[Dict[str, Any]]:
@@ -26,7 +26,7 @@ def get_district_files(config: Optional[DistrictConfig] = None) -> List[Dict[str
     """
     # Config 로드
     if config is None:
-        from src.core.config import load_config
+        from src.app.core.config import load_config
         config = load_config().district
 
     uploads_dir = config.uploads_dir
@@ -273,7 +273,7 @@ def delete_district_file(file_path: str, config: Optional[DistrictConfig] = None
     """
     # Config 로드
     if config is None:
-        from src.core.config import load_config
+        from src.app.core.config import load_config
         config = load_config().district
 
     try:
@@ -352,7 +352,7 @@ def delete_all_district_files(config: Optional[DistrictConfig] = None) -> Dict[s
     """
     # Config 로드
     if config is None:
-        from src.core.config import load_config
+        from src.app.core.config import load_config
         config = load_config().district
 
     try:
