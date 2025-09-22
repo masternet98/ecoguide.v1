@@ -108,8 +108,8 @@ class ServiceFactory:
             # 의존성 해결
             dependencies = self._dependency_resolver.resolve_dependencies(descriptor.dependencies)
             
-            # 모듈 동적 임포트
-            module = importlib.import_module(descriptor.module_path)
+            # 모듈 동적 임포트 (Phase 0.5 이중 경로 지원)
+            module = self._load_service_module(service_name, descriptor.module_path)
             service_class = getattr(module, descriptor.service_class.__name__)
             
             # 인스턴스 생성
@@ -138,6 +138,31 @@ class ServiceFactory:
                 raise
             return None
     
+    def _load_service_module(self, service_name: str, fallback_module_path: str):
+        """Phase 0.5 이중 경로 지원으로 서비스 모듈 로딩"""
+        # Phase 0.5에서 복사된 서비스들의 새 경로 시도
+        domain_map = {
+            'vision_service': 'analysis',
+            'openai_service': 'analysis',
+            'prompt_service': 'prompts',
+            'prompt_manager': 'prompts',
+            'prompt_renderer': 'prompts',
+            'prompt_validator': 'prompts'
+        }
+
+        if service_name in domain_map:
+            try:
+                domain = domain_map[service_name]
+                new_module_path = f"src.domains.{domain}.services.{service_name}"
+                logger.info(f"Trying new path for {service_name}: {new_module_path}")
+                return importlib.import_module(new_module_path)
+            except ImportError as e:
+                logger.warning(f"New path failed for {service_name}, falling back to legacy: {e}")
+
+        # 기존 경로 fallback
+        logger.info(f"Using legacy path for {service_name}: {fallback_module_path}")
+        return importlib.import_module(fallback_module_path)
+
     def _create_service_instance(self, service_class, service_name: str, **dependencies):
         """서비스별 특수한 설정을 처리하여 인스턴스를 생성합니다."""
         if service_name == 'prompt_service':
