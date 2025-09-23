@@ -14,7 +14,7 @@ import streamlit as st
 
 from src.app.core.config import Config
 from src.app.core.logger import log_error, log_info, LogCategory
-from src.domains.analysis.services.monitoring_service import (
+from src.domains.monitoring.services.monitoring_service import (
     run_monitoring_check, get_monitoring_summary, MonitoringConfig,
     check_district_changes, load_monitoring_history
 )
@@ -23,7 +23,7 @@ from src.domains.analysis.services.notification_service import (
     load_notification_settings, save_notification_settings, send_test_email
 )
 from src.domains.analysis.services.batch_service import get_batch_scheduler
-from src.domains.analysis.services.link_collector_service import load_registered_links
+from src.domains.infrastructure.services.link_collector_service import load_registered_links
 
 from .monitoring_charts import (
     display_error_table,
@@ -384,7 +384,7 @@ def run_streaming_monitoring(config: Config, monitoring_config: MonitoringConfig
         overall_status.text("초기화 중...")
         
         # 등록된 링크 데이터 로드
-        from src.domains.analysis.services.link_collector_service import load_registered_links
+        from src.domains.infrastructure.services.link_collector_service import load_registered_links
         registered_data = load_registered_links(config)
         links_data = registered_data.get("links", {})
         

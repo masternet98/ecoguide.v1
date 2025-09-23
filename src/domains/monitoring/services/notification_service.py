@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional
 
 from src.app.core.config import Config
 from src.app.core.logger import LogCategory, log_info
-from src.domains.analysis.services.monitoring_service import MonitoringResult
+from src.domains.monitoring.services.monitoring_service import MonitoringResult
 from src.domains.analysis.services.notification_config import (
     NotificationConfig,
     NotificationEvent,

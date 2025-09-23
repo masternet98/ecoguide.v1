@@ -14,7 +14,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from src.app.core.config import Config
 from src.app.core.logger import log_error, log_info, LogCategory
-from src.domains.analysis.services.monitoring_service import (
+from src.domains.monitoring.services.monitoring_service import (
     run_monitoring_check, MonitoringConfig, get_monitoring_storage_path
 )
 from src.domains.analysis.services.notification_service import (
@@ -266,7 +266,7 @@ class BatchScheduler:
             
             # 알림 처리
             if job.config.get("send_notifications", True):
-                from src.domains.analysis.services.monitoring_service import MonitoringResult
+                from src.domains.monitoring.services.monitoring_service import MonitoringResult
                 # 모니터링 결과에서 문제가 있는 경우들을 추출
                 problem_results = []
                 for district_key, district_summary in monitoring_result["districts"].items():
@@ -360,7 +360,7 @@ class BatchScheduler:
             
             # 모니터링 이력 정리
             if job.config.get("cleanup_logs", True):
-                from src.domains.analysis.services.monitoring_service import get_monitoring_history_path
+                from src.domains.monitoring.services.monitoring_service import get_monitoring_history_path
                 history_path = get_monitoring_history_path(self.config)
                 if os.path.exists(history_path):
                     # 이력 파일을 읽고 오래된 항목 제거

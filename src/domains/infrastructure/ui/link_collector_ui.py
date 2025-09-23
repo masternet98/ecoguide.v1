@@ -12,7 +12,7 @@ from datetime import datetime
 from collections import OrderedDict
 
 # 서비스 모듈 import
-from src.domains.analysis.services.link_collector_service import (
+from src.domains.infrastructure.services.link_collector_service import (
     get_districts_data,
     load_registered_links,
     save_link,
@@ -21,7 +21,7 @@ from src.domains.analysis.services.link_collector_service import (
     delete_attachment,
     get_attachment_file_path
 )
-from src.domains.analysis.services.monitoring_admin_integration import (
+from src.domains.monitoring.services.monitoring_admin_integration import (
     get_district_error_status,
     get_filtered_districts,
     get_all_districts_error_summary,

@@ -9,7 +9,7 @@ from typing import Optional, List, Dict, Any
 from datetime import datetime
 
 from src.app.core.prompt_types import PromptTemplate, PromptCategory, PromptStatus, FeaturePromptMapping
-from src.domains.analysis.services.prompt_service import PromptService
+from src.domains.prompts.services.prompt_service import PromptService
 from src.app.core.logger import get_logger
 
 
