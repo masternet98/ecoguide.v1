@@ -1,0 +1,19 @@
+{
+  "location_data": {
+    "sido": "인천광역시",
+    "sigungu": "서구",
+    "legal_dong": "청라동",
+    "admin_dong": "청라2동",
+    "dong": "청라동",
+    "dong_type": "법정동",
+    "full_address": "인천광역시 서구 청라동 9-90",
+    "coords": {
+      "lat": 37.547096,
+      "lng": 126.634347
+    },
+    "method": "vworld_api"
+  },
+  "method": "gps",
+  "saved_at": "2025-09-23T10:27:46.243383",
+  "version": "1.0"
+}

@@ -10,7 +10,7 @@ from dataclasses import dataclass
 import logging
 from enum import Enum
 
-from src.app.config import Config
+from src.app.core.config import Config
 
 
 class ServiceStatus(Enum):

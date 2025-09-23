@@ -11,7 +11,7 @@ from dataclasses import dataclass
 import importlib
 import logging
 
-from src.app.config import Config
+from src.app.core.config import Config
 
 T = TypeVar('T')
 

@@ -170,9 +170,9 @@ def create_search_provider_manager(config: Config = None):
         config = load_config()
     
     # 순환 import 방지를 위해 함수 내부에서 import
-    from src.services.search_manager import SearchProviderManager, SearchManagerConfig
-    from src.services.search_providers import (
-        ProviderConfig, GoogleCSEProvider, BingSearchProvider, 
+    from src.domains.infrastructure.services.search_manager import SearchProviderManager, SearchManagerConfig
+    from src.domains.infrastructure.services.search_providers import (
+        ProviderConfig, GoogleCSEProvider, BingSearchProvider,
         HTMLParsingProvider
     )
     

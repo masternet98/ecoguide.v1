@@ -11,7 +11,7 @@ import subprocess
 import streamlit as st
 from dotenv import load_dotenv
 
-from src.core.config import Config
+from src.app.core.config import Config
 
 
 # =======================

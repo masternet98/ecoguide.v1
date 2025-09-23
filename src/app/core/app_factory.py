@@ -8,7 +8,7 @@ from typing import Optional
 import logging
 from dotenv import load_dotenv
 
-from src.app.config import Config, load_config
+from src.app.core.config import Config, load_config
 from src.app.core.config_validator import ensure_valid_config
 from src.app.core.service_factory import ServiceFactory, create_default_service_registry
 from src.app.core.feature_registry import FeatureRegistry, create_default_feature_registry
