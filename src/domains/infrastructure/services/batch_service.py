@@ -17,7 +17,7 @@ from src.app.core.logger import log_error, log_info, LogCategory
 from src.domains.monitoring.services.monitoring_service import (
     run_monitoring_check, MonitoringConfig, get_monitoring_storage_path
 )
-from src.domains.analysis.services.notification_service import (
+from src.domains.monitoring.services.notification_service import (
     process_monitoring_results, load_notification_config, send_daily_summary_email
 )
 

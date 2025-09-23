@@ -10,7 +10,7 @@ from typing import Any, Dict, Optional
 
 from src.app.core.logger import LogCategory, log_error, log_info
 from src.domains.monitoring.services.monitoring_service import get_monitoring_summary
-from src.domains.analysis.services.notification_config import (
+from src.domains.monitoring.services.notification_config import (
     NotificationConfig,
     NotificationEvent,
     get_notification_history,

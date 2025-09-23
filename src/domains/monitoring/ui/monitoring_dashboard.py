@@ -18,11 +18,11 @@ from src.domains.monitoring.services.monitoring_service import (
     run_monitoring_check, get_monitoring_summary, MonitoringConfig,
     check_district_changes, load_monitoring_history
 )
-from src.domains.analysis.services.notification_service import (
+from src.domains.monitoring.services.notification_service import (
     get_notification_history, load_notification_config, send_daily_summary_email,
     load_notification_settings, save_notification_settings, send_test_email
 )
-from src.domains.analysis.services.batch_service import get_batch_scheduler
+from src.domains.infrastructure.services.batch_service import get_batch_scheduler
 from src.domains.infrastructure.services.link_collector_service import load_registered_links
 
 from .monitoring_charts import (
@@ -440,7 +440,7 @@ def run_streaming_monitoring(config: Config, monitoring_config: MonitoringConfig
         ok_count = sum(1 for r in all_results if r.status == 'ok')
         
         # 알림 처리
-        from src.domains.analysis.services.notification_service import process_monitoring_results
+        from src.domains.monitoring.services.notification_service import process_monitoring_results
         notification_result = process_monitoring_results(all_results, config)
         
         # 최종 상태 업데이트
