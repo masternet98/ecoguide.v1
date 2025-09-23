@@ -39,6 +39,7 @@ Claude Code가 이 프로젝트에서 작업할 때 **5분 내에 파악해야 �
 - ❌ `src/services/`에 새 파일 생성 → `src/domains/{domain}/services/` 사용
 - ❌ `from src.core.config` → `from src.app.core.config` 사용
 - ❌ 도메인 간 직접 import → ServiceFactory 사용
+- ❌ 설계서를 `claudedocs/`에 생성 → `instructions/` 사용
 
 ### ✅ 필수 준수 (MUST DO)
 - ✅ 새 기능은 **도메인별 분류** 후 배치
@@ -46,6 +47,7 @@ Claude Code가 이 프로젝트에서 작업할 때 **5분 내에 파악해야 �
   - 모니터링 → `monitoring`, 시스템 → `infrastructure`
 - ✅ 새 서비스는 `SERVICE_DOMAIN_MAP`에 등록
 - ✅ Config는 `src.app.core.config.load_config()` 사용
+- ✅ **설계서는 반드시 `instructions/` 폴더에 생성**
 
 **💡 모르겠으면**: `instructions/comprehensive_development_guidelines.md` 확인
 
