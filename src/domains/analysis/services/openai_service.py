@@ -139,7 +139,7 @@ class OpenAIService(BaseService):
         return response_text
 
     @handle_errors(show_user_message=True, reraise=False, fallback_return="")
-    def call_with_prompt(self, prompt: str, model: str = "gpt-4o-mini") -> Optional[str]:
+    def call_with_prompt(self, prompt: str, model: str = "gpt-4o") -> Optional[str]:
         """
         텍스트 프롬프트를 OpenAI에 보내고 응답을 받습니다.
 
@@ -148,7 +148,7 @@ class OpenAIService(BaseService):
 
         Args:
             prompt: 렌더링된 프롬프트 텍스트
-            model: 사용할 OpenAI 모델명 (기본값: gpt-4o-mini)
+            model: 사용할 OpenAI 모델명 (기본값: gpt-4o)
 
         Returns:
             str: LLM 응답 텍스트

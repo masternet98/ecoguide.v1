@@ -269,6 +269,13 @@ class ConfirmationStep:
         parsed = self._parse_analysis_result(analysis_result['text'])
         normalized = self._normalize_result(parsed)
 
+        # 🤖 AI 분석 근거 표시 (감지 직후)
+        if normalized.get('reasoning'):
+            with st.container(border=True):
+                st.markdown("### 🤖 AI 분석 근거")
+                st.info(normalized['reasoning'])
+            st.markdown("---")
+
         # 분석 결과 표시 (콤보박스 형태)
         st.subheader("📊 분석 결과")
 
@@ -478,62 +485,6 @@ class ConfirmationStep:
             'timestamp': datetime.now().isoformat()
         }
 
-        # AI 피드백 섹션 (선택적)
-        st.markdown("---")
-        st.subheader("🤖 AI 피드백 (선택)")
-
-        if st.button("💭 AI 의견 듣기", use_container_width=True, key="get_ai_feedback"):
-            try:
-                # 프롬프트 서비스 가져오기
-                prompt_service = self.app_context.get_service('prompt_service')
-                openai_service = self.app_context.get_service('openai_service')
-
-                if prompt_service and openai_service:
-                    # Simple Prompt 패턴:
-                    # 1. 저장된 프롬프트 로드 (또는 기본값으로 생성)
-                    confirmation_prompt = prompt_service.get_default_prompt_for_feature('confirmation_analysis')
-
-                    if confirmation_prompt:
-                        # 2. 변수 준비
-                        dimensions = normalized.get('dimensions', {})
-                        dimensions_str = f"{dimensions.get('w_cm', '-')}cm x {dimensions.get('h_cm', '-')}cm x {dimensions.get('d_cm', '-')}cm"
-
-                        variables = {
-                            'item_name': normalized['object_name'],
-                            'category': normalized['primary_category'],
-                            'dimensions': dimensions_str,
-                            'confidence': f"{normalized['confidence']:.0%}",
-                            'user_feedback': feedback_notes.strip() or '없음'
-                        }
-
-                        # 3. 프롬프트 렌더링 (변수 치환)
-                        rendered_prompt = prompt_service.render_prompt(
-                            confirmation_prompt.id,
-                            variables
-                        )
-
-                        if rendered_prompt:
-                            # 4. LLM 호출
-                            with st.spinner("🤖 AI가 피드백을 생성 중입니다..."):
-                                feedback_result = openai_service.call_with_prompt(rendered_prompt)
-
-                            if feedback_result:
-                                st.success("✅ AI 피드백")
-                                st.markdown(feedback_result)
-                            else:
-                                st.warning("AI 피드백 생성에 실패했습니다")
-                        else:
-                            st.warning("프롬프트 렌더링에 실패했습니다")
-                    else:
-                        st.info("💡 저장된 피드백 프롬프트가 없습니다. Admin에서 'confirmation_analysis' 기능용 프롬프트를 생성해주세요.")
-                else:
-                    st.error("필요한 서비스를 사용할 수 없습니다")
-
-            except Exception as e:
-                error_info = get_error_handler().handle_error(e)
-                st.warning(f"AI 피드백 생성 중 오류: {str(e)}")
-                logger.error(f"AI feedback generation error: {e}", exc_info=True)
-
         # 최종 확인 버튼
         st.markdown("---")
 
@@ -669,37 +620,112 @@ class CompleteStep:
 
                     if disposal_prompt:
                         # 2. 변수 준비
-                        dimensions = normalized.get('dimensions', {})
-                        dimensions_str = f"{dimensions.get('w_cm', '-')}cm x {dimensions.get('h_cm', '-')}cm x {dimensions.get('d_cm', '-')}cm"
+                        # 위치 정보: sido(시/도), sigungu(시/군/구) 추출
+                        sido = ''
+                        sigungu = ''
+                        location_code = ''
 
-                        # 위치 정보 (현재 선택된 위치가 있으면 사용)
-                        location_info = st.session_state.get('selected_location', {}) or {}
-                        location_full = location_info.get('full_address', '미지정')
-                        location_code = location_info.get('code', '')
+                        # 디버깅: 세션 상태 확인
+                        logger.info(f"🔍 [배출방법확인] 세션 상태 확인: current_location={bool(st.session_state.get('current_location'))}, selected_sido={st.session_state.get('selected_sido')}, selected_sigungu={st.session_state.get('selected_sigungu')}")
 
-                        # RAG를 통해 지역별 배출 정보 수집 (선택적)
-                        location_context = '일반 배출 규정'
-                        if location_service and location_code:
+                        # current_location 에서 위치 정보 로드
+                        current_location = st.session_state.get('current_location', {})
+                        if current_location:
+                            sido = current_location.get('sido', '')
+                            sigungu = current_location.get('sigungu', '')
+                            if sido and sigungu:
+                                location_code = f"{sido}_{sigungu}"
+                                logger.info(f"세션 상태에서 위치 정보 로드: sido={sido}, sigungu={sigungu}, location_code={location_code}")
+                            else:
+                                logger.warning(f"위치 정보 불완전: sido={sido}, sigungu={sigungu}")
+                        else:
+                            # 세션 상태에 없으면 파일에서 직접 로드 시도
                             try:
-                                rag_service = self.app_context.get_service('rag_context_service')
-                                if rag_service:
-                                    rag_result = rag_service.search_disposal_guidance(
-                                        location_code=location_code,
-                                        waste_category=normalized['primary_category']
-                                    )
-                                    if rag_result and rag_result.get('success'):
-                                        location_context = rag_result.get('location_context', location_context)
+                                from src.app.core.session_state import SessionStateManager
+                                saved_location = SessionStateManager.load_user_location()
+                                if saved_location:
+                                    location_data = saved_location.get('location_data', {})
+                                    sido = location_data.get('sido', '')
+                                    sigungu = location_data.get('sigungu', '')
+                                    if sido and sigungu:
+                                        location_code = f"{sido}_{sigungu}"
+                                        logger.info(f"파일에서 위치 정보 로드: sido={sido}, sigungu={sigungu}, location_code={location_code}")
+                                        # 세션 상태에 업데이트
+                                        SessionStateManager.update_location_info(location_data, saved_location.get('method', 'file'))
                             except Exception as e:
-                                logger.warning(f"RAG 검색 실패: {e}")
-                                # RAG 실패해도 계속 진행
+                                logger.warning(f"파일에서 위치 로드 실패: {e}")
+
+                        # 기본 변수 설정
+                        waste_item = normalized['object_name']
+                        waste_category_01 = normalized['primary_category']
+                        waste_category_02 = normalized['secondary_category']
+                        # district_info: sido와 sigungu 정보만 저장
+                        district_info = f"{sido} {sigungu}".strip() if sido or sigungu else "미지정"
+
+                        # district_links에서 지역별 배출 정보 로드
+                        waste_detail_info = ""
+                        waste_system_info = ""
+                        waste_fee_info = ""
+                        appliance_info = "https://15990903.or.kr/portal/main/main.do"
+
+                        logger.info(f"📍 [district_links 로드] location_code='{location_code}'")
+
+                        if location_code:
+                            try:
+                                # district_links 파일에서 직접 로드
+                                from src.domains.infrastructure.services.link_collector_service import load_registered_links
+                                from src.app.core.config import load_config
+
+                                config = load_config()
+                                registered_links_data = load_registered_links(config)
+                                registered_links = registered_links_data.get("links", {})
+
+                                logger.info(f"📂 [district_links 로드] 등록된 지역 수: {len(registered_links)}")
+                                logger.debug(f"📂 [district_links 로드] 등록된 지역 키: {list(registered_links.keys())}")
+
+                                # location_code로 정확히 일치하는 지역 찾기
+                                link_info = registered_links.get(location_code, None)
+
+                                if link_info:
+                                    logger.info(f"✅ [district_links 로드] '{location_code}' 정보 발견")
+
+                                    # 4개 값을 순서대로 로드
+                                    waste_detail_info = link_info.get('info_url', '')
+                                    waste_system_info = link_info.get('system_url', '')
+                                    waste_fee_info = link_info.get('fee_url', '')
+                                    appliance_info = link_info.get('appliance_url', 'https://15990903.or.kr/portal/main/main.do')
+
+                                    logger.info(f"📊 [district_links 로드] 4개 값 로드 완료:")
+                                    logger.info(f"  - waste_detail_info: {bool(waste_detail_info)} ({waste_detail_info[:50] if waste_detail_info else 'None'}...)")
+                                    logger.info(f"  - waste_system_info: {bool(waste_system_info)} ({waste_system_info[:50] if waste_system_info else 'None'}...)")
+                                    logger.info(f"  - waste_fee_info: {bool(waste_fee_info)} ({waste_fee_info[:50] if waste_fee_info else 'None'}...)")
+                                    logger.info(f"  - appliance_info: {bool(appliance_info)} ({appliance_info[:50] if appliance_info else 'None'}...)")
+                                else:
+                                    logger.warning(f"❌ [district_links 로드] '{location_code}' 정보를 찾을 수 없음")
+                                    logger.warning(f"❌ [district_links 로드] 등록된 지역: {list(registered_links.keys())}")
+                                    # 기본값 사용
+                                    waste_detail_info = f"배출정보: {district_info} 구청 홈페이지 참고"
+                                    waste_fee_info = f"수수료: {district_info} 구청 문의"
+
+                            except Exception as e:
+                                logger.error(f"❌ [district_links 로드] 오류 발생: {e}", exc_info=True)
+                                waste_detail_info = f"배출정보: {district_info} 구청 홈페이지 참고"
+                                waste_fee_info = f"수수료: {district_info} 구청 문의"
+                        else:
+                            # 위치가 선택되지 않은 경우 기본값
+                            logger.warning("⚠️ [district_links 로드] location_code가 비어있음 - 기본값 사용")
+                            waste_detail_info = "배출정보: 위치를 선택해주세요"
+                            waste_fee_info = "수수료: 구청 문의"
 
                         variables = {
-                            'location_full': location_full,
-                            'item_name': normalized['object_name'],
-                            'category': normalized['primary_category'],
-                            'dimensions': dimensions_str,
-                            'location_context': location_context,
-                            'waste_context': f"세분류: {normalized['secondary_category']}"
+                            'waste_item': waste_item,
+                            'waste_category_01': waste_category_01,
+                            'waste_category_02': waste_category_02,
+                            'district_info': district_info,
+                            'waste_detail_info': waste_detail_info,
+                            'waste_system_info': waste_system_info,
+                            'waste_fee_info': waste_fee_info,
+                            'appliance_info': appliance_info
                         }
 
                         # 3. 프롬프트 렌더링 (변수 치환)
@@ -709,9 +735,56 @@ class CompleteStep:
                         )
 
                         if rendered_prompt:
-                            # 4. LLM 호출
+                            # 디버깅용 expander: 변수 및 렌더링된 프롬프트 확인
+                            with st.expander("🔍 프롬프트 변수 및 렌더링 상태 확인", expanded=False):
+                                # 1. 위치 정보 확인
+                                st.subheader("📍 위치 정보")
+                                col1, col2, col3 = st.columns(3)
+                                with col1:
+                                    st.write(f"**선택된 위치**: {district_info or '미선택'}")
+                                with col2:
+                                    st.write(f"**위치 코드**: {location_code or '없음'}")
+                                with col3:
+                                    st.write(f"**상태**: {'✅ 선택됨' if location_code else '⚠️ 미선택'}")
+
+                                st.divider()
+
+                                # 2. 변수값 확인
+                                st.subheader("📋 변수값 확인 (총 8개)")
+
+                                # 변수값을 표로 표시
+                                var_data = []
+                                for var_name, var_value in variables.items():
+                                    var_str = str(var_value) if var_value else ""
+                                    var_data.append({
+                                        "변수명": var_name,
+                                        "값 길이": len(var_str),
+                                        "상태": "✅ 입력됨" if var_str and var_str not in ["", "배출정보: 위치를 선택해주세요", "수수료: 구청 문의"] else "⚠️ 미입력/기본값",
+                                        "값 미리보기": var_str[:80] + "..." if len(var_str) > 80 else var_str if var_str else "(비어있음)"
+                                    })
+
+                                st.dataframe(var_data, use_container_width=True)
+
+                                # 비어있는 변수 경고
+                                empty_vars = [v for v, val in variables.items() if not val or val in ["배출정보: 위치를 선택해주세요", "수수료: 구청 문의"]]
+                                if empty_vars:
+                                    st.warning(f"⚠️ 다음 변수가 비어있거나 기본값입니다: {', '.join(empty_vars)}")
+
+                                st.divider()
+
+                                # 3. 렌더링된 프롬프트 전체 표시
+                                st.subheader("📝 렌더링된 프롬프트")
+                                st.text_area(
+                                    "프롬프트 내용",
+                                    value=rendered_prompt,
+                                    height=300,
+                                    disabled=True,
+                                    label_visibility="collapsed"
+                                )
+
+                            # 4. LLM 호출 (gpt-4o)
                             with st.spinner("🤖 배출 방법을 찾고 있습니다..."):
-                                disposal_result = openai_service.call_with_prompt(rendered_prompt)
+                                disposal_result = openai_service.call_with_prompt(rendered_prompt, model="gpt-4o")
 
                             if disposal_result:
                                 st.success("✅ 배출 방법 안내")
@@ -790,7 +863,7 @@ def main():
         # 모델 선택
         model = st.selectbox(
             "분석 모델",
-            options=["gpt-4o-mini", "gpt-4-vision"],
+            options=["gpt-4o", "gpt-4o-mini", "gpt-4-vision"],
             index=0,
             key="model_select"
         )
@@ -855,10 +928,6 @@ def main():
 
     # Step 2: 분석
     elif state.get_step() == 'analysis':
-
-        # 프롬프트 설정
-        st.subheader("📝 분석 프롬프트")
-
         # waste_types.json에서 분류 체계 텍스트 생성
         def build_waste_classification_text() -> str:
             """waste_types.json을 기반으로 분류 체계 텍스트를 생성합니다."""
@@ -923,12 +992,10 @@ def main():
                 ]
 
                 registry_data = None
-                loaded_path = None
                 for path in possible_paths:
                     if os.path.exists(path):
                         with open(path, 'r', encoding='utf-8') as f:
                             registry_data = json.load(f)
-                        loaded_path = path
                         logger.info(f"registry.json 로드 성공: {path}")
                         break
 
@@ -1010,12 +1077,20 @@ def main():
             logger.warning("registry 프롬프트 미로드 - fallback 프롬프트 사용")
             default_prompt = _get_fallback_prompt(classification_text)
 
-        prompt = st.text_area(
-            "프롬프트",
-            value=default_prompt,
-            height=200,
-            key="analysis_prompt"
-        )
+        # 분석 프롬프트를 expander로 숨김
+        with st.expander("📝 분석 프롬프트 (클릭하여 전체 프롬프트 보기)", expanded=False):
+            prompt = st.text_area(
+                "프롬프트",
+                value=default_prompt,
+                height=200,
+                key="analysis_prompt"
+            )
+
+        # expander 밖에서도 프롬프트 접근 가능하도록 세션 상태에 저장
+        if 'analysis_prompt' in st.session_state:
+            prompt = st.session_state.analysis_prompt
+        else:
+            prompt = default_prompt
 
         # 분석 실행
         analysis_step = AnalysisStep(app_context)

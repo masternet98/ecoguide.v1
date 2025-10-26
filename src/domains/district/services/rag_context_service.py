@@ -258,3 +258,82 @@ class RAGContextService(BaseService):
         """특정 카테고리의 세부 정보를 반환합니다."""
         waste_data = self._load_waste_types_data()
         return waste_data.get(category, {}) if waste_data else {}
+
+    def search_disposal_guidance(self, location_code: str, waste_category: str) -> Dict[str, Any]:
+        """
+        선택된 지역(location_code)을 기반으로 district_links 데이터에서
+        4개의 배출정보 URL을 정확하게 추출합니다.
+
+        Args:
+            location_code: 지역 코드 (예: "인천광역시_서구" - sido_sigungu 형식)
+            waste_category: 폐기물 카테고리 (예: "가구", "가전") - 현재는 미사용
+
+        Returns:
+            배출정보 4개 변수를 포함하는 딕셔너리:
+            {
+                'success': True/False,
+                'waste_detail_info': 'info_url의 URL 또는 "URL없음"',
+                'waste_system_info': 'system_url의 URL 또는 "URL없음"',
+                'waste_fee_info': 'fee_url의 URL 또는 "URL없음"',
+                'appliance_info': 'appliance_url의 URL 또는 기본값'
+            }
+        """
+        try:
+            from src.domains.infrastructure.services.link_collector_service import load_registered_links
+            from src.app.core.config import load_config
+
+            self.logger.info(f"search_disposal_guidance 호출: location_code='{location_code}'")
+
+            config = load_config()
+            registered_links_data = load_registered_links(config)
+            registered_links = registered_links_data.get("links", {})
+
+            self.logger.debug(f"등록된 district_links 키 목록: {list(registered_links.keys())}")
+
+            # 지역 코드로 정확하게 일치하는 링크 정보 조회
+            link_info = registered_links.get(location_code, {})
+
+            if not link_info:
+                self.logger.warning(f"District links에서 '{location_code}' 정보를 찾을 수 없음")
+                return {
+                    'success': False,
+                    'waste_detail_info': '',
+                    'waste_system_info': '',
+                    'waste_fee_info': '',
+                    'appliance_info': ''
+                }
+
+            # district_links에서 4개 URL을 정확하게 추출
+            info_url = link_info.get('info_url', '') or ''
+            system_url = link_info.get('system_url', '') or ''
+            fee_url = link_info.get('fee_url', '') or ''
+            appliance_url = link_info.get('appliance_url', '') or 'https://15990903.or.kr/portal/main/main.do'
+
+            self.logger.info(
+                f"District links 조회 성공 ({location_code}): "
+                f"info_url={bool(info_url)}, system_url={bool(system_url)}, "
+                f"fee_url={bool(fee_url)}, appliance_url={bool(appliance_url)}"
+            )
+
+            # 결과 구성: URL을 그대로 반환
+            result = {
+                'success': True,
+                'waste_detail_info': info_url if info_url else "배출정보 URL없음",
+                'waste_system_info': system_url if system_url else "시스템 URL없음",
+                'waste_fee_info': fee_url if fee_url else "수수료 URL없음",
+                'appliance_info': appliance_url
+            }
+
+            self.logger.debug(f"반환 결과: {result}")
+            return result
+
+        except Exception as e:
+            self.logger.error(f"Failed to search disposal guidance for '{location_code}': {e}", exc_info=True)
+            return {
+                'success': False,
+                'waste_detail_info': '',
+                'waste_system_info': '',
+                'waste_fee_info': '',
+                'appliance_info': ''
+            }
+
