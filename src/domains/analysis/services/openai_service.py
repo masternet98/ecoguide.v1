@@ -138,16 +138,64 @@ class OpenAIService(BaseService):
 
         return response_text
 
+    @handle_errors(show_user_message=True, reraise=False, fallback_return="")
+    def call_with_prompt(self, prompt: str, model: str = "gpt-4o-mini") -> Optional[str]:
+        """
+        텍스트 프롬프트를 OpenAI에 보내고 응답을 받습니다.
+
+        Simple Prompt 패턴을 위한 간단한 메서드입니다.
+        Admin이 저장한 프롬프트를 변수로 렌더링한 후 LLM에 보낼 때 사용합니다.
+
+        Args:
+            prompt: 렌더링된 프롬프트 텍스트
+            model: 사용할 OpenAI 모델명 (기본값: gpt-4o-mini)
+
+        Returns:
+            str: LLM 응답 텍스트
+        """
+        if not self.is_ready():
+            raise RuntimeError("OpenAI 서비스가 준비되지 않았습니다.")
+
+        if not self._client:
+            raise RuntimeError("API 키가 설정되지 않았습니다.")
+
+        if not prompt.strip():
+            raise ValidationError("프롬프트가 필요합니다.")
+
+        try:
+            response = self._client.chat.completions.create(
+                model=model,
+                messages=[
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ],
+                max_tokens=2048,
+            )
+
+            output_text = response.choices[0].message.content or ""
+            self._logger.info(f"Successfully called LLM with model {model}")
+            return output_text
+
+        except APIError as e:
+            raise NetworkError(
+                f"OpenAI API 호출 실패: {e}",
+                suggestion="API 키와 네트워크 연결을 확인해주세요."
+            ) from e
+        except Exception as e:
+            raise RuntimeError(f"프롬프트 실행 중 오류 발생: {e}") from e
+
     @handle_errors(show_user_message=True, reraise=False, fallback_return=(None, {}))
     def analyze_image(self, image_bytes: bytes, prompt: str, model: str) -> Tuple[Optional[str], Dict[str, Any]]:
         """
         이미지와 프롬프트를 OpenAI Vision 모델로 보냅니다.
-        
+
         Args:
             image_bytes: 분석할 이미지의 바이트 데이터
             prompt: 분석 프롬프트
             model: 사용할 OpenAI 모델명
-            
+
         Returns:
             Tuple[str, Dict]: (분석 결과 텍스트, 원시 응답 데이터)
         """

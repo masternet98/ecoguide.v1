@@ -478,6 +478,62 @@ class ConfirmationStep:
             'timestamp': datetime.now().isoformat()
         }
 
+        # AI 피드백 섹션 (선택적)
+        st.markdown("---")
+        st.subheader("🤖 AI 피드백 (선택)")
+
+        if st.button("💭 AI 의견 듣기", use_container_width=True, key="get_ai_feedback"):
+            try:
+                # 프롬프트 서비스 가져오기
+                prompt_service = self.app_context.get_service('prompt_service')
+                openai_service = self.app_context.get_service('openai_service')
+
+                if prompt_service and openai_service:
+                    # Simple Prompt 패턴:
+                    # 1. 저장된 프롬프트 로드 (또는 기본값으로 생성)
+                    confirmation_prompt = prompt_service.get_default_prompt_for_feature('confirmation_analysis')
+
+                    if confirmation_prompt:
+                        # 2. 변수 준비
+                        dimensions = normalized.get('dimensions', {})
+                        dimensions_str = f"{dimensions.get('w_cm', '-')}cm x {dimensions.get('h_cm', '-')}cm x {dimensions.get('d_cm', '-')}cm"
+
+                        variables = {
+                            'item_name': normalized['object_name'],
+                            'category': normalized['primary_category'],
+                            'dimensions': dimensions_str,
+                            'confidence': f"{normalized['confidence']:.0%}",
+                            'user_feedback': feedback_notes.strip() or '없음'
+                        }
+
+                        # 3. 프롬프트 렌더링 (변수 치환)
+                        rendered_prompt = prompt_service.render_prompt(
+                            confirmation_prompt.id,
+                            variables
+                        )
+
+                        if rendered_prompt:
+                            # 4. LLM 호출
+                            with st.spinner("🤖 AI가 피드백을 생성 중입니다..."):
+                                feedback_result = openai_service.call_with_prompt(rendered_prompt)
+
+                            if feedback_result:
+                                st.success("✅ AI 피드백")
+                                st.markdown(feedback_result)
+                            else:
+                                st.warning("AI 피드백 생성에 실패했습니다")
+                        else:
+                            st.warning("프롬프트 렌더링에 실패했습니다")
+                    else:
+                        st.info("💡 저장된 피드백 프롬프트가 없습니다. Admin에서 'confirmation_analysis' 기능용 프롬프트를 생성해주세요.")
+                else:
+                    st.error("필요한 서비스를 사용할 수 없습니다")
+
+            except Exception as e:
+                error_info = get_error_handler().handle_error(e)
+                st.warning(f"AI 피드백 생성 중 오류: {str(e)}")
+                logger.error(f"AI feedback generation error: {e}", exc_info=True)
+
         # 최종 확인 버튼
         st.markdown("---")
 
@@ -596,12 +652,86 @@ class CompleteStep:
                 st.warning(f"피드백 저장 중 오류가 발생했습니다: {e}")
 
         # 배출 방법 안내 (선택사항)
-        if st.button("📖 배출 방법 안내", use_container_width=True, key="show_disposal"):
-            st.info(f"**{normalized['object_name']}** ({normalized['primary_category']}) 배출 방법:\n\n"
-                   f"1. 위치 확인\n"
-                   f"2. 배출 가능 여부 확인\n"
-                   f"3. 담당 부서에 신청\n\n"
-                   f"자세한 사항은 해당 지역의 폐기물 관리 부서에 문의하세요.")
+        st.markdown("---")
+        st.subheader("📖 배출 방법 안내")
+
+        if st.button("💡 배출 방법 확인", use_container_width=True, key="show_disposal"):
+            try:
+                # 프롬프트 서비스 가져오기
+                prompt_service = self.app_context.get_service('prompt_service')
+                openai_service = self.app_context.get_service('openai_service')
+                location_service = self.app_context.get_service('location_service')
+
+                if prompt_service and openai_service:
+                    # Simple Prompt 패턴:
+                    # 1. 저장된 프롬프트 로드
+                    disposal_prompt = prompt_service.get_default_prompt_for_feature('disposal_guidance_main')
+
+                    if disposal_prompt:
+                        # 2. 변수 준비
+                        dimensions = normalized.get('dimensions', {})
+                        dimensions_str = f"{dimensions.get('w_cm', '-')}cm x {dimensions.get('h_cm', '-')}cm x {dimensions.get('d_cm', '-')}cm"
+
+                        # 위치 정보 (현재 선택된 위치가 있으면 사용)
+                        location_info = st.session_state.get('selected_location', {}) or {}
+                        location_full = location_info.get('full_address', '미지정')
+                        location_code = location_info.get('code', '')
+
+                        # RAG를 통해 지역별 배출 정보 수집 (선택적)
+                        location_context = '일반 배출 규정'
+                        if location_service and location_code:
+                            try:
+                                rag_service = self.app_context.get_service('rag_context_service')
+                                if rag_service:
+                                    rag_result = rag_service.search_disposal_guidance(
+                                        location_code=location_code,
+                                        waste_category=normalized['primary_category']
+                                    )
+                                    if rag_result and rag_result.get('success'):
+                                        location_context = rag_result.get('location_context', location_context)
+                            except Exception as e:
+                                logger.warning(f"RAG 검색 실패: {e}")
+                                # RAG 실패해도 계속 진행
+
+                        variables = {
+                            'location_full': location_full,
+                            'item_name': normalized['object_name'],
+                            'category': normalized['primary_category'],
+                            'dimensions': dimensions_str,
+                            'location_context': location_context,
+                            'waste_context': f"세분류: {normalized['secondary_category']}"
+                        }
+
+                        # 3. 프롬프트 렌더링 (변수 치환)
+                        rendered_prompt = prompt_service.render_prompt(
+                            disposal_prompt.id,
+                            variables
+                        )
+
+                        if rendered_prompt:
+                            # 4. LLM 호출
+                            with st.spinner("🤖 배출 방법을 찾고 있습니다..."):
+                                disposal_result = openai_service.call_with_prompt(rendered_prompt)
+
+                            if disposal_result:
+                                st.success("✅ 배출 방법 안내")
+                                st.markdown(disposal_result)
+                            else:
+                                st.warning("배출 방법 안내 생성에 실패했습니다")
+                        else:
+                            st.warning("프롬프트 렌더링에 실패했습니다")
+                    else:
+                        st.info("💡 저장된 배출 안내 프롬프트가 없습니다. Admin에서 'disposal_guidance_main' 기능용 프롬프트를 생성해주세요.\n\n"
+                               f"기본 배출 방법:\n"
+                               f"1. 해당 지역의 폐기물 관리 부서 확인\n"
+                               f"2. **{normalized['object_name']}** ({normalized['primary_category']})의 배출 가능 여부 확인\n"
+                               f"3. 배출 신청 및 수거 예약")
+                else:
+                    st.error("필요한 서비스를 사용할 수 없습니다")
+
+            except Exception as e:
+                logger.error(f"Disposal guidance generation error: {e}", exc_info=True)
+                st.warning(f"배출 방법 안내 생성 중 오류: {str(e)}")
 
         # 초기화 버튼
         st.markdown("---")
