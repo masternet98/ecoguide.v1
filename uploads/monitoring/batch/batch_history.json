@@ -1,7 +1,7 @@
 {
   "metadata": {
     "created_at": "2025-09-08T17:00:20.732483",
-    "last_updated": "2025-09-09T01:23:35.752327"
+    "last_updated": "2025-10-24T10:27:14.024459"
   },
   "jobs": {
     "monitoring_check": {
@@ -1246,6 +1246,478 @@
                 "critical": 0,
                 "high": 0,
                 "medium": 28,
+                "low": 0
+              }
+            }
+          },
+          "error": null
+        },
+        {
+          "started_at": "2025-10-24T10:26:49.736909",
+          "completed_at": "2025-10-24T10:27:14.024377",
+          "execution_time_seconds": 24.286169,
+          "status": "completed",
+          "success": true,
+          "result": {
+            "total_checked": 47,
+            "changed_count": 35,
+            "error_count": 1,
+            "ok_count": 11,
+            "started_at": "2025-10-24T10:26:49.739345",
+            "districts": {
+              "대전광역시_동구": {
+                "total": 2,
+                "changed": 2,
+                "error": 0,
+                "ok": 0,
+                "results": [
+                  {
+                    "url_type": "info_url",
+                    "status": "changed",
+                    "change_type": "content",
+                    "error_message": null,
+                    "response_time": 0.494289
+                  },
+                  {
+                    "url_type": "system_url",
+                    "status": "changed",
+                    "change_type": "content",
+                    "error_message": null,
+                    "response_time": 1.133328
+                  }
+                ]
+              },
+              "인천광역시_서구": {
+                "total": 4,
+                "changed": 2,
+                "error": 0,
+                "ok": 2,
+                "results": [
+                  {
+                    "url_type": "info_url",
+                    "status": "changed",
+                    "change_type": "content",
+                    "error_message": null,
+                    "response_time": 0.3741
+                  },
+                  {
+                    "url_type": "system_url",
+                    "status": "ok",
+                    "change_type": null,
+                    "error_message": null,
+                    "response_time": 0.217318
+                  },
+                  {
+                    "url_type": "fee_url",
+                    "status": "ok",
+                    "change_type": null,
+                    "error_message": null,
+                    "response_time": 0.170837
+                  },
+                  {
+                    "url_type": "appliance_url",
+                    "status": "changed",
+                    "change_type": "content",
+                    "error_message": null,
+                    "response_time": 0.399489
+                  }
+                ]
+              },
+              "인천광역시_중구": {
+                "total": 4,
+                "changed": 2,
+                "error": 0,
+                "ok": 2,
+                "results": [
+                  {
+                    "url_type": "info_url",
+                    "status": "changed",
+                    "change_type": "content",
+                    "error_message": null,
+                    "response_time": 0.37616
+                  },
+                  {
+                    "url_type": "system_url",
+                    "status": "changed",
+                    "change_type": "content",
+                    "error_message": null,
+                    "response_time": 0.24926
+                  },
+                  {
+                    "url_type": "fee_url",
+                    "status": "ok",
+                    "change_type": null,
+                    "error_message": null,
+                    "response_time": 0.147343
+                  },
+                  {
+                    "url_type": "appliance_url",
+                    "status": "ok",
+                    "change_type": null,
+                    "error_message": null,
+                    "response_time": 0.160303
+                  }
+                ]
+              },
+              "인천광역시_동구": {
+                "total": 4,
+                "changed": 4,
+                "error": 0,
+                "ok": 0,
+                "results": [
+                  {
+                    "url_type": "info_url",
+                    "status": "changed",
+                    "change_type": "content",
+                    "error_message": null,
+                    "response_time": 0.322267
+                  },
+                  {
+                    "url_type": "system_url",
+                    "status": "changed",
+                    "change_type": "content",
+                    "error_message": null,
+                    "response_time": 0.348616
+                  },
+                  {
+                    "url_type": "fee_url",
+                    "status": "changed",
+                    "change_type": "content",
+                    "error_message": null,
+                    "response_time": 0.506195
+                  },
+                  {
+                    "url_type": "appliance_url",
+                    "status": "changed",
+                    "change_type": "content",
+                    "error_message": null,
+                    "response_time": 0.302296
+                  }
+                ]
+              },
+              "강원특별자치도_정선군": {
+                "total": 1,
+                "changed": 1,
+                "error": 0,
+                "ok": 0,
+                "results": [
+                  {
+                    "url_type": "info_url",
+                    "status": "changed",
+                    "change_type": "content",
+                    "error_message": null,
+                    "response_time": 0.783071
+                  }
+                ]
+              },
+              "강원특별자치도_동해시": {
+                "total": 2,
+                "changed": 2,
+                "error": 0,
+                "ok": 0,
+                "results": [
+                  {
+                    "url_type": "info_url",
+                    "status": "changed",
+                    "change_type": "content",
+                    "error_message": null,
+                    "response_time": 1.227617
+                  },
+                  {
+                    "url_type": "fee_url",
+                    "status": "changed",
+                    "change_type": "content",
+                    "error_message": null,
+                    "response_time": 0.986416
+                  }
+                ]
+              },
+              "인천광역시_미추홀구": {
+                "total": 4,
+                "changed": 2,
+                "error": 0,
+                "ok": 2,
+                "results": [
+                  {
+                    "url_type": "info_url",
+                    "status": "changed",
+                    "change_type": "content",
+                    "error_message": null,
+                    "response_time": 0.541381
+                  },
+                  {
+                    "url_type": "system_url",
+                    "status": "changed",
+                    "change_type": "content",
+                    "error_message": null,
+                    "response_time": 0.171487
+                  },
+                  {
+                    "url_type": "fee_url",
+                    "status": "ok",
+                    "change_type": null,
+                    "error_message": null,
+                    "response_time": 0.271962
+                  },
+                  {
+                    "url_type": "appliance_url",
+                    "status": "ok",
+                    "change_type": null,
+                    "error_message": null,
+                    "response_time": 0.184009
+                  }
+                ]
+              },
+              "인천광역시_연수구": {
+                "total": 4,
+                "changed": 2,
+                "error": 0,
+                "ok": 2,
+                "results": [
+                  {
+                    "url_type": "info_url",
+                    "status": "changed",
+                    "change_type": "content",
+                    "error_message": null,
+                    "response_time": 0.200558
+                  },
+                  {
+                    "url_type": "system_url",
+                    "status": "ok",
+                    "change_type": null,
+                    "error_message": null,
+                    "response_time": 0.10078
+                  },
+                  {
+                    "url_type": "fee_url",
+                    "status": "ok",
+                    "change_type": null,
+                    "error_message": null,
+                    "response_time": 0.100601
+                  },
+                  {
+                    "url_type": "appliance_url",
+                    "status": "changed",
+                    "change_type": "content",
+                    "error_message": null,
+                    "response_time": 0.200925
+                  }
+                ]
+              },
+              "인천광역시_남동구": {
+                "total": 4,
+                "changed": 4,
+                "error": 0,
+                "ok": 0,
+                "results": [
+                  {
+                    "url_type": "info_url",
+                    "status": "changed",
+                    "change_type": "content",
+                    "error_message": null,
+                    "response_time": 0.56637
+                  },
+                  {
+                    "url_type": "system_url",
+                    "status": "changed",
+                    "change_type": "content",
+                    "error_message": null,
+                    "response_time": 0.507289
+                  },
+                  {
+                    "url_type": "fee_url",
+                    "status": "changed",
+                    "change_type": "content",
+                    "error_message": null,
+                    "response_time": 0.47856
+                  },
+                  {
+                    "url_type": "appliance_url",
+                    "status": "changed",
+                    "change_type": "content",
+                    "error_message": null,
+                    "response_time": 0.299638
+                  }
+                ]
+              },
+              "인천광역시_부평구": {
+                "total": 4,
+                "changed": 1,
+                "error": 0,
+                "ok": 3,
+                "results": [
+                  {
+                    "url_type": "info_url",
+                    "status": "ok",
+                    "change_type": null,
+                    "error_message": null,
+                    "response_time": 0.44474
+                  },
+                  {
+                    "url_type": "system_url",
+                    "status": "changed",
+                    "change_type": "content",
+                    "error_message": null,
+                    "response_time": 0.347591
+                  },
+                  {
+                    "url_type": "fee_url",
+                    "status": "ok",
+                    "change_type": null,
+                    "error_message": null,
+                    "response_time": 0.343269
+                  },
+                  {
+                    "url_type": "appliance_url",
+                    "status": "ok",
+                    "change_type": null,
+                    "error_message": null,
+                    "response_time": 0.316129
+                  }
+                ]
+              },
+              "인천광역시_계양구": {
+                "total": 4,
+                "changed": 4,
+                "error": 0,
+                "ok": 0,
+                "results": [
+                  {
+                    "url_type": "info_url",
+                    "status": "changed",
+                    "change_type": "content",
+                    "error_message": null,
+                    "response_time": 0.351278
+                  },
+                  {
+                    "url_type": "system_url",
+                    "status": "changed",
+                    "change_type": "content",
+                    "error_message": null,
+                    "response_time": 0.335787
+                  },
+                  {
+                    "url_type": "fee_url",
+                    "status": "changed",
+                    "change_type": "content",
+                    "error_message": null,
+                    "response_time": 0.501721
+                  },
+                  {
+                    "url_type": "appliance_url",
+                    "status": "changed",
+                    "change_type": "content",
+                    "error_message": null,
+                    "response_time": 0.24477
+                  }
+                ]
+              },
+              "인천광역시_강화군": {
+                "total": 3,
+                "changed": 2,
+                "error": 1,
+                "ok": 0,
+                "results": [
+                  {
+                    "url_type": "info_url",
+                    "status": "changed",
+                    "change_type": "content",
+                    "error_message": null,
+                    "response_time": 0.318702
+                  },
+                  {
+                    "url_type": "fee_url",
+                    "status": "error",
+                    "change_type": null,
+                    "error_message": "File not found",
+                    "response_time": null
+                  },
+                  {
+                    "url_type": "appliance_url",
+                    "status": "changed",
+                    "change_type": "content",
+                    "error_message": null,
+                    "response_time": 0.259983
+                  }
+                ]
+              },
+              "인천광역시_옹진군": {
+                "total": 3,
+                "changed": 3,
+                "error": 0,
+                "ok": 0,
+                "results": [
+                  {
+                    "url_type": "info_url",
+                    "status": "changed",
+                    "change_type": "content",
+                    "error_message": null,
+                    "response_time": 1.826622
+                  },
+                  {
+                    "url_type": "fee_url",
+                    "status": "changed",
+                    "change_type": "content",
+                    "error_message": null,
+                    "response_time": 1.274372
+                  },
+                  {
+                    "url_type": "appliance_url",
+                    "status": "changed",
+                    "change_type": "content",
+                    "error_message": null,
+                    "response_time": 0.841271
+                  }
+                ]
+              },
+              "서울특별시_종로구": {
+                "total": 4,
+                "changed": 4,
+                "error": 0,
+                "ok": 0,
+                "results": [
+                  {
+                    "url_type": "info_url",
+                    "status": "changed",
+                    "change_type": "content",
+                    "error_message": null,
+                    "response_time": 0.229291
+                  },
+                  {
+                    "url_type": "system_url",
+                    "status": "changed",
+                    "change_type": "content",
+                    "error_message": null,
+                    "response_time": 0.421947
+                  },
+                  {
+                    "url_type": "fee_url",
+                    "status": "changed",
+                    "change_type": "content",
+                    "error_message": null,
+                    "response_time": 0.284171
+                  },
+                  {
+                    "url_type": "appliance_url",
+                    "status": "changed",
+                    "change_type": "content",
+                    "error_message": null,
+                    "response_time": 0.263218
+                  }
+                ]
+              }
+            },
+            "completed_at": "2025-10-24T10:27:10.311843",
+            "notification_summary": {
+              "total_events": 36,
+              "sent_emails": 1,
+              "logged_events": 36,
+              "saved_events": 36,
+              "errors": 0,
+              "events_by_priority": {
+                "critical": 0,
+                "high": 0,
+                "medium": 36,
                 "low": 0
               }
             }

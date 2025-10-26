@@ -10,7 +10,7 @@ import json
 from typing import Dict, List, Any, Optional
 from datetime import datetime
 
-from src.app.core.logger import logger, log_info, log_warning, log_error
+from src.app.core.logger import logger, log_info, log_warning, log_error, LogCategory
 from src.app.core.config import DistrictConfig
 
 
@@ -65,11 +65,17 @@ def get_latest_district_file(config: Optional[DistrictConfig] = None) -> Optiona
     """
     files = get_district_files(config)
     if not files:
-        log_warning("저장된 행정구역 파일이 없습니다.")
+        log_warning(
+            LogCategory.FILE_OPERATION, "district_cache", "get_latest_district_file", "파일_없음",
+            "저장된 행정구역 파일이 없습니다."
+        )
         return None
 
     latest_file = files[0]["file_path"]
-    log_info(f"최신 행정구역 파일을 찾았습니다: {latest_file}")
+    log_info(
+        LogCategory.FILE_OPERATION, "district_cache", "get_latest_district_file", "최신_파일_찾기",
+        f"최신 행정구역 파일을 찾았습니다: {latest_file}"
+    )
     return latest_file
 
 

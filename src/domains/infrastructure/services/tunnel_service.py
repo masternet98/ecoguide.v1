@@ -24,9 +24,9 @@ def _find_cloudflared_path() -> Optional[str]:
 
     if os.name == "nt":
         common_paths = [
-            r"C:\\Program Files\\cloudflared\\cloudflared.exe",
-            r"C:\\Program Files (x86)\\cloudflared\\cloudflared.exe",
-            r"%LOCALAPPDATA%\\cloudflared\\cloudflared.exe",
+            r"C:\Program Files\cloudflared\cloudflared.exe",
+            r"C:\Program Files (x86)\cloudflared\cloudflared.exe",
+            r"%LOCALAPPDATA%\cloudflared\cloudflared.exe",
         ]
         for p in common_paths:
             expanded_p = os.path.expandvars(p)

@@ -2,18 +2,18 @@
   "location_data": {
     "sido": "인천광역시",
     "sigungu": "서구",
-    "legal_dong": "청라동",
-    "admin_dong": "청라2동",
-    "dong": "청라동",
+    "legal_dong": "경서동",
+    "admin_dong": "검암경서동",
+    "dong": "경서동",
     "dong_type": "법정동",
-    "full_address": "인천광역시 서구 청라동 9-90",
+    "full_address": "인천광역시 서구 경서동 363-184",
     "coords": {
-      "lat": 37.547096,
-      "lng": 126.634347
+      "lat": 37.551265,
+      "lng": 126.641767
     },
     "method": "vworld_api"
   },
   "method": "gps",
-  "saved_at": "2025-09-23T10:27:46.243383",
+  "saved_at": "2025-10-26T19:24:33.588119",
   "version": "1.0"
 }

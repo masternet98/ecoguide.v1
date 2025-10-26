@@ -158,10 +158,17 @@ class PromptAdminUI:
                 format_func=self._get_status_display_name
             )
             
+            col1, col2 = st.columns([3, 1])
+            with col2:
+                if st.form_submit_button("📝 대형폐기물 예시 적용"):
+                    new_template_value = self._get_enhanced_waste_template()
+                else:
+                    new_template_value = prompt.template
+
             new_template = st.text_area(
                 "프롬프트 템플릿",
-                value=prompt.template,
-                height=200,
+                value=new_template_value,
+                height=250,
                 help="변수는 {변수명} 형태로 사용하세요."
             )
             
@@ -219,29 +226,51 @@ class PromptAdminUI:
     def _render_prompt_create(self):
         """프롬프트 생성 UI를 렌더링합니다."""
         st.subheader("새 프롬프트 생성")
+
+        # 예시 적용 버튼 (폼 외부)
+        col1, col2, col3 = st.columns([2, 1, 2])
+        with col2:
+            if st.button("📝 대형폐기물 분석 예시 적용", key="apply_example_outside_form"):
+                st.session_state['waste_template_applied'] = True
+                st.session_state['applied_template'] = self._get_enhanced_waste_template()
+                st.session_state['suggested_name'] = "향상된 대형폐기물 분석"
+                st.session_state['suggested_description'] = "인천광역시 서구 지역의 대형폐기물 배출을 위한 정밀 이미지 분석"
+                st.session_state['suggested_tags'] = "폐기물분류, 인천서구, 대형폐기물, 정밀분석, JSON응답"
+                st.success("대형폐기물 분석 프롬프트 예시가 적용되었습니다!")
         
         with st.form("create_prompt"):
             # 기본 정보
-            name = st.text_input("프롬프트 이름*", placeholder="예: 이미지 객체 분석")
-            description = st.text_area("설명*", placeholder="이 프롬프트의 용도를 설명하세요.")
-            
+            name = st.text_input(
+                "프롬프트 이름*",
+                value=st.session_state.get('suggested_name', ''),
+                placeholder="예: 이미지 객체 분석"
+            )
+            description = st.text_area(
+                "설명*",
+                value=st.session_state.get('suggested_description', ''),
+                placeholder="이 프롬프트의 용도를 설명하세요."
+            )
+
             category = st.selectbox(
                 "카테고리*",
                 options=[cat.value for cat in PromptCategory],
+                index=3 if st.session_state.get('waste_template_applied') else 0,  # waste_classification 선택
                 format_func=self._get_category_display_name
             )
-            
+
             # 프롬프트 템플릿
             template = st.text_area(
                 "프롬프트 템플릿*",
-                height=200,
+                value=st.session_state.get('applied_template', ''),
+                height=300,
                 placeholder="프롬프트 내용을 입력하세요. 변수는 {변수명} 형태로 사용하세요.",
-                help="예: 이 이미지에서 {object_type}을 찾아 {analysis_type} 분석을 해주세요."
+                help="위의 '대형폐기물 분석 예시 적용' 버튼을 클릭하면 개선된 프롬프트가 입력됩니다."
             )
-            
+
             # 선택적 정보
             tags = st.text_input(
                 "태그 (쉼표로 구분)",
+                value=st.session_state.get('suggested_tags', ''),
                 placeholder="예: 객체인식, 크기분석, 분류"
             )
             
@@ -278,10 +307,15 @@ class PromptAdminUI:
                     )
                     
                     st.success(f"프롬프트 '{new_prompt.name}'이 성공적으로 생성되었습니다!")
-                    
+
                     # 변수 정보 표시
                     if new_prompt.variables:
                         st.info(f"감지된 변수: {', '.join(new_prompt.variables)}")
+
+                    # 세션 상태 정리
+                    for key in ['waste_template_applied', 'applied_template', 'suggested_name', 'suggested_description', 'suggested_tags']:
+                        if key in st.session_state:
+                            del st.session_state[key]
                 
                 except json.JSONDecodeError:
                     st.error("메타데이터 JSON 형식이 올바르지 않습니다.")
@@ -640,3 +674,64 @@ class PromptAdminUI:
             "deprecated": "사용 중단"
         }
         return status_names.get(status_value, status_value)
+
+    def _get_enhanced_waste_template(self) -> str:
+        """개선된 대형폐기물 분석 프롬프트 템플릿을 반환합니다."""
+        return '''당신은 대형폐기물 배출 전문가입니다. 이미지에 있는 물체를 정밀 분석하여 적절한 폐기물 분류와 배출 안내를 제공해주세요.
+
+### 분석 대상
+이미지에서 가장 주요한 폐기물 대상을 식별하세요. 여러 물체가 있다면 가장 큰 물체나 중앙에 위치한 주요 물체를 우선 분석하세요.
+
+### 분류 기준 (다음 카테고리 중 선택)
+**가구**: 침대/매트리스, 소파, 거실장/테이블/서랍장, 옷장/붙박이장/장롱, 책상, 의자, 책장, 선반/수납가구, 화장대, 기타 가구
+
+**가전**: 냉장고/냉동고, 세탁기/건조기, 에어컨, TV/모니터, 주방가전, 청소기, 컴퓨터/사무기기, 오디오, 기타 가전
+
+**건강/의료용품**: 병원 침대, 휠체어/보행기, 재활/운동 보조기구, 기타 의료용품
+
+**생활/주방용품**: 주방용품, 욕실/세면용품, 보관/정리 용품, 의류·침구류, 생활잡화, 유아용품, 기타 생활용품
+
+**스포츠/레저**: 운동기구, 자전거/킥보드, 캠핑용품, 수상레저, 기타 레저용품
+
+**악기**: 피아노, 전자건반, 현악기, 관악기, 타악기, 기타 악기
+
+**조경/장식/행사용품**: 대형 화분/조경용품, 장식용 트리/조형물, 행사/무대 장비, 대형 오락기기, 기타 대형 장식품
+
+**기타**: 공업/사업용, 건축자재, 전기설비, 환경설비, 특수폐기물, 분류불가
+
+### 분석 항목
+1. **물체 식별**: 정확한 물체명
+2. **대분류**: 위 8개 카테고리 중 선택
+3. **세분류**: 해당 카테고리의 구체적 하위 분류
+4. **크기 추정**:
+   - 소형 (가로/세로/높이 모두 50cm 미만)
+   - 중형 (한 변이 50cm-150cm)
+   - 대형 (한 변이 150cm 이상)
+5. **재질**: 주요 재질 (목재, 금속, 플라스틱, 유리, 복합재료 등)
+6. **상태**: 신품/양호/사용감있음/손상됨/부분파손
+7. **배출 난이도**: 쉬움/보통/어려움 (크기, 무게, 해체 필요성 기준)
+
+### 지역별 배출 안내 (변수 주입)
+{location_context}
+
+### 출력 형식 (JSON)
+반드시 다음 JSON 형식으로만 응답하세요:
+
+{
+  "object_name": "구체적인 물체명",
+  "category": "대분류명",
+  "subcategory": "세분류명",
+  "size": "소형/중형/대형",
+  "material": "주요재질",
+  "condition": "상태",
+  "disposal_difficulty": "쉬움/보통/어려움",
+  "estimated_dimensions": "예상 크기 (가로×세로×높이 cm)",
+  "location_specific_notes": "해당 지역 특화 배출 안내 (RAG 정보 기반)",
+  "confidence": "0.0-1.0 (분석 신뢰도)"
+}
+
+### 주의사항
+- JSON 외의 다른 텍스트는 포함하지 마세요
+- 분석이 어려운 경우 "분류불가"로 처리하고 confidence를 낮게 설정하세요
+- 크기 추정 시 배경의 일반적인 물체들(손, 가구 등)을 참고하여 비례적으로 계산하세요
+- location_specific_notes는 제공된 지역 정보를 바탕으로 작성하세요'''

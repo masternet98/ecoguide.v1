@@ -1,15 +1,15 @@
 {
   "metadata": {
-    "last_full_check": "2025-09-09T01:23:31.328687",
-    "total_checks": 16,
+    "last_full_check": "2025-10-24T10:27:10.309064",
+    "total_checks": 17,
     "created_at": "2025-09-08T00:07:05.720878"
   },
   "districts": {
     "인천광역시_서구": {
-      "info_url_hash": "afb41ae3814a84dc022dcdcc5da9ed4a",
-      "last_checked": "2025-09-09T01:23:31.328687",
-      "info_url_last_status": "ok",
-      "info_url_last_checked": "2025-09-09T01:23:21.528144",
+      "info_url_hash": "3d461e8cecb8dcdee41c970040b7b797",
+      "last_checked": "2025-10-24T10:27:10.309064",
+      "info_url_last_status": "changed",
+      "info_url_last_checked": "2025-10-24T10:26:51.776020",
       "change_history": [
         {
           "url_type": "info_url",
@@ -38,27 +38,41 @@
           "previous_hash": null,
           "current_hash": "1a261fc907d70c9289f3c48fca6d23b3",
           "changed_at": "2025-09-08T00:07:06.867643"
+        },
+        {
+          "url_type": "info_url",
+          "change_type": "content",
+          "previous_hash": "afb41ae3814a84dc022dcdcc5da9ed4a",
+          "current_hash": "3d461e8cecb8dcdee41c970040b7b797",
+          "changed_at": "2025-10-24T10:26:51.776020"
+        },
+        {
+          "url_type": "appliance_url",
+          "change_type": "content",
+          "previous_hash": "1a261fc907d70c9289f3c48fca6d23b3",
+          "current_hash": "2b1819608d32788696608ec6a59826df",
+          "changed_at": "2025-10-24T10:26:52.567937"
         }
       ],
       "system_url_hash": "76323a21da43c4f0cf4cc47295df842a",
       "system_url_last_status": "ok",
-      "system_url_last_checked": "2025-09-09T01:23:21.637833",
+      "system_url_last_checked": "2025-10-24T10:26:51.993895",
       "fee_url_hash": "f56c9e979e6cef285f4cf5f434fa68cf",
       "fee_url_last_status": "ok",
-      "fee_url_last_checked": "2025-09-09T01:23:21.735409",
-      "appliance_url_hash": "1a261fc907d70c9289f3c48fca6d23b3",
-      "appliance_url_last_status": "ok",
-      "appliance_url_last_checked": "2025-09-09T01:23:21.951244",
+      "fee_url_last_checked": "2025-10-24T10:26:52.165230",
+      "appliance_url_hash": "2b1819608d32788696608ec6a59826df",
+      "appliance_url_last_status": "changed",
+      "appliance_url_last_checked": "2025-10-24T10:26:52.567937",
       "info_url_last_error": "HTTP 404",
       "system_url_last_error": "Connection Error",
       "fee_url_last_error": "Connection Error",
       "appliance_url_last_error": "HTTP 404"
     },
     "대전광역시_동구": {
-      "info_url_hash": "c65c28b68628c5f1c6bba5c7637cc60a",
-      "last_checked": "2025-09-09T01:23:31.328687",
+      "info_url_hash": "40d7f6114e79ac11f58dc0161e4960b6",
+      "last_checked": "2025-10-24T10:27:10.309064",
       "info_url_last_status": "changed",
-      "info_url_last_checked": "2025-09-09T01:23:20.894564",
+      "info_url_last_checked": "2025-10-24T10:26:50.250922",
       "change_history": [
         {
           "url_type": "info_url",
@@ -115,17 +129,31 @@
           "previous_hash": "c8b2fd2b6fe07bfaf90f4ff70fe4c345",
           "current_hash": "3eec13eefbac93e7aeba5be793aefc82",
           "changed_at": "2025-09-09T01:23:21.301385"
+        },
+        {
+          "url_type": "info_url",
+          "change_type": "content",
+          "previous_hash": "c65c28b68628c5f1c6bba5c7637cc60a",
+          "current_hash": "40d7f6114e79ac11f58dc0161e4960b6",
+          "changed_at": "2025-10-24T10:26:50.250922"
+        },
+        {
+          "url_type": "system_url",
+          "change_type": "content",
+          "previous_hash": "3eec13eefbac93e7aeba5be793aefc82",
+          "current_hash": "8f788668109e84317065e9a4cff0d3c2",
+          "changed_at": "2025-10-24T10:26:51.399207"
         }
       ],
-      "system_url_hash": "3eec13eefbac93e7aeba5be793aefc82",
+      "system_url_hash": "8f788668109e84317065e9a4cff0d3c2",
       "system_url_last_status": "changed",
-      "system_url_last_checked": "2025-09-09T01:23:21.301385"
+      "system_url_last_checked": "2025-10-24T10:26:51.399207"
     },
     "인천광역시_중구": {
-      "info_url_hash": "37f0ca978d79e66673c92a70dc1a12f0",
-      "last_checked": "2025-09-09T01:23:31.328687",
+      "info_url_hash": "4fca70cc694f2b1d3fd8a318f0ccfdb3",
+      "last_checked": "2025-10-24T10:27:10.309064",
       "info_url_last_status": "changed",
-      "info_url_last_checked": "2025-09-09T01:23:22.360600",
+      "info_url_last_checked": "2025-10-24T10:26:52.945905",
       "change_history": [
         {
           "url_type": "info_url",
@@ -175,48 +203,48 @@
           "previous_hash": "fab1ec55449add5c969add35c55552bb",
           "current_hash": "37f0ca978d79e66673c92a70dc1a12f0",
           "changed_at": "2025-09-09T01:23:22.360600"
-        }
-      ],
-      "system_url_hash": "a7b14aeb02c5e9ea4b0088fb39f52abf",
-      "system_url_last_status": "ok",
-      "system_url_last_checked": "2025-09-09T01:23:22.426197",
-      "fee_url_hash": "c6e11de033a63c460ad8dc56674b072e",
-      "fee_url_last_status": "ok",
-      "fee_url_last_checked": "2025-09-09T01:23:22.512801",
-      "appliance_url_hash": "f48aa11941406c21eb159c5393eb6576",
-      "appliance_url_last_status": "ok",
-      "appliance_url_last_checked": "2025-09-09T01:23:22.594999"
-    },
-    "인천광역시_동구": {
-      "last_checked": "2025-09-09T01:23:31.328687",
-      "info_url_last_status": "changed",
-      "info_url_last_checked": "2025-09-09T01:23:22.823985",
-      "info_url_last_error": "HTTP 400",
-      "system_url_last_status": "changed",
-      "system_url_last_checked": "2025-09-09T01:23:23.051728",
-      "system_url_last_error": "HTTP 400",
-      "fee_url_last_status": "changed",
-      "fee_url_last_checked": "2025-09-09T01:23:23.258161",
-      "fee_url_last_error": "HTTP 400",
-      "appliance_url_last_status": "changed",
-      "appliance_url_last_checked": "2025-09-09T01:23:23.436666",
-      "appliance_url_last_error": "HTTP 400",
-      "info_url_hash": "db5cbb6261e01ecbd53090fbced3efc6",
-      "change_history": [
+        },
         {
           "url_type": "info_url",
           "change_type": "content",
-          "previous_hash": null,
-          "current_hash": "67dc79dc4bcdd2deee74884c01e0e5e5",
-          "changed_at": "2025-09-09T00:10:44.933382"
+          "previous_hash": "37f0ca978d79e66673c92a70dc1a12f0",
+          "current_hash": "4fca70cc694f2b1d3fd8a318f0ccfdb3",
+          "changed_at": "2025-10-24T10:26:52.945905"
         },
         {
           "url_type": "system_url",
           "change_type": "content",
-          "previous_hash": null,
-          "current_hash": "a0bad1ec5ffa38377f0c0e422d9e2a94",
-          "changed_at": "2025-09-09T00:10:45.222613"
-        },
+          "previous_hash": "a7b14aeb02c5e9ea4b0088fb39f52abf",
+          "current_hash": "25058fc1fadc737c39ccbd4b25b30d67",
+          "changed_at": "2025-10-24T10:26:53.196621"
+        }
+      ],
+      "system_url_hash": "25058fc1fadc737c39ccbd4b25b30d67",
+      "system_url_last_status": "changed",
+      "system_url_last_checked": "2025-10-24T10:26:53.196621",
+      "fee_url_hash": "c6e11de033a63c460ad8dc56674b072e",
+      "fee_url_last_status": "ok",
+      "fee_url_last_checked": "2025-10-24T10:26:53.344702",
+      "appliance_url_hash": "f48aa11941406c21eb159c5393eb6576",
+      "appliance_url_last_status": "ok",
+      "appliance_url_last_checked": "2025-10-24T10:26:53.505877"
+    },
+    "인천광역시_동구": {
+      "last_checked": "2025-10-24T10:27:10.309064",
+      "info_url_last_status": "changed",
+      "info_url_last_checked": "2025-10-24T10:26:53.830770",
+      "info_url_last_error": "HTTP 400",
+      "system_url_last_status": "changed",
+      "system_url_last_checked": "2025-10-24T10:26:54.181371",
+      "system_url_last_error": "HTTP 400",
+      "fee_url_last_status": "changed",
+      "fee_url_last_checked": "2025-10-24T10:26:54.690137",
+      "fee_url_last_error": "HTTP 400",
+      "appliance_url_last_status": "changed",
+      "appliance_url_last_checked": "2025-10-24T10:26:54.994577",
+      "appliance_url_last_error": "HTTP 400",
+      "info_url_hash": "215ad9a40d687fc245c6a0a1eba1a621",
+      "change_history": [
         {
           "url_type": "fee_url",
           "change_type": "content",
@@ -258,17 +286,45 @@
           "previous_hash": "69e11c584e8b6c3c7367ad416f531273",
           "current_hash": "d1a76077ac5431fe2323d7674b117be9",
           "changed_at": "2025-09-09T01:23:23.436666"
+        },
+        {
+          "url_type": "info_url",
+          "change_type": "content",
+          "previous_hash": "db5cbb6261e01ecbd53090fbced3efc6",
+          "current_hash": "215ad9a40d687fc245c6a0a1eba1a621",
+          "changed_at": "2025-10-24T10:26:53.830770"
+        },
+        {
+          "url_type": "system_url",
+          "change_type": "content",
+          "previous_hash": "35171fbc746c8fbfc733be681ada8652",
+          "current_hash": "cdbf57ae5fe858ad337bbdc68fabf098",
+          "changed_at": "2025-10-24T10:26:54.181371"
+        },
+        {
+          "url_type": "fee_url",
+          "change_type": "content",
+          "previous_hash": "9ce53d2722822ddd0f78be825065a98d",
+          "current_hash": "bdb81914fc099b328ec3ae6741fddb7a",
+          "changed_at": "2025-10-24T10:26:54.690137"
+        },
+        {
+          "url_type": "appliance_url",
+          "change_type": "content",
+          "previous_hash": "d1a76077ac5431fe2323d7674b117be9",
+          "current_hash": "3090bd58c87120d68cee05aae00d40a9",
+          "changed_at": "2025-10-24T10:26:54.994577"
         }
       ],
-      "system_url_hash": "35171fbc746c8fbfc733be681ada8652",
-      "fee_url_hash": "9ce53d2722822ddd0f78be825065a98d",
-      "appliance_url_hash": "d1a76077ac5431fe2323d7674b117be9"
+      "system_url_hash": "cdbf57ae5fe858ad337bbdc68fabf098",
+      "fee_url_hash": "bdb81914fc099b328ec3ae6741fddb7a",
+      "appliance_url_hash": "3090bd58c87120d68cee05aae00d40a9"
     },
     "강원특별자치도_정선군": {
-      "info_url_hash": "c61fae857b0de5c8b1c27a9e42201212",
-      "last_checked": "2025-09-09T01:23:31.328687",
-      "info_url_last_status": "ok",
-      "info_url_last_checked": "2025-09-09T01:23:23.741126",
+      "info_url_hash": "1e0f5fb9a3132a3a281aa433f02fbbb8",
+      "last_checked": "2025-10-24T10:27:10.309064",
+      "info_url_last_status": "changed",
+      "info_url_last_checked": "2025-10-24T10:26:55.782893",
       "change_history": [
         {
           "url_type": "info_url",
@@ -276,18 +332,25 @@
           "previous_hash": null,
           "current_hash": "c61fae857b0de5c8b1c27a9e42201212",
           "changed_at": "2025-09-08T16:59:51.435870"
+        },
+        {
+          "url_type": "info_url",
+          "change_type": "content",
+          "previous_hash": "c61fae857b0de5c8b1c27a9e42201212",
+          "current_hash": "1e0f5fb9a3132a3a281aa433f02fbbb8",
+          "changed_at": "2025-10-24T10:26:55.782893"
         }
       ]
     },
     "강원특별자치도_동해시": {
-      "last_checked": "2025-09-09T01:23:31.328687",
+      "last_checked": "2025-10-24T10:27:10.309064",
       "info_url_last_status": "changed",
-      "info_url_last_checked": "2025-09-09T01:23:24.444606",
+      "info_url_last_checked": "2025-10-24T10:26:57.015404",
       "info_url_last_error": "Connection Error",
       "fee_url_last_status": "changed",
-      "fee_url_last_checked": "2025-09-09T01:23:25.101739",
+      "fee_url_last_checked": "2025-10-24T10:26:58.007038",
       "fee_url_last_error": "Connection Error",
-      "info_url_hash": "d4e5c30a464b247e993bc9e2d85fd8c7",
+      "info_url_hash": "c084933ab0530811adbca60aa6a4ac6f",
       "change_history": [
         {
           "url_type": "info_url",
@@ -316,15 +379,29 @@
           "previous_hash": "eebbcc23463e1f9e7c04eb0241254841",
           "current_hash": "d4e5c30a464b247e993bc9e2d85fd8c7",
           "changed_at": "2025-09-09T01:23:25.101739"
+        },
+        {
+          "url_type": "info_url",
+          "change_type": "content",
+          "previous_hash": "d4e5c30a464b247e993bc9e2d85fd8c7",
+          "current_hash": "c084933ab0530811adbca60aa6a4ac6f",
+          "changed_at": "2025-10-24T10:26:57.015404"
+        },
+        {
+          "url_type": "fee_url",
+          "change_type": "content",
+          "previous_hash": "d4e5c30a464b247e993bc9e2d85fd8c7",
+          "current_hash": "c084933ab0530811adbca60aa6a4ac6f",
+          "changed_at": "2025-10-24T10:26:58.007038"
         }
       ],
-      "fee_url_hash": "d4e5c30a464b247e993bc9e2d85fd8c7"
+      "fee_url_hash": "c084933ab0530811adbca60aa6a4ac6f"
     },
     "인천광역시_미추홀구": {
-      "info_url_hash": "38c116f588bd7f5d9bab9b6476be7d10",
-      "last_checked": "2025-09-09T01:23:31.328687",
+      "info_url_hash": "ad306ea3299b5016ab267e88d61f6033",
+      "last_checked": "2025-10-24T10:27:10.309064",
       "info_url_last_status": "changed",
-      "info_url_last_checked": "2025-09-09T01:23:25.485173",
+      "info_url_last_checked": "2025-10-24T10:26:58.551054",
       "change_history": [
         {
           "url_type": "info_url",
@@ -374,23 +451,37 @@
           "previous_hash": "115bd24e2cd77b80aa071fd5f2fa0b37",
           "current_hash": "38c116f588bd7f5d9bab9b6476be7d10",
           "changed_at": "2025-09-09T01:23:25.485173"
+        },
+        {
+          "url_type": "info_url",
+          "change_type": "content",
+          "previous_hash": "38c116f588bd7f5d9bab9b6476be7d10",
+          "current_hash": "ad306ea3299b5016ab267e88d61f6033",
+          "changed_at": "2025-10-24T10:26:58.551054"
+        },
+        {
+          "url_type": "system_url",
+          "change_type": "content",
+          "previous_hash": "1f33f65ca33909348ebf427bd96ad0fc",
+          "current_hash": "693d68fba10cfcf0d11119994dbf34c8",
+          "changed_at": "2025-10-24T10:26:58.722784"
         }
       ],
-      "system_url_hash": "1f33f65ca33909348ebf427bd96ad0fc",
-      "system_url_last_status": "ok",
-      "system_url_last_checked": "2025-09-09T01:23:25.582807",
+      "system_url_hash": "693d68fba10cfcf0d11119994dbf34c8",
+      "system_url_last_status": "changed",
+      "system_url_last_checked": "2025-10-24T10:26:58.722784",
       "fee_url_hash": "ca2b874fd31b979bf62f7227d39dd77a",
       "fee_url_last_status": "ok",
-      "fee_url_last_checked": "2025-09-09T01:23:25.892694",
+      "fee_url_last_checked": "2025-10-24T10:26:58.997484",
       "appliance_url_hash": "f48aa11941406c21eb159c5393eb6576",
       "appliance_url_last_status": "ok",
-      "appliance_url_last_checked": "2025-09-09T01:23:25.974887"
+      "appliance_url_last_checked": "2025-10-24T10:26:59.182219"
     },
     "인천광역시_연수구": {
-      "info_url_hash": "2d5d3fd6e065f7496375085a47e904ac",
-      "last_checked": "2025-09-09T01:23:31.328687",
-      "info_url_last_status": "ok",
-      "info_url_last_checked": "2025-09-09T01:23:26.066818",
+      "info_url_hash": "872ebde137efe6b6aea0fe3400507a0b",
+      "last_checked": "2025-10-24T10:27:10.309064",
+      "info_url_last_status": "changed",
+      "info_url_last_checked": "2025-10-24T10:26:59.384200",
       "change_history": [
         {
           "url_type": "info_url",
@@ -419,23 +510,37 @@
           "previous_hash": null,
           "current_hash": "68da4cfb1c62efc480ef54d5bd31a444",
           "changed_at": "2025-09-08T16:59:53.808882"
+        },
+        {
+          "url_type": "info_url",
+          "change_type": "content",
+          "previous_hash": "2d5d3fd6e065f7496375085a47e904ac",
+          "current_hash": "872ebde137efe6b6aea0fe3400507a0b",
+          "changed_at": "2025-10-24T10:26:59.384200"
+        },
+        {
+          "url_type": "appliance_url",
+          "change_type": "content",
+          "previous_hash": "68da4cfb1c62efc480ef54d5bd31a444",
+          "current_hash": "4d1ce230ed4a126b1b94639ab8cdd3c9",
+          "changed_at": "2025-10-24T10:26:59.789564"
         }
       ],
       "system_url_hash": "4eef0ee0e52ab1952e1ec16ba7cb5c52",
       "system_url_last_status": "ok",
-      "system_url_last_checked": "2025-09-09T01:23:26.126071",
+      "system_url_last_checked": "2025-10-24T10:26:59.486007",
       "fee_url_hash": "37da2b5f1b7743b4a0089afbeb0d86ea",
       "fee_url_last_status": "ok",
-      "fee_url_last_checked": "2025-09-09T01:23:26.172689",
-      "appliance_url_hash": "68da4cfb1c62efc480ef54d5bd31a444",
-      "appliance_url_last_status": "ok",
-      "appliance_url_last_checked": "2025-09-09T01:23:26.246702"
+      "fee_url_last_checked": "2025-10-24T10:26:59.587046",
+      "appliance_url_hash": "4d1ce230ed4a126b1b94639ab8cdd3c9",
+      "appliance_url_last_status": "changed",
+      "appliance_url_last_checked": "2025-10-24T10:26:59.789564"
     },
     "인천광역시_남동구": {
-      "info_url_hash": "4a32c52d709fa38fe3ac5cedf09372eb",
-      "last_checked": "2025-09-09T01:23:31.328687",
+      "info_url_hash": "94dc5306b758553b5ac7b4926c3155bd",
+      "last_checked": "2025-10-24T10:27:10.309064",
       "info_url_last_status": "changed",
-      "info_url_last_checked": "2025-09-09T01:23:26.515709",
+      "info_url_last_checked": "2025-10-24T10:27:00.360270",
       "change_history": [
         {
           "url_type": "info_url",
@@ -464,23 +569,51 @@
           "previous_hash": null,
           "current_hash": "19b1c6c5a645f7e05bcb471e2ea7dc37",
           "changed_at": "2025-09-09T01:23:27.387161"
+        },
+        {
+          "url_type": "info_url",
+          "change_type": "content",
+          "previous_hash": "4a32c52d709fa38fe3ac5cedf09372eb",
+          "current_hash": "94dc5306b758553b5ac7b4926c3155bd",
+          "changed_at": "2025-10-24T10:27:00.360270"
+        },
+        {
+          "url_type": "system_url",
+          "change_type": "content",
+          "previous_hash": "38a820fb7205a724cb2be0c8b9c4e00d",
+          "current_hash": "8404e448bc7046b8d160e224908b1442",
+          "changed_at": "2025-10-24T10:27:00.891234"
+        },
+        {
+          "url_type": "fee_url",
+          "change_type": "content",
+          "previous_hash": "58d8565823f735942030a0367bade460",
+          "current_hash": "6d1cba6fff63594a329090e54edefe02",
+          "changed_at": "2025-10-24T10:27:01.374275"
+        },
+        {
+          "url_type": "appliance_url",
+          "change_type": "content",
+          "previous_hash": "19b1c6c5a645f7e05bcb471e2ea7dc37",
+          "current_hash": "591981c99fac50f86a23429b01629322",
+          "changed_at": "2025-10-24T10:27:01.675065"
         }
       ],
-      "system_url_hash": "38a820fb7205a724cb2be0c8b9c4e00d",
+      "system_url_hash": "8404e448bc7046b8d160e224908b1442",
       "system_url_last_status": "changed",
-      "system_url_last_checked": "2025-09-09T01:23:26.969141",
-      "fee_url_hash": "58d8565823f735942030a0367bade460",
+      "system_url_last_checked": "2025-10-24T10:27:00.891234",
+      "fee_url_hash": "6d1cba6fff63594a329090e54edefe02",
       "fee_url_last_status": "changed",
-      "fee_url_last_checked": "2025-09-09T01:23:27.242359",
-      "appliance_url_hash": "19b1c6c5a645f7e05bcb471e2ea7dc37",
+      "fee_url_last_checked": "2025-10-24T10:27:01.374275",
+      "appliance_url_hash": "591981c99fac50f86a23429b01629322",
       "appliance_url_last_status": "changed",
-      "appliance_url_last_checked": "2025-09-09T01:23:27.387161"
+      "appliance_url_last_checked": "2025-10-24T10:27:01.675065"
     },
     "인천광역시_부평구": {
       "info_url_hash": "e2331f62010fdf4d8a04c00f520a95fe",
-      "last_checked": "2025-09-09T01:23:31.328687",
-      "info_url_last_status": "changed",
-      "info_url_last_checked": "2025-09-09T01:23:27.578458",
+      "last_checked": "2025-10-24T10:27:10.309064",
+      "info_url_last_status": "ok",
+      "info_url_last_checked": "2025-10-24T10:27:02.120399",
       "change_history": [
         {
           "url_type": "info_url",
@@ -509,23 +642,30 @@
           "previous_hash": null,
           "current_hash": "56ba4ae06f7d6841bcee57c1dd57dcb0",
           "changed_at": "2025-09-09T01:23:28.182316"
+        },
+        {
+          "url_type": "system_url",
+          "change_type": "content",
+          "previous_hash": "b1bcbd0d9bd644353dada61a384d2ecb",
+          "current_hash": "41c7ff0386fec771da29803936c9e394",
+          "changed_at": "2025-10-24T10:27:02.469120"
         }
       ],
-      "system_url_hash": "b1bcbd0d9bd644353dada61a384d2ecb",
+      "system_url_hash": "41c7ff0386fec771da29803936c9e394",
       "system_url_last_status": "changed",
-      "system_url_last_checked": "2025-09-09T01:23:27.845685",
+      "system_url_last_checked": "2025-10-24T10:27:02.469120",
       "fee_url_hash": "8bdb8906c227a2e0ec98ce7319580cf8",
-      "fee_url_last_status": "changed",
-      "fee_url_last_checked": "2025-09-09T01:23:28.050318",
+      "fee_url_last_status": "ok",
+      "fee_url_last_checked": "2025-10-24T10:27:02.813302",
       "appliance_url_hash": "56ba4ae06f7d6841bcee57c1dd57dcb0",
-      "appliance_url_last_status": "changed",
-      "appliance_url_last_checked": "2025-09-09T01:23:28.182316"
+      "appliance_url_last_status": "ok",
+      "appliance_url_last_checked": "2025-10-24T10:27:03.129944"
     },
     "인천광역시_계양구": {
-      "info_url_hash": "de034a4720c4936a55b88c12cc2891bb",
-      "last_checked": "2025-09-09T01:23:31.328687",
+      "info_url_hash": "0aed4d5fe97566ca21b053fec83450b8",
+      "last_checked": "2025-10-24T10:27:10.309064",
       "info_url_last_status": "changed",
-      "info_url_last_checked": "2025-09-09T01:23:28.392177",
+      "info_url_last_checked": "2025-10-24T10:27:03.483515",
       "change_history": [
         {
           "url_type": "info_url",
@@ -554,23 +694,51 @@
           "previous_hash": null,
           "current_hash": "19b1c6c5a645f7e05bcb471e2ea7dc37",
           "changed_at": "2025-09-09T01:23:28.950264"
+        },
+        {
+          "url_type": "info_url",
+          "change_type": "content",
+          "previous_hash": "de034a4720c4936a55b88c12cc2891bb",
+          "current_hash": "0aed4d5fe97566ca21b053fec83450b8",
+          "changed_at": "2025-10-24T10:27:03.483515"
+        },
+        {
+          "url_type": "system_url",
+          "change_type": "content",
+          "previous_hash": "68ccfd7c8e9ec62fca9e7e9bad0fd5e6",
+          "current_hash": "621bf791835f4a80145df287a733e416",
+          "changed_at": "2025-10-24T10:27:03.821773"
+        },
+        {
+          "url_type": "fee_url",
+          "change_type": "content",
+          "previous_hash": "3dc8cc06b72a2fefaabb12bacfb8aa74",
+          "current_hash": "c9dc13d79050b0ed785b70f8e5668780",
+          "changed_at": "2025-10-24T10:27:04.328432"
+        },
+        {
+          "url_type": "appliance_url",
+          "change_type": "content",
+          "previous_hash": "19b1c6c5a645f7e05bcb471e2ea7dc37",
+          "current_hash": "591981c99fac50f86a23429b01629322",
+          "changed_at": "2025-10-24T10:27:04.574403"
         }
       ],
-      "system_url_hash": "68ccfd7c8e9ec62fca9e7e9bad0fd5e6",
+      "system_url_hash": "621bf791835f4a80145df287a733e416",
       "system_url_last_status": "changed",
-      "system_url_last_checked": "2025-09-09T01:23:28.598693",
-      "fee_url_hash": "3dc8cc06b72a2fefaabb12bacfb8aa74",
+      "system_url_last_checked": "2025-10-24T10:27:03.821773",
+      "fee_url_hash": "c9dc13d79050b0ed785b70f8e5668780",
       "fee_url_last_status": "changed",
-      "fee_url_last_checked": "2025-09-09T01:23:28.824007",
-      "appliance_url_hash": "19b1c6c5a645f7e05bcb471e2ea7dc37",
+      "fee_url_last_checked": "2025-10-24T10:27:04.328432",
+      "appliance_url_hash": "591981c99fac50f86a23429b01629322",
       "appliance_url_last_status": "changed",
-      "appliance_url_last_checked": "2025-09-09T01:23:28.950264"
+      "appliance_url_last_checked": "2025-10-24T10:27:04.574403"
     },
     "인천광역시_강화군": {
-      "info_url_hash": "073df5b05d8633c6f381aa0efda21f40",
-      "last_checked": "2025-09-09T01:23:31.328687",
+      "info_url_hash": "0b25b85e295fe001b8d1ad6c4f800733",
+      "last_checked": "2025-10-24T10:27:10.309064",
       "info_url_last_status": "changed",
-      "info_url_last_checked": "2025-09-09T01:23:29.114020",
+      "info_url_last_checked": "2025-10-24T10:27:04.894690",
       "change_history": [
         {
           "url_type": "info_url",
@@ -592,20 +760,35 @@
           "previous_hash": null,
           "current_hash": "19b1c6c5a645f7e05bcb471e2ea7dc37",
           "changed_at": "2025-09-09T01:23:29.268028"
+        },
+        {
+          "url_type": "info_url",
+          "change_type": "content",
+          "previous_hash": "073df5b05d8633c6f381aa0efda21f40",
+          "current_hash": "0b25b85e295fe001b8d1ad6c4f800733",
+          "changed_at": "2025-10-24T10:27:04.894690"
+        },
+        {
+          "url_type": "appliance_url",
+          "change_type": "content",
+          "previous_hash": "19b1c6c5a645f7e05bcb471e2ea7dc37",
+          "current_hash": "591981c99fac50f86a23429b01629322",
+          "changed_at": "2025-10-24T10:27:05.156031"
         }
       ],
       "fee_url_hash": "2c6cd8d89f24e15a1bf807fddb576b9f",
-      "fee_url_last_status": "changed",
-      "fee_url_last_checked": "2025-09-09T01:23:29.115022",
-      "appliance_url_hash": "19b1c6c5a645f7e05bcb471e2ea7dc37",
+      "fee_url_last_status": "error",
+      "fee_url_last_checked": "2025-10-24T10:27:04.894721",
+      "appliance_url_hash": "591981c99fac50f86a23429b01629322",
       "appliance_url_last_status": "changed",
-      "appliance_url_last_checked": "2025-09-09T01:23:29.268028"
+      "appliance_url_last_checked": "2025-10-24T10:27:05.156031",
+      "fee_url_last_error": "File not found"
     },
     "인천광역시_옹진군": {
-      "info_url_hash": "da6ee2f39948f54d528530b5abc273f3",
-      "last_checked": "2025-09-09T01:23:31.328687",
+      "info_url_hash": "e848515f919a17c4fe8d8cdbe8ab7b8b",
+      "last_checked": "2025-10-24T10:27:10.309064",
       "info_url_last_status": "changed",
-      "info_url_last_checked": "2025-09-09T01:23:30.818752",
+      "info_url_last_checked": "2025-10-24T10:27:06.985086",
       "change_history": [
         {
           "url_type": "info_url",
@@ -627,14 +810,80 @@
           "previous_hash": null,
           "current_hash": "92d0ad4d1cc8eaf1b133db340586f9ce",
           "changed_at": "2025-09-09T01:23:31.328687"
+        },
+        {
+          "url_type": "info_url",
+          "change_type": "content",
+          "previous_hash": "da6ee2f39948f54d528530b5abc273f3",
+          "current_hash": "e848515f919a17c4fe8d8cdbe8ab7b8b",
+          "changed_at": "2025-10-24T10:27:06.985086"
+        },
+        {
+          "url_type": "fee_url",
+          "change_type": "content",
+          "previous_hash": "da6ee2f39948f54d528530b5abc273f3",
+          "current_hash": "e848515f919a17c4fe8d8cdbe8ab7b8b",
+          "changed_at": "2025-10-24T10:27:08.261692"
+        },
+        {
+          "url_type": "appliance_url",
+          "change_type": "content",
+          "previous_hash": "92d0ad4d1cc8eaf1b133db340586f9ce",
+          "current_hash": "86e432fa4daaee7073532697e01c497e",
+          "changed_at": "2025-10-24T10:27:09.105331"
         }
       ],
-      "fee_url_hash": "da6ee2f39948f54d528530b5abc273f3",
+      "fee_url_hash": "e848515f919a17c4fe8d8cdbe8ab7b8b",
       "fee_url_last_status": "changed",
-      "fee_url_last_checked": "2025-09-09T01:23:31.066004",
-      "appliance_url_hash": "92d0ad4d1cc8eaf1b133db340586f9ce",
+      "fee_url_last_checked": "2025-10-24T10:27:08.261692",
+      "appliance_url_hash": "86e432fa4daaee7073532697e01c497e",
       "appliance_url_last_status": "changed",
-      "appliance_url_last_checked": "2025-09-09T01:23:31.328687"
+      "appliance_url_last_checked": "2025-10-24T10:27:09.105331"
+    },
+    "서울특별시_종로구": {
+      "info_url_hash": "3cdb83866d6f6be2b538843b55e95efb",
+      "last_checked": "2025-10-24T10:27:10.309064",
+      "info_url_last_status": "changed",
+      "info_url_last_checked": "2025-10-24T10:27:09.336105",
+      "change_history": [
+        {
+          "url_type": "info_url",
+          "change_type": "content",
+          "previous_hash": null,
+          "current_hash": "3cdb83866d6f6be2b538843b55e95efb",
+          "changed_at": "2025-10-24T10:27:09.336105"
+        },
+        {
+          "url_type": "system_url",
+          "change_type": "content",
+          "previous_hash": null,
+          "current_hash": "3cdb83866d6f6be2b538843b55e95efb",
+          "changed_at": "2025-10-24T10:27:09.758945"
+        },
+        {
+          "url_type": "fee_url",
+          "change_type": "content",
+          "previous_hash": null,
+          "current_hash": "87f89fde0ddda0a22f941f8074591768",
+          "changed_at": "2025-10-24T10:27:10.044138"
+        },
+        {
+          "url_type": "appliance_url",
+          "change_type": "content",
+          "previous_hash": null,
+          "current_hash": "591981c99fac50f86a23429b01629322",
+          "changed_at": "2025-10-24T10:27:10.309016"
+        }
+      ],
+      "system_url_hash": "3cdb83866d6f6be2b538843b55e95efb",
+      "system_url_last_status": "changed",
+      "system_url_last_checked": "2025-10-24T10:27:09.758945",
+      "fee_url_hash": "87f89fde0ddda0a22f941f8074591768",
+      "fee_url_last_status": "changed",
+      "fee_url_last_checked": "2025-10-24T10:27:10.044138",
+      "appliance_url_hash": "591981c99fac50f86a23429b01629322",
+      "appliance_url_last_status": "changed",
+      "appliance_url_last_checked": "2025-10-24T10:27:10.309016"
     }
   }
 }

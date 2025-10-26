@@ -1,136 +1,117 @@
-### Project Overview
-This is a Streamlit web application that uses the OpenAI Vision API to analyze images. The application allows users to take a picture with their camera and get a description of the image from an AI model. It now focuses on identifying and classifying central objects in images using LLM, with future plans for pipeline expansion based on classification. It also includes an admin page to manage a Cloudflared tunnel, which can be used to expose the local Streamlit application to the internet.
+# CLAUDE.md - EcoGuide.v1 빠른 참조 가이드
 
-### Building and Running
-To run this project, you need to have Python and the required packages installed.
+Claude Code가 이 프로젝트에서 작업할 때 **5분 내에 파악해야 할 핵심 사항**입니다.
 
-1.  **Install dependencies:**
-    ```powershell
-    pip install -r requirements.txt
-    ```
+## 🎯 프로젝트 핵심 이해
 
-2.  **Set up OpenAI API Key:**
-    You need to provide an OpenAI API key. You can do this in one of the following ways:
-    *   Set it as an environment variable named `OPENAI_API_KEY`.
-    *   Create a `.env` file in the root of the project and add the following line:
-        ```
-        OPENAI_API_KEY="your-api-key"
-        ```
-    *   Enter the API key directly in the application's sidebar.
+**EcoGuide.v1**: AI 기반 대형폐기물 관리 도우미
+- 시민들의 폐기물 식별 및 배출 방법 안내
+- 지자체별 배출 규정 연결
+- Streamlit + OpenAI Vision API + 도메인 기반 아키텍처
 
-3.  **Run the application:**
-    ```powershell
-    streamlit run app.py
-    ```
+## 📚 세부 문서 가이드
 
-### Vision pipeline (rembg, ultralytics, mediapipe, PyTorch)
-This project includes an optional vision measurement pipeline (hand-based size estimation) which uses rembg (U²-Net), MediaPipe Hands, and YOLOv8 (Ultralytics). These packages are optional and the app will gracefully degrade if they're not installed (a mocked/no-model flow is available for tests).
+| 상황 | 참조 문서 | 용도 |
+|------|-----------|------|
+| 🆕 **모든 개발 작업** | `instructions/development_guidelines.md` | 종합 개발 가이드 (시나리오, 코드 패턴, 아키텍처) |
+| 🤖 **다른 AI 도구** | `agents.md` | ChatGPT, Copilot 등 타 AI용 |
+| 📋 **빠른 확인** | 이 문서 | 핵심 규칙, 금지사항 |
 
-A pre-trained YOLOv8n-pose hand detection model (`yolov8n-hand-pose.pt`) is used for hand detection. This model is located in the `models/` directory.
+## 개발 명령어
 
-Because some of these libraries depend on PyTorch and GPU builds, follow the platform-appropriate installation steps below. The examples use Windows PowerShell-compatible commands.
+### 애플리케이션 실행
+- **Streamlit 앱 시작**: `streamlit run app.py`
+- **대안 실행 방법**: `run.bat` (Windows 배치 파일)
 
-1.  **Install pure-Python dependencies (recommended first):**
-    ```powershell
-    pip install numpy rembg ultralytics mediapipe pillow
-    ```
+### 테스트
+- **모든 테스트 실행**: `pytest` (테스트는 `test/` 디렉토리에 위치)
+- **특정 테스트 파일 실행**: `pytest test/test_vision_pipeline.py`
+- **상세 출력으로 테스트 실행**: `pytest -v`
 
-2.  **PyTorch (required by ultralytics and for GPU support)**
-    - CPU-only (PowerShell example):
-      ```powershell
-      pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
-      ```
-    - GPU (CUDA) builds: choose the index URL matching your CUDA version (example for CUDA 11.8):
-      ```powershell
-      pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
-      ```
-    - Notes:
-      * Check https://pytorch.org/get-started/locally/ for the correct index URL for your environment.
-      * On Windows, ensure the correct CUDA toolkit / drivers are installed for GPU wheels to work.
-      * If you don't install torch, ultralytics may still be importable but inference will fail; tests should mock model calls to avoid heavy downloads.
+### 패키지 설치
+- **핵심 의존성 설치**: `pip install -r requirements.txt`
+- **비전 의존성 설치** (선택사항, CPU 전용): `pip install rembg mediapipe ultralytics opencv-python`
+- **GPU 지원을 위한 PyTorch 설치**: `pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu`
 
-3.  **Remarks about rembg and mediapipe**
-    * rembg may have native dependencies and can download models on first run. If you encounter issues, try installing with:
-      ```powershell
-      pip install rembg[u2net]
-      ```
-    * mediapipe provides prebuilt wheels for common platforms. If installation fails, consult the mediapipe docs for platform-specific instructions.
+## 🚨 핵심 규칙 (5분 안에 숙지)
 
-### Testing the Vision Pipeline (local, CPU-first)
-- Unit tests are written to mock heavy model calls so CI doesn't need to download large models.
-- Run tests with pytest:
-  ```powershell
-  pytest -q
-  ```
-- The new measurement UI is available in the Streamlit app under the "측정 도구" tab. If the models are not installed locally the UI will still run but detection features will be disabled and the app will show warnings or use defaults.
+### 🔴 절대 금지 (NEVER DO)
+- ❌ `src/services/`에 새 파일 생성 → `src/domains/{domain}/services/` 사용
+- ❌ `from src.core.config` → `from src.app.core.config` 사용
+- ❌ 도메인 간 직접 import → ServiceFactory 사용
+- ❌ 설계서를 `claudedocs/`에 생성 → `instructions/` 사용
 
-### Building and Running (recap)
-1. Install dependencies (see Vision pipeline section for optional vision packages).
-2. Provide `OPENAI_API_KEY`.
-3. Run:
-   ```powershell
-   streamlit run app.py
-   ```
+### ✅ 필수 준수 (MUST DO)
+- ✅ 새 기능은 **도메인별 분류** 후 배치
+  - 이미지/AI → `analysis`, 프롬프트 → `prompts`, 행정구역 → `district`
+  - 모니터링 → `monitoring`, 시스템 → `infrastructure`
+- ✅ 새 서비스는 `SERVICE_DOMAIN_MAP`에 등록
+- ✅ Config는 `src.app.core.config.load_config()` 사용
+- ✅ **설계서는 반드시 `instructions/` 폴더에 생성**
 
-### Project Structure Guidelines
+**💡 모르겠으면**: `instructions/comprehensive_development_guidelines.md` 확인
 
-이 프로젝트는 Streamlit 애플리케이션의 유지보수성과 확장성을 높이기 위해 다음과 같은 구조를 따릅니다.
+## 🏗️ 아키텍처 핵심 구조
 
+**도메인 기반 아키텍처**: 5개 핵심 도메인으로 기능 분리
 ```
-C:\projects_vscode\env_ai\
-├── app.py                 # 메인 애플리케이션 (홈 페이지)
-├── pages/
-│   └── admin.py           # Streamlit 페이지들 (파일 이름이 네비게이션에 표시됨)
-├── src/
-│   ├── __init__.py
-│   ├── components/        # 여러 페이지에서 재사용되는 UI 컴포넌트
-│   │   ├── __init__.py
-│   │   └── tunnel_ui.py   # 터널 관리 UI 컴포넌트
-│   ├── services/          # 외부 API 연동, 비즈니스 로직
-│   │   ├── __init__.py
-│   │   ├── openai_service.py # OpenAI API 서비스
-│   │   └── tunnel_service.py # 터널 관리 서비스 로직
-│   └── core/
-│       ├── __init__.py
-│       ├── ui.py          # 공통 UI 유틸리티 (예: 설치 가이드)
-│       └── utils.py       # 공통 유틸리티 및 상태 관리 (CONFIG, AppState, TunnelState)
-├── tests/                 # 테스트 코드 (현재는 비어있음)
-├── requirements.txt       # Python 종속성
-└── .env                   # 환경 변수 (예: API 키)
+src/domains/
+├─ analysis/      # 이미지/AI 분석
+├─ prompts/       # 프롬프트 관리
+├─ district/      # 행정구역 데이터
+├─ monitoring/    # 시스템 모니터링
+└─ infrastructure/ # 인프라 서비스
 ```
 
-**각 디렉터리의 역할:**
+**각 도메인 구조**:
+```
+domain/
+├─ services/   # 비즈니스 로직
+├─ ui/        # UI 컴포넌트
+└─ types.py   # 타입 정의
+```
 
-*   **`app.py`**: Streamlit 애플리케이션의 메인 진입점입니다. 홈 페이지 역할을 하며, 애플리케이션의 전반적인 레이아웃과 데모 페이지의 핵심 UI 및 로직을 포함합니다.
-*   **`pages/`**: Streamlit의 멀티페이지 기능을 활용하여 사이드바에 자동으로 표시될 페이지들을 포함합니다. 각 `.py` 파일이 하나의 독립적인 페이지를 구성합니다.
-*   **`src/`**: 프로젝트의 모든 재사용 가능한 파이썬 모듈을 포함하는 최상위 소스 디렉터리입니다.
-    *   **`src/components/`**: 여러 페이지에서 사용될 수 있는 UI 컴포넌트들을 모아둡니다. (예: `tunnel_ui.py`는 터널 관리 UI를 제공)
-    *   **`src/services/`**: 외부 서비스(API, 데이터베이스 등)와의 통신 및 순수한 비즈니스 로직을 담당하는 모듈들을 포함합니다. UI와 직접적인 상호작용 없이 데이터를 처리하거나 외부 시스템과 연동하는 역할을 합니다. (예: `openai_service.py`는 OpenAI API 호출, `tunnel_service.py`는 Cloudflared 터널 제어 로직)
-    *   **`src/core/`**: 애플리케이션의 핵심 설정, 전역 상태 관리, 공통 유틸리티 함수 등 프로젝트 전반에 걸쳐 사용되는 기반 코드를 포함합니다. (예: `utils.py`는 `CONFIG`, `AppState`, `TunnelState` 정의, `ui.py`는 공통 UI 유틸리티)
+**📖 상세 구조**: `instructions/architecture_development_guidelines.md` 참조
 
-**소스 추가 시 기준:**
+## 🔧 빠른 시작 패턴
 
-1.  **UI 페이지**: Streamlit 사이드바에 독립적인 페이지로 표시되어야 하는 경우 `pages/` 디렉터리에 `.py` 파일을 생성합니다.
-2.  **재사용 가능한 UI 컴포넌트**: 여러 페이지에서 사용될 Streamlit 위젯 조합이나 UI 로직은 `src/components/`에 추가합니다.
-3.  **비즈니스 로직/외부 연동**: UI와 분리된 순수한 비즈니스 로직, 외부 API 호출, 데이터 처리 등은 `src/services/`에 추가합니다.
-4.  **공통 유틸리티/설정/상태**: 애플리케이션 전반에 걸쳐 사용되는 설정, 상태 관리 클래스, 범용 유틸리티 함수 등은 `src/core/`에 추가합니다.
+### 새 서비스 추가
+```python
+# 1. 도메인 결정 → src/domains/{domain}/services/
+# 2. BaseService 상속
+# 3. SERVICE_DOMAIN_MAP에 등록
+```
 
-### 설정 관리 기준: 전역 vs. 페이지별
+### 새 UI 컴포넌트 추가
+```python
+# 1. src/domains/{domain}/ui/
+# 2. BaseUIComponent 상속
+# 3. self.get_service() 사용
+```
 
-애플리케이션의 설정은 그 사용 범위에 따라 명확히 구분하여 관리해야 합니다.
+### 설정 추가
+```python
+# src/app/core/config.py에 추가
+# load_config()로 사용
+```
 
-*   **전역 설정 (Global Configuration)**:
-    *   **정의**: 애플리케이션 전체에 걸쳐 일관되게 적용되는 설정값들입니다. 예를 들어, 기본 LLM 모델, 이미지 처리 품질, API 키 관련 환경 변수 이름 등이 여기에 해당합니다.
-    *   **관리 위치**: `src/core/config.py` 파일의 `Config` 데이터 클래스 내에서 중앙 집중적으로 관리됩니다. `load_config()` 함수를 통해 로드되며, 필요한 모듈이나 함수에 인수로 명시적으로 전달하여 사용합니다.
-    *   **예시**: `default_model`, `vision_models`, `default_prompt`, `max_image_size`, `jpeg_quality`, `default_port` 등.
+**📖 상세 패턴**: `instructions/development_guidelines.md` 참조
 
-*   **페이지별 설정 (Page-Specific Configuration)**:
-    *   **정의**: 특정 Streamlit 페이지에만 고유하게 적용되는 설정값들입니다. 대표적으로 `st.set_page_config()` 함수의 `page_title`과 `page_icon`이 있습니다. 이 값들은 각 페이지의 브라우저 탭 제목과 파비콘을 결정하며, 페이지마다 달라야 합니다.
-    *   **관리 위치**: 해당 페이지를 정의하는 `.py` 파일 내에서 직접 설정합니다. `st.set_page_config()` 함수를 사용하여 페이지 파일의 최상단에서 정의하는 것이 Streamlit의 관용적인 방식입니다.
-    *   **예시**: `st.set_page_config(page_title="내 페이지 제목", page_icon="✨")`와 같이 각 페이지 파일 내에서 직접 설정합니다.
+## ⚡ 작업 체크리스트
 
-**구분하는 이유:**
+### 시작할 때
+- [ ] 어떤 도메인에 속하는 작업인가?
+- [ ] 세부 가이드가 필요하면 `instructions/` 문서 확인
 
-이러한 구분을 통해 설정 관리의 복잡성을 줄이고 코드의 명확성을 높일 수 있습니다. 전역 설정은 애플리케이션의 핵심 동작을 제어하며, 페이지별 설정은 각 페이지의 고유한 시각적 특성을 정의합니다. 이 둘을 혼합하여 관리하면 불필요한 의존성이 생기거나 설정의 의미가 모호해질 수 있습니다.
+### 코드 작성 시
+- [ ] 올바른 도메인에 배치했는가?
+- [ ] `src.app.core.config` 경로 사용했는가?
+- [ ] ServiceFactory에 등록했는가?
 
-이러한 구조를 통해 코드의 응집도를 높이고 결합도를 낮춰, 더 효율적인 개발과 유지보수를 가능하게 합니다.
+### 완료 전
+- [ ] 기존 기능이 깨지지 않았는가?
+- [ ] `streamlit run app.py`로 실행 확인
+
+---
+
+**📖 상세 가이드**: `instructions/development_guidelines.md` 참조

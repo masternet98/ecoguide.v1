@@ -43,24 +43,20 @@ class ImageAnalysisComponent(BaseComponent):
         return self._perform_analysis(image_bytes, prompt, model, max_size)
     
     def _render_analysis_options(self) -> int:
-        """분석 옵션 UI를 렌더링합니다."""
-        col1, col2 = st.columns(2)
-        with col1:
-            max_size = st.number_input(
-                "최대 변환 크기 (긴 변, px)",
-                min_value=480,
-                max_value=1280,
-                value=self.config.max_image_size if self.config else 1024,
-                step=64,
-                key="max_size_input"
-            )
+        """분석 옵션 UI를 렌더링합니다."""        
+        max_size = st.number_input(
+            "최대 변환 크기 (긴 변, px)",
+            min_value=480,
+            max_value=1280,
+            value=self.config.max_image_size if self.config else 1024,
+            step=64,
+            key="max_size_input"
+        )
         return max_size
     
     def _render_analysis_button(self) -> bool:
         """분석 버튼을 렌더링하고 클릭 상태를 반환합니다."""
-        col1, col2 = st.columns(2)
-        with col2:
-            return st.button("🧠 이미지 분석", use_container_width=True, key="analyze_image_btn")
+        return st.button("🧠 이미지 분석", use_container_width=True, key="analyze_image_btn")
     
     def _validate_openai_service(self) -> bool:
         """OpenAI 서비스의 유효성을 검사합니다."""
@@ -89,8 +85,14 @@ class ImageAnalysisComponent(BaseComponent):
             # LLM 분석
             with st.spinner("LLM 분석 중..."):
                 output_text, raw = openai_service.analyze_image(jpeg_bytes, prompt.strip(), model)
-                SessionStateManager.update_analysis_results(output_text, raw)
-            
+
+                # 성공한 경우에만 세션 상태 업데이트
+                if output_text and raw:
+                    SessionStateManager.update_analysis_results(output_text, raw)
+                    st.success("✅ 이미지 분석이 완료되었습니다!")
+                else:
+                    st.error("❌ 분석 결과를 받을 수 없습니다.")
+
             return output_text, raw
             
         except Exception as e:

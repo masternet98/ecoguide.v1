@@ -145,6 +145,11 @@ class ServiceFactory:
             # Analysis 도메인
             'vision_service': 'analysis',
             'openai_service': 'analysis',
+            'confirmation_service': 'analysis',
+            'accuracy_tracking_service': 'analysis',
+            'waste_classification_service': 'analysis',
+            'ai_classification_mapper': 'analysis',
+            'labeling_service': 'analysis',
             # Prompts 도메인
             'prompt_service': 'prompts',
             'prompt_manager': 'prompts',
@@ -157,6 +162,7 @@ class ServiceFactory:
             'district_loader': 'district',
             'district_validator': 'district',
             'location_service': 'district',
+            'rag_context_service': 'district',
             # Infrastructure 도메인
             'search_manager': 'infrastructure',
             'search_providers': 'infrastructure',
@@ -299,6 +305,56 @@ def create_default_service_registry(config: Config) -> ServiceRegistry:
         dependencies=[],
         is_optional=True,
         feature_flag='location_enabled',
+        singleton=True
+    )
+
+    # Confirmation Service 등록 (피드백 수집)
+    registry.register_service(
+        name='confirmation_service',
+        service_class=type('ConfirmationService', (), {}),
+        module_path='src.domains.analysis.services.confirmation_service',
+        dependencies=[],
+        is_optional=False,
+        singleton=True
+    )
+
+    # Accuracy Tracking Service 등록 (정확도 추적)
+    registry.register_service(
+        name='accuracy_tracking_service',
+        service_class=type('AccuracyTrackingService', (), {}),
+        module_path='src.domains.analysis.services.accuracy_tracking_service',
+        dependencies=[],
+        is_optional=False,
+        singleton=True
+    )
+
+    # Waste Classification Service 등록 (폐기물 분류)
+    registry.register_service(
+        name='waste_classification_service',
+        service_class=type('WasteClassificationService', (), {}),
+        module_path='src.domains.analysis.services.waste_classification_service',
+        dependencies=[],
+        is_optional=False,
+        singleton=True
+    )
+
+    # AI Classification Mapper 등록 (AI 결과 매핑)
+    registry.register_service(
+        name='ai_classification_mapper',
+        service_class=type('AIClassificationMapper', (), {}),
+        module_path='src.domains.analysis.services.ai_classification_mapper',
+        dependencies=[],
+        is_optional=False,
+        singleton=True
+    )
+
+    # Labeling Service 등록 (학습 데이터 저장)
+    registry.register_service(
+        name='labeling_service',
+        service_class=type('LabelingService', (), {}),
+        module_path='src.domains.analysis.services.labeling_service',
+        dependencies=[],
+        is_optional=False,
         singleton=True
     )
 

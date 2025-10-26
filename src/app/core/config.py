@@ -18,7 +18,7 @@ class DistrictConfig:
     행정구역 데이터 처리 관련 설정을 포함하는 데이터 클래스입니다.
     """
     # 파일 경로 설정
-    uploads_dir: str = field(default_factory=lambda: os.path.join(os.getcwd(), "uploads\districts"))
+    uploads_dir: str = field(default_factory=lambda: os.path.join(os.getcwd(), "uploads", "districts"))
     
     # data.go.kr URL 설정
     base_url: str = "https://www.data.go.kr"

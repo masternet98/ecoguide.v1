@@ -129,9 +129,9 @@ class SessionStateManager:
         """이미지 데이터와 분석 결과를 지웁니다"""
         clear_keys = [
             'camera_photo_bytes', 'gallery_photo_bytes', 'last_photo_source',
-            'analysis_output', 'analysis_raw'
+            'analysis_output', 'analysis_raw', 'analysis_results'
         ]
-        
+
         for key in clear_keys:
             st.session_state[key] = None
     
@@ -150,6 +150,27 @@ class SessionStateManager:
         """분석 결과를 세션 상태에 저장합니다"""
         st.session_state.analysis_output = output
         st.session_state.analysis_raw = raw
+
+        # 추가: 구조화된 분석 결과 저장
+        if output and raw:
+            st.session_state.analysis_results = {
+                'success': True,
+                'data': {
+                    'output_text': output,
+                    'raw_response': raw,
+                    'timestamp': datetime.now().isoformat()
+                }
+            }
+        else:
+            st.session_state.analysis_results = {
+                'success': False,
+                'data': None
+            }
+
+    @staticmethod
+    def get_analysis_results() -> Optional[Dict[str, Any]]:
+        """분석 결과를 세션 상태에서 가져옵니다"""
+        return st.session_state.get('analysis_results', None)
     
     @staticmethod
     def get_selected_image_bytes(tab_selector: str) -> Optional[bytes]:

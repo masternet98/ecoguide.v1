@@ -5,6 +5,8 @@ OpenAI 클라이언트 생성, 이미지 처리, OpenAI Vision API를 사용한 
 """
 import io
 import base64
+import re
+import json
 from typing import Tuple, Dict, Any, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -106,7 +108,36 @@ class OpenAIService(BaseService):
     def has_api_key(self) -> bool:
         """API 키가 설정되어 있는지 확인합니다."""
         return bool(self._api_key)
-    
+
+    def _extract_json_from_response(self, response_text: str) -> str:
+        """
+        OpenAI 응답에서 JSON을 추출합니다.
+
+        마크다운 코드 블록(```json ... ```)으로 감싸진 JSON을 처리합니다.
+
+        Args:
+            response_text: OpenAI의 응답 텍스트
+
+        Returns:
+            추출된 또는 원본 텍스트
+        """
+        # 1. 마크다운 코드 블록에서 JSON 추출
+        # 패턴: ```json ... ``` 또는 ``` ... ```
+        json_match = re.search(r'```(?:json)?\s*([\s\S]*?)\s*```', response_text)
+        if json_match:
+            extracted = json_match.group(1).strip()
+            # 추출된 내용이 유효한 JSON인지 간단히 확인
+            try:
+                json.loads(extracted)
+                self._logger.debug("Successfully extracted JSON from markdown code block")
+                return extracted
+            except json.JSONDecodeError:
+                # 추출했지만 유효하지 않으면 원본 반환
+                self._logger.debug("Extracted text is not valid JSON, using original response")
+                return response_text
+
+        return response_text
+
     @handle_errors(show_user_message=True, reraise=False, fallback_return=(None, {}))
     def analyze_image(self, image_bytes: bytes, prompt: str, model: str) -> Tuple[Optional[str], Dict[str, Any]]:
         """
@@ -153,12 +184,15 @@ class OpenAIService(BaseService):
             )
             
             output_text = response.choices[0].message.content or ""
-            
+
+            # JSON을 마크다운 코드 블록에서 추출 (있으면)
+            output_text = self._extract_json_from_response(output_text)
+
             try:
                 raw_response = response.model_dump()
             except Exception:
                 raw_response = {"raw": str(response)}
-            
+
             self._logger.info(f"Successfully analyzed image with model {model}")
             return output_text, raw_response
             

@@ -38,7 +38,14 @@ class MainLayoutComponent(BaseComponent):
             
             # 설치 가이드 표시
             installation_guide_ui()
-            
+
+            # 관리 페이지 링크
+            st.markdown("---")
+            st.markdown("### 🛠️ 관리")
+
+            if st.button("🗂️ 폐기물 분류 관리", use_container_width=True):
+                st.session_state.show_waste_management = True
+
             return model
     
     def render_main_header(self) -> None:

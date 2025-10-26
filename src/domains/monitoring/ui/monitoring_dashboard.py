@@ -504,8 +504,9 @@ def run_streaming_monitoring(config: Config, monitoring_config: MonitoringConfig
         st.error(f"모니터링 검사 중 오류가 발생했습니다: {str(e)}")
         import traceback
         add_log(f"상세 오류: {traceback.format_exc()}")
-    
-        saved_result = st.session_state.get("monitoring_result")
+
+    # 저장된 모니터링 결과 표시 (항상 실행)
+    saved_result = st.session_state.get("monitoring_result")
     render_saved_monitoring_results(saved_result)
 
 def show_batch_management(config: Config):
