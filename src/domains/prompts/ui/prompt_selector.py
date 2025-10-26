@@ -47,13 +47,25 @@ class PromptSelectorComponent(BaseComponent):
         """
         with st.expander("🎯 관리 프롬프트 선택", expanded=False):
             prompt_options = {"": "직접 입력"}
+            enhanced_waste_analysis_id = None
+
             for prompt in available_prompts:
                 prompt_options[prompt.id] = f"{prompt.name} ({prompt.category.value})"
+                # enhanced_waste_analysis 프롬프트 ID 저장
+                if prompt.name == "enhanced_waste_analysis":
+                    enhanced_waste_analysis_id = prompt.id
 
             selected_prompt_key = f"selected_prompt_{feature_id}"
+
+            # enhanced_waste_analysis가 있으면 기본값으로 설정
+            default_index = 0
+            if enhanced_waste_analysis_id and enhanced_waste_analysis_id in prompt_options:
+                default_index = list(prompt_options.keys()).index(enhanced_waste_analysis_id)
+
             selected_prompt_id = st.selectbox(
                 "프롬프트 선택",
                 options=list(prompt_options.keys()),
+                index=default_index,
                 format_func=lambda x: prompt_options[x],
                 key=selected_prompt_key,
                 help="관리 프롬프트를 선택하거나 직접 입력을 선택하세요."

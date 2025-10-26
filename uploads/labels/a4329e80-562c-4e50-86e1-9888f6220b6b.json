@@ -1,0 +1,26 @@
+{
+  "file_id": "a4329e80-562c-4e50-86e1-9888f6220b6b",
+  "image_path": "/home/jaeho/projects_linux/ecoguide.v1/uploads/user_images/a4329e80-562c-4e50-86e1-9888f6220b6b.jpg",
+  "timestamp": "2025-10-26T21:43:00.701365",
+  "classification": {
+    "primary_category": "가구",
+    "primary_category_name": "가구",
+    "secondary_category": "침대/매트리스",
+    "secondary_category_name": "아기 침대",
+    "object_name": "아기 침대"
+  },
+  "dimensions": {
+    "w_cm": 70,
+    "h_cm": 100,
+    "d_cm": 120
+  },
+  "confidence": 0.8,
+  "reasoning": "아기 침대는 유아용품으로 분류되며, 일반적인 크기를 기준으로 치수를 추정했습니다.",
+  "user_feedback": {
+    "notes": "",
+    "timestamp": "2025-10-26T21:43:00.557084"
+  },
+  "metadata": {
+    "labeling_quality": 0.6200000000000001
+  }
+}

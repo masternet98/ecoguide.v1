@@ -30,6 +30,7 @@ class MeasurementResult:
     hand_detection: Optional[HandDetection] = None
     obj_width_cm: Optional[float] = None
     obj_height_cm: Optional[float] = None
+    obj_depth_cm: Optional[float] = None  # 객체의 깊이 (새로 추가)
     cm_per_px: Optional[float] = None
     perspective_scale: Optional[float] = None
     category: Optional[str] = None

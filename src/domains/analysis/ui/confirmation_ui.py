@@ -85,9 +85,9 @@ class ConfirmationUI:
             st.write(f"**2차 분류:** {secondary_category}")
 
             if dimensions:
-                width = dimensions.get('width_cm')
-                height = dimensions.get('height_cm')
-                depth = dimensions.get('depth_cm')
+                width = dimensions.get('w_cm') or dimensions.get('width_cm')
+                height = dimensions.get('h_cm') or dimensions.get('height_cm')
+                depth = dimensions.get('d_cm') or dimensions.get('depth_cm')
                 items = []
                 if width:
                     items.append(f"가로 {width}cm")
@@ -317,10 +317,9 @@ class ConfirmationUI:
                         "is_correct": None,
                         "confidence_rating": 3,  # 기본값
                         "override": {
-                            "width_cm": width if width > 0 else None,
-                            "height_cm": height if height > 0 else None,
-                            "depth_cm": depth if depth > 0 else None,
-                            "dimension_sum_cm": width + height + depth
+                            "w_cm": width if width > 0 else None,
+                            "h_cm": height if height > 0 else None,
+                            "d_cm": depth if depth > 0 else None
                         },
                         "user_feedback": {
                             "size_available": True,
@@ -343,9 +342,9 @@ class ConfirmationUI:
             }
 
         # 크기 정보가 있는 경우
-        width_default = float(dimensions.get('width_cm', 0))
-        height_default = float(dimensions.get('height_cm', 0))
-        depth_default = float(dimensions.get('depth_cm', 0))
+        width_default = float(dimensions.get('w_cm') or dimensions.get('width_cm', 0))
+        height_default = float(dimensions.get('h_cm') or dimensions.get('height_cm', 0))
+        depth_default = float(dimensions.get('d_cm') or dimensions.get('depth_cm', 0))
 
         # 1단계: 기본 확인
         choice = st.radio(
@@ -450,10 +449,9 @@ class ConfirmationUI:
             "is_correct": False,
             "confidence_rating": confidence_rating,
             "override": {
-                "width_cm": width if width > 0 else None,
-                "height_cm": height if height > 0 else None,
-                "depth_cm": depth if depth > 0 else None,
-                "dimension_sum_cm": dimension_sum if dimension_sum > 0 else None
+                "w_cm": width if width > 0 else None,
+                "h_cm": height if height > 0 else None,
+                "d_cm": depth if depth > 0 else None
             },
             "user_feedback": {
                 "size_available": True,
@@ -461,10 +459,9 @@ class ConfirmationUI:
                 "confidence_level": confidence_rating,
                 "user_provided_size": True,
                 "corrected_dimensions": {
-                    "width_cm": width,
-                    "height_cm": height,
-                    "depth_cm": depth,
-                    "dimension_sum_cm": dimension_sum
+                    "w_cm": width,
+                    "h_cm": height,
+                    "d_cm": depth
                 }
             }
         }

@@ -1,0 +1,26 @@
+{
+  "file_id": "be773d45-bfb3-4dd5-b88e-462aa1889bed",
+  "image_path": "/home/jaeho/projects_linux/ecoguide.v1/uploads/user_images/be773d45-bfb3-4dd5-b88e-462aa1889bed.jpg",
+  "timestamp": "2025-10-26T21:43:52.339645",
+  "classification": {
+    "primary_category": "가구",
+    "primary_category_name": "가구",
+    "secondary_category": "거실장/테이블/서랍장",
+    "secondary_category_name": "서랍장",
+    "object_name": "서랍장"
+  },
+  "dimensions": {
+    "w_cm": 50,
+    "h_cm": 80,
+    "d_cm": 40
+  },
+  "confidence": 0.8,
+  "reasoning": "물체는 상단의 개방된 공간과 하단의 문이 있는 서랍장으로 보입니다. 가정용 가구로 분류됩니다.",
+  "user_feedback": {
+    "notes": "",
+    "timestamp": "2025-10-26T21:43:52.220629"
+  },
+  "metadata": {
+    "labeling_quality": 0.6200000000000001
+  }
+}

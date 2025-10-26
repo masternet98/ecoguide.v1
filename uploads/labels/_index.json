@@ -1,0 +1,68 @@
+{
+  "version": "1.0",
+  "created_at": "2025-10-26T20:32:50.927110",
+  "total_labels": 5,
+  "labels_by_category": {
+    "가구": {
+      "count": 4,
+      "subcategories": {
+        "침대/매트리스": 1,
+        "거실장/테이블/서랍장": 2,
+        "선반/수납가구": 1
+      }
+    },
+    "가전": {
+      "count": 1,
+      "subcategories": {
+        "기타 가전": 1
+      }
+    }
+  },
+  "labels": [
+    {
+      "file_id": "a4329e80-562c-4e50-86e1-9888f6220b6b",
+      "timestamp": "2025-10-26T21:43:00.701365",
+      "primary_category": "가구",
+      "secondary_category": "침대/매트리스",
+      "object_name": "아기 침대",
+      "confidence": 0.8,
+      "labeling_quality": 0.6200000000000001
+    },
+    {
+      "file_id": "d9e2bed9-8fd0-4e95-a88f-85f21ddce0e3",
+      "timestamp": "2025-10-26T21:43:26.574509",
+      "primary_category": "가구",
+      "secondary_category": "거실장/테이블/서랍장",
+      "object_name": "서랍장",
+      "confidence": 0.8,
+      "labeling_quality": 0.6200000000000001
+    },
+    {
+      "file_id": "be773d45-bfb3-4dd5-b88e-462aa1889bed",
+      "timestamp": "2025-10-26T21:43:52.339645",
+      "primary_category": "가구",
+      "secondary_category": "거실장/테이블/서랍장",
+      "object_name": "서랍장",
+      "confidence": 0.8,
+      "labeling_quality": 0.6200000000000001
+    },
+    {
+      "file_id": "22115a6d-0be0-445e-a21a-82b9287d0eb2",
+      "timestamp": "2025-10-26T21:45:10.199355",
+      "primary_category": "가구",
+      "secondary_category": "선반/수납가구",
+      "object_name": "수납장",
+      "confidence": 0.8,
+      "labeling_quality": 0.6200000000000001
+    },
+    {
+      "file_id": "c21967c2-22ed-4838-9337-f48d59ad03ca",
+      "timestamp": "2025-10-26T21:45:48.240826",
+      "primary_category": "가전",
+      "secondary_category": "기타 가전",
+      "object_name": "선풍기",
+      "confidence": 0.8,
+      "labeling_quality": 0.6200000000000001
+    }
+  ]
+}

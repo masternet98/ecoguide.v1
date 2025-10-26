@@ -127,11 +127,15 @@ class VisionService:
                 )
         return detections
 
-    def estimate_size(self, hand: HandDetection, obj: ObjectDetection, user_hand_width_cm: float, hand_dist_cm: float, obj_dist_cm: float) -> Tuple[float, float, float, float]:
-        """손과 객체의 픽셀 정보, 거리를 바탕으로 실제 크기를 추정합니다."""
+    def estimate_size(self, hand: HandDetection, obj: ObjectDetection, user_hand_width_cm: float, hand_dist_cm: float, obj_dist_cm: float) -> Tuple[float, float, float, float, float]:
+        """손과 객체의 픽셀 정보, 거리를 바탕으로 실제 크기를 추정합니다.
+
+        Returns:
+            Tuple: (width_cm, height_cm, depth_cm, cm_per_px, perspective_scale)
+        """
         # 1. 기준이 되는 cm/px 계산 (손 기준)
         if hand.hand_px == 0:
-            return 0.0, 0.0, 0.0, 1.0
+            return 0.0, 0.0, 0.0, 0.0, 1.0
         cm_per_px_hand = user_hand_width_cm / hand.hand_px
 
         # 2. 원근 보정 계수 계산
@@ -143,11 +147,52 @@ class VisionService:
         # 3. 원근 보정된 cm/px 계산
         final_cm_per_px = cm_per_px_hand * perspective_scale
 
-        # 4. 객체 크기 계산
+        # 4. 객체 크기 계산 (width, height)
         obj_width_cm = obj.width_px * final_cm_per_px
         obj_height_cm = obj.height_px * final_cm_per_px
 
-        return obj_width_cm, obj_height_cm, final_cm_per_px, perspective_scale
+        # 5. 깊이 추정 (depth)
+        # 깊이는 2D 이미지에서 직접 측정할 수 없으므로, 휴리스틱 기반으로 추정
+        # 가정: 일반적인 대형폐기물의 깊이는 width와 height 비율을 고려하여 추정
+        obj_depth_cm = self._estimate_depth(obj_width_cm, obj_height_cm, obj.label)
+
+        return obj_width_cm, obj_height_cm, obj_depth_cm, final_cm_per_px, perspective_scale
+
+    def _estimate_depth(self, width_cm: float, height_cm: float, label: str) -> float:
+        """객체의 라벨과 크기를 바탕으로 깊이를 추정합니다.
+
+        대형폐기물의 일반적인 깊이 범위:
+        - 침대: 25-35cm
+        - 소파: 80-100cm
+        - 책장/장롱: 35-45cm
+        - 냉장고/세탁기: 60-75cm
+        - 테이블: 60-80cm
+        """
+        label_lower = label.lower() if label else ""
+
+        # 라벨 기반 휴리스틱
+        if any(word in label_lower for word in ['bed', '침대']):
+            # 침대: 일반적으로 폭 30cm 이하
+            return min(35.0, width_cm * 0.3)
+        elif any(word in label_lower for word in ['sofa', '소파', 'couch']):
+            # 소파: 일반적으로 폭 width의 50-60%
+            return width_cm * 0.55
+        elif any(word in label_lower for word in ['cabinet', 'bookcase', '책장', '장롱', 'wardrobe']):
+            # 책장/장롱: 일반적으로 폭 40-45cm
+            return min(45.0, width_cm * 0.35)
+        elif any(word in label_lower for word in ['refrigerator', 'fridge', '냉장고', 'freezer']):
+            # 냉장고: 일반적으로 폭 70cm 정도
+            return min(75.0, width_cm * 0.85)
+        elif any(word in label_lower for word in ['washer', 'washing', '세탁기']):
+            # 세탁기: 일반적으로 폭 60-65cm
+            return min(70.0, width_cm * 0.85)
+        elif any(word in label_lower for word in ['table', 'desk', '테이블', '책상']):
+            # 테이블/책상: 일반적으로 폭 60-80cm
+            return width_cm * 0.65
+        else:
+            # 기본값: width와 height의 평균에 일정 비율 적용
+            avg_dimension = (width_cm + height_cm) / 2
+            return avg_dimension * 0.4
 
     def map_label_to_category_and_fee(self, label: str) -> Tuple[Optional[str], Optional[int]]:
         """YOLO 라벨을 기반으로 폐기물 품목과 수수료를 매핑합니다."""
@@ -212,11 +257,12 @@ class VisionService:
             hand_dist = user_hand_distance_cm or self.config.default_hand_distance_cm
             obj_dist = user_object_distance_cm or self.config.default_obj_distance_cm
 
-            width_cm, height_cm, cm_px, p_scale = self.estimate_size(
+            width_cm, height_cm, depth_cm, cm_px, p_scale = self.estimate_size(
                 hand_detection, main_object, hand_width_to_use, hand_dist, obj_dist
             )
             result.obj_width_cm = width_cm
             result.obj_height_cm = height_cm
+            result.obj_depth_cm = depth_cm
             result.cm_per_px = cm_px
             result.perspective_scale = p_scale
 

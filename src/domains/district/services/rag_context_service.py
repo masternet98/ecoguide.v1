@@ -232,23 +232,18 @@ class RAGContextService(BaseService):
             # 대분류
             context_lines.append(f"{i}. **{category}** - {details.get('설명', '')}")
 
-            # 세분류 추가
+            # 세분류 추가 (모든 세분류를 표시하여 AI가 정확히 분류하도록 함)
             subcategories = details.get('세분류', [])
             if subcategories:
-                subcategory_items = []
-                for subcat in subcategories[:3]:  # 처음 3개만 표시
+                for subcat in subcategories:  # 모든 세분류 표시
                     name = subcat.get('명칭', '')
                     examples = subcat.get('예시', [])
                     if examples:
-                        example_text = f" ({', '.join(examples[:2])})"  # 예시 2개만
+                        # 예시를 모두 표시 (AI가 정확히 참고할 수 있도록)
+                        example_text = f" ({', '.join(examples)})"
                     else:
                         example_text = ""
-                    subcategory_items.append(f"{name}{example_text}")
-
-                if subcategory_items:
-                    context_lines.append(f"   - {' · '.join(subcategory_items)}")
-                    if len(subcategories) > 3:
-                        context_lines.append(f"   - 외 {len(subcategories) - 3}개 세부 항목")
+                    context_lines.append(f"   - {name}{example_text}")
 
             context_lines.append("")  # 빈 줄 추가
 

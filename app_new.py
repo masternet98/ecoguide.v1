@@ -45,6 +45,9 @@ class AnalysisState:
         if 'normalized_result' not in st.session_state:
             st.session_state.normalized_result = None
 
+        if 'label_saved' not in st.session_state:
+            st.session_state.label_saved = False  # 라벨 저장 완료 여부
+
     def set_step(self, step: str) -> None:
         """분석 단계를 설정합니다"""
         st.session_state.analysis_step = step
@@ -83,6 +86,7 @@ class AnalysisState:
         st.session_state.current_image = None
         st.session_state.analysis_result = None
         st.session_state.normalized_result = None
+        st.session_state.label_saved = False  # 라벨 저장 상태 초기화
 
 
 class ImageUploadStep:
@@ -145,6 +149,14 @@ class AnalysisStep:
 
         with col2:
             st.metric("프롬프트 길이", f"{len(prompt)} 자")
+
+        # 최종 프롬프트 확인 (expander)
+        with st.expander("🔍 AI에 전달되는 최종 프롬프트 확인", expanded=False):
+            st.markdown("**AI에 다음의 프롬프트와 함께 이미지가 전달됩니다:**")
+            st.markdown("---")
+            st.code(prompt, language="markdown")
+            st.markdown("---")
+            st.info("💡 프롬프트가 정상적으로 작성되지 않았다면 AI의 분류 결과가 부정확할 수 있습니다.")
 
         # 분석 버튼
         if not st.button("🔍 분석 시작", use_container_width=True, key="start_analysis"):
@@ -266,34 +278,58 @@ class ConfirmationStep:
         # 폐기물 분류 서비스 가져오기
         waste_service = self.app_context.get_service('waste_classification_service')
 
+        # 폐기물 분류 서비스 확인
+        if not waste_service:
+            st.warning("⚠️ 폐기물 분류 서비스를 로드할 수 없습니다. 관리 페이지에서 분류를 설정하세요.")
+
         col1, col2 = st.columns(2)
 
         # 대분류 선택
         with col1:
             main_categories = waste_service.get_main_categories() if waste_service else []
-            selected_main = st.selectbox(
-                "대분류",
-                options=main_categories,
-                index=main_categories.index(normalized['primary_category']) if normalized['primary_category'] in main_categories else 0,
-                key="result_main_category"
-            )
-            normalized['primary_category'] = selected_main
+            if not main_categories:
+                st.error("❌ 사용 가능한 대분류가 없습니다.")
+            else:
+                selected_main = st.selectbox(
+                    "대분류",
+                    options=main_categories,
+                    index=main_categories.index(normalized['primary_category']) if normalized['primary_category'] in main_categories else 0,
+                    key="result_main_category",
+                    help="폐기물의 주 카테고리를 선택하세요"
+                )
+                normalized['primary_category'] = selected_main
 
         # 세분류 선택
         with col2:
-            if waste_service:
-                subcategories = waste_service.get_subcategories(selected_main)
-                sub_options = [sub.get('명칭', '') for sub in subcategories]
+            if waste_service and waste_service.get_main_categories():
+                # 현재 선택된 대분류의 세분류 가져오기
+                current_main = normalized.get('primary_category')
+                if current_main:
+                    subcategories = waste_service.get_subcategories(current_main)
+                    if subcategories:
+                        sub_options = [sub.get('명칭', '') for sub in subcategories]
 
-                selected_sub = st.selectbox(
-                    "세분류",
-                    options=sub_options,
-                    index=sub_options.index(normalized['secondary_category']) if normalized['secondary_category'] in sub_options else 0,
-                    key="result_sub_category"
-                )
-                normalized['secondary_category'] = selected_sub
+                        # 현재 선택된 세분류의 인덱스 계산
+                        try:
+                            default_index = sub_options.index(normalized['secondary_category'])
+                        except (ValueError, IndexError):
+                            default_index = 0
+
+                        selected_sub = st.selectbox(
+                            "세분류",
+                            options=sub_options,
+                            index=default_index,
+                            key=f"result_sub_category_{current_main}",  # 대분류별 고유 키
+                            help="폐기물의 세부 카테고리를 선택하세요"
+                        )
+                        normalized['secondary_category'] = selected_sub
+                    else:
+                        st.warning(f"⚠️ '{current_main}'에 해당하는 세분류가 없습니다.")
+                        normalized['secondary_category'] = "분류불가"
+                else:
+                    st.info("💡 먼저 대분류를 선택하세요.")
             else:
-                st.write(f"**세분류:** {normalized['secondary_category']}")
+                st.write(f"**세분류:** {normalized.get('secondary_category', '분류불가')}")
 
         # 신뢰도 표시
         st.metric("신뢰도", f"{normalized['confidence']:.0%}")
@@ -311,52 +347,67 @@ class ConfirmationStep:
 
         # 크기 정보 섹션
         st.markdown("---")
-        st.subheader("📏 크기 정보")
+        st.subheader("📏 크기 정보 (3D 차원)")
 
         dimensions = normalized.get('dimensions', {})
 
         if dimensions and any(dimensions.values()):
             # 크기 정보가 있는 경우 표시
-            col1, col2, col3, col4 = st.columns(4)
+            col1, col2, col3 = st.columns(3)
 
             with col1:
-                st.metric("가로", f"{dimensions.get('width_cm', '-')} cm")
+                w_val = dimensions.get('w_cm') or dimensions.get('width_cm', '-')
+                st.metric("가로(W)", f"{w_val} cm", help="정면에서 본 좌우 길이")
 
             with col2:
-                st.metric("세로", f"{dimensions.get('height_cm', '-')} cm")
+                h_val = dimensions.get('h_cm') or dimensions.get('height_cm', '-')
+                st.metric("높이(H)", f"{h_val} cm", help="정면에서 본 상하 길이")
 
             with col3:
-                st.metric("높이", f"{dimensions.get('depth_cm', '-')} cm")
-
-            with col4:
-                dim_sum = dimensions.get('dimension_sum_cm')
-                if dim_sum:
-                    st.metric("합계", f"{dim_sum} cm")
+                d_val = dimensions.get('d_cm') or dimensions.get('depth_cm', '-')
+                st.metric("깊이(D)", f"{d_val} cm", help="물체의 앞뒤 길이(깊이)")
 
             # 크기 수정 옵션
             modify_size = st.checkbox("크기를 수정하시겠습니까?", key="modify_size_info")
 
             if modify_size:
-                size_col1, size_col2, size_col3 = st.columns(3)
+                st.markdown("**슬라이더로 크기를 조정하세요 (단위: cm):**")
 
-                with size_col1:
-                    width = st.number_input("가로 (cm)", min_value=0.0, value=float(dimensions.get('width_cm') or 0), step=1.0, key="mod_width")
+                width = st.slider(
+                    "가로(W) - 정면에서 본 좌우 길이",
+                    min_value=0,
+                    max_value=300,
+                    value=int(dimensions.get('w_cm') or dimensions.get('width_cm') or 0),
+                    step=5,
+                    key="mod_width"
+                )
 
-                with size_col2:
-                    height = st.number_input("세로 (cm)", min_value=0.0, value=float(dimensions.get('height_cm') or 0), step=1.0, key="mod_height")
+                height = st.slider(
+                    "높이(H) - 정면에서 본 상하 길이",
+                    min_value=0,
+                    max_value=300,
+                    value=int(dimensions.get('h_cm') or dimensions.get('height_cm') or 0),
+                    step=5,
+                    key="mod_height"
+                )
 
-                with size_col3:
-                    depth = st.number_input("높이 (cm)", min_value=0.0, value=float(dimensions.get('depth_cm') or 0), step=1.0, key="mod_depth")
+                depth = st.slider(
+                    "깊이(D) - 물체의 앞뒤 길이",
+                    min_value=0,
+                    max_value=300,
+                    value=int(dimensions.get('d_cm') or dimensions.get('depth_cm') or 0),
+                    step=5,
+                    key="mod_depth"
+                )
 
                 normalized['dimensions'] = {
-                    'width_cm': width if width > 0 else None,
-                    'height_cm': height if height > 0 else None,
-                    'depth_cm': depth if depth > 0 else None,
-                    'dimension_sum_cm': width + height + depth if any([width, height, depth]) else None
+                    'w_cm': width if width > 0 else None,
+                    'h_cm': height if height > 0 else None,
+                    'd_cm': depth if depth > 0 else None
                 }
         else:
             # 크기 정보가 없는 경우
-            st.info("💡 크기 정보가 제공되지 않았습니다")
+            st.info("💡 크기 정보가 제공되지 않았습니다. 직접 입력하실 수 있습니다.")
 
             provide_size = st.checkbox(
                 "직접 크기를 입력하시겠습니까?",
@@ -364,24 +415,40 @@ class ConfirmationStep:
             )
 
             if provide_size:
-                st.markdown("**실제 크기를 입력해주세요 (단위: cm)**")
-                size_col1, size_col2, size_col3 = st.columns(3)
+                st.markdown("**슬라이더로 실제 크기를 입력해주세요 (단위: cm):**")
 
-                with size_col1:
-                    width = st.number_input("가로 (cm)", min_value=0.0, step=1.0, key="manual_width")
+                width = st.slider(
+                    "가로(W) - 정면에서 본 좌우 길이",
+                    min_value=0,
+                    max_value=300,
+                    value=0,
+                    step=5,
+                    key="manual_width"
+                )
 
-                with size_col2:
-                    height = st.number_input("세로 (cm)", min_value=0.0, step=1.0, key="manual_height")
+                height = st.slider(
+                    "높이(H) - 정면에서 본 상하 길이",
+                    min_value=0,
+                    max_value=300,
+                    value=0,
+                    step=5,
+                    key="manual_height"
+                )
 
-                with size_col3:
-                    depth = st.number_input("높이 (cm)", min_value=0.0, step=1.0, key="manual_depth")
+                depth = st.slider(
+                    "깊이(D) - 물체의 앞뒤 길이",
+                    min_value=0,
+                    max_value=300,
+                    value=0,
+                    step=5,
+                    key="manual_depth"
+                )
 
                 if any([width > 0, height > 0, depth > 0]):
                     normalized['dimensions'] = {
-                        'width_cm': width if width > 0 else None,
-                        'height_cm': height if height > 0 else None,
-                        'depth_cm': depth if depth > 0 else None,
-                        'dimension_sum_cm': width + height + depth
+                        'w_cm': width if width > 0 else None,
+                        'h_cm': height if height > 0 else None,
+                        'd_cm': depth if depth > 0 else None
                     }
 
         # 기타 분류인 경우 사용자 입력
@@ -465,64 +532,68 @@ class CompleteStep:
             with col3:
                 st.metric("세분류", normalized['secondary_category'])
 
-        # 피드백 저장 및 라벨링 데이터 저장
-        try:
-            confirmation_service = self.app_context.get_service('confirmation_service')
+        # 피드백 저장 및 라벨링 데이터 저장 (단 한 번만)
+        if not st.session_state.get('label_saved', False):
+            try:
+                confirmation_service = self.app_context.get_service('confirmation_service')
 
-            if confirmation_service:
-                # 피드백 데이터 구성
-                feedback_data = {
-                    "classification": {
-                        "object_name": normalized.get('object_name'),
-                        "primary_category": normalized.get('primary_category'),
-                        "secondary_category": normalized.get('secondary_category'),
-                        "confidence": normalized.get('confidence')
-                    },
-                    "dimensions": normalized.get('dimensions', {}),
-                    "user_feedback": normalized.get('user_feedback', {}),
-                    "timestamp": datetime.now().isoformat()
-                }
+                if confirmation_service:
+                    # 피드백 데이터 구성
+                    feedback_data = {
+                        "classification": {
+                            "object_name": normalized.get('object_name'),
+                            "primary_category": normalized.get('primary_category'),
+                            "secondary_category": normalized.get('secondary_category'),
+                            "confidence": normalized.get('confidence')
+                        },
+                        "dimensions": normalized.get('dimensions', {}),
+                        "user_feedback": normalized.get('user_feedback', {}),
+                        "timestamp": datetime.now().isoformat()
+                    }
 
-                # 피드백 저장
-                save_result = confirmation_service.save_confirmation(
-                    session_id=st.session_state.get('session_id', 'unknown'),
-                    image_id=st.session_state.get('image_id', 'unknown'),
-                    original_analysis=normalized,
-                    is_correct=True,
-                    corrected_data={'feedback_details': feedback_data}
-                )
+                    # 피드백 저장
+                    save_result = confirmation_service.save_confirmation(
+                        session_id=st.session_state.get('session_id', 'unknown'),
+                        image_id=st.session_state.get('image_id', 'unknown'),
+                        original_analysis=normalized,
+                        is_correct=True,
+                        corrected_data={'feedback_details': feedback_data}
+                    )
 
-                if save_result and save_result.get('success'):
-                    st.success("✅ 분류가 완료되었습니다!")
-                    st.info("💾 피드백이 저장되었습니다")
+                    if save_result and save_result.get('success'):
+                        st.success("✅ 분류가 완료되었습니다!")
+                        st.info("💾 피드백이 저장되었습니다")
 
-                    # 라벨링 서비스를 통해 학습 데이터로 저장
-                    try:
-                        labeling_service = self.app_context.get_service('labeling_service')
-                        if labeling_service:
-                            if image_bytes:
-                                label_result = labeling_service.save_label(
-                                    image_bytes=image_bytes,
-                                    analysis_result=normalized,
-                                    user_feedback=normalized.get('user_feedback', {})
-                                )
+                        # 라벨링 서비스를 통해 학습 데이터로 저장
+                        try:
+                            labeling_service = self.app_context.get_service('labeling_service')
+                            if labeling_service:
+                                if image_bytes:
+                                    label_result = labeling_service.save_label(
+                                        image_bytes=image_bytes,
+                                        analysis_result=normalized,
+                                        user_feedback=normalized.get('user_feedback', {})
+                                    )
 
-                                if label_result.get('success'):
-                                    st.success(f"📊 학습 데이터로 저장되었습니다. (ID: {label_result.get('file_id')})")
-                                    logger.info(f"Label saved successfully: {label_result.get('file_id')}")
+                                    if label_result.get('success'):
+                                        st.success(f"📊 학습 데이터로 저장되었습니다. (ID: {label_result.get('file_id')})")
+                                        logger.info(f"Label saved successfully: {label_result.get('file_id')}")
+
+                                        # 라벨 저장 완료 표시
+                                        st.session_state.label_saved = True
+                                    else:
+                                        st.warning(f"학습 데이터 저장 중 오류: {label_result.get('error')}")
+                                        logger.warning(f"Label save failed: {label_result.get('error')}")
                                 else:
-                                    st.warning(f"학습 데이터 저장 중 오류: {label_result.get('error')}")
-                                    logger.warning(f"Label save failed: {label_result.get('error')}")
+                                    logger.warning("이미지 바이트 데이터가 없습니다")
                             else:
-                                logger.warning("이미지 바이트 데이터가 없습니다")
-                        else:
-                            logger.warning("LabelingService를 초기화할 수 없습니다")
-                    except Exception as e:
-                        logger.error(f"라벨링 데이터 저장 중 예외 발생: {e}", exc_info=True)
-                        st.warning(f"라벨링 데이터 저장 중 오류: {str(e)}")
+                                logger.warning("LabelingService를 초기화할 수 없습니다")
+                        except Exception as e:
+                            logger.error(f"라벨링 데이터 저장 중 예외 발생: {e}", exc_info=True)
+                            st.warning(f"라벨링 데이터 저장 중 오류: {str(e)}")
 
-        except Exception as e:
-            st.warning(f"피드백 저장 중 오류가 발생했습니다: {e}")
+            except Exception as e:
+                st.warning(f"피드백 저장 중 오류가 발생했습니다: {e}")
 
         # 배출 방법 안내 (선택사항)
         if st.button("📖 배출 방법 안내", use_container_width=True, key="show_disposal"):
@@ -565,6 +636,22 @@ def main():
 
     state = AnalysisState()
 
+    # 폐기물 분류 관리 페이지 확인
+    if st.session_state.get('show_waste_management', False):
+        from src.domains.analysis.ui.waste_types_management import WasteTypesManagementComponent
+        waste_mgmt = WasteTypesManagementComponent(app_context)
+
+        # 뒤로 가기 버튼
+        col1, col2 = st.columns([4, 1])
+        with col2:
+            if st.button("🔙 닫기", use_container_width=True, key="close_waste_mgmt"):
+                st.session_state.show_waste_management = False
+                st.rerun()
+
+        st.markdown("---")
+        waste_mgmt.render()
+        return  # st.stop() 대신 return 사용
+
     # 사이드바 설정
     with st.sidebar:
         st.title("⚙️ 설정")
@@ -594,6 +681,15 @@ def main():
                 st.write(f"**{step_name} ← 현재**")
             else:
                 st.write(step_name)
+
+        st.markdown("---")
+
+        # 관리 페이지 링크
+        st.subheader("🛠️ 관리")
+
+        if st.button("🗂️ 폐기물 분류 관리", use_container_width=True, key="waste_mgmt_button"):
+            st.session_state.show_waste_management = True
+            st.rerun()  # 즉시 rerun으로 위의 관리 페이지 표시
 
         st.markdown("---")
 
@@ -629,40 +725,165 @@ def main():
 
     # Step 2: 분석
     elif state.get_step() == 'analysis':
-        
+
         # 프롬프트 설정
         st.subheader("📝 분석 프롬프트")
 
-        from src.domains.prompts.ui.prompt_selector import PromptSelectorComponent
-        prompt_selector = PromptSelectorComponent(app_context)
-        selected_prompt = prompt_selector.render("camera_analysis")
+        # waste_types.json에서 분류 체계 텍스트 생성
+        def build_waste_classification_text() -> str:
+            """waste_types.json을 기반으로 분류 체계 텍스트를 생성합니다."""
+            import json
+            import os
 
-        # 기본 프롬프트
-        default_prompt = """이 이미지에 있는 제품을 대형폐기물로 배출하려고 합니다.
+            try:
+                # waste_types.json 찾기
+                possible_paths = [
+                    "uploads/waste_types/waste_types.json",
+                    "/home/jaeho/projects_linux/ecoguide.v1/uploads/waste_types/waste_types.json",
+                    os.path.join(os.getcwd(), "uploads", "waste_types", "waste_types.json")
+                ]
 
-대형폐기물 배출 시 제품의 크기가 가격에 중요한 영향을 미치므로, 다음 정보를 JSON 형식으로 분석해 주세요:
+                waste_data = None
+                for path in possible_paths:
+                    if os.path.exists(path):
+                        with open(path, 'r', encoding='utf-8') as f:
+                            waste_data = json.load(f)
+                        break
+
+                if not waste_data:
+                    raise FileNotFoundError("waste_types.json을 찾을 수 없습니다.")
+
+                # 분류 체계 텍스트 생성
+                classification_text = "## 폐기물 분류 체계\n\n"
+
+                for main_cat, details in waste_data.items():
+                    description = details.get('설명', '')
+                    classification_text += f"### {main_cat} - {description}\n"
+
+                    subcategories = details.get('세분류', [])
+                    for sub in subcategories:
+                        name = sub.get('명칭', '')
+                        examples = sub.get('예시', [])
+                        if examples:
+                            example_str = ', '.join(examples)
+                            classification_text += f"- **{name}** ({example_str})\n"
+                        else:
+                            classification_text += f"- **{name}**\n"
+
+                    classification_text += "\n"
+
+                return classification_text
+
+            except Exception as e:
+                logger.warning(f"Failed to load waste_types.json: {e}")
+                return ""
+
+        # registry.json에서 분석 인터페이스 프롬프트 로드
+        def load_analysis_prompt_from_registry() -> str:
+            """prompt_feature_registry.json에서 analysis_interface 프롬프트를 로드합니다."""
+            import json
+            import os
+
+            try:
+                # registry.json 찾기
+                possible_paths = [
+                    "data/prompts/features/prompt_feature_registry.json",
+                    "/home/jaeho/projects_linux/ecoguide.v1/data/prompts/features/prompt_feature_registry.json",
+                    os.path.join(os.getcwd(), "data", "prompts", "features", "prompt_feature_registry.json")
+                ]
+
+                registry_data = None
+                loaded_path = None
+                for path in possible_paths:
+                    if os.path.exists(path):
+                        with open(path, 'r', encoding='utf-8') as f:
+                            registry_data = json.load(f)
+                        loaded_path = path
+                        logger.info(f"registry.json 로드 성공: {path}")
+                        break
+
+                if not registry_data:
+                    logger.warning("registry.json을 찾을 수 없습니다. 기본 프롬프트를 사용합니다.")
+                    return None
+
+                # analysis_interface 기능의 프롬프트 찾기
+                for feature in registry_data.get('features', []):
+                    if feature.get('feature_id') == 'analysis_interface':
+                        prompt = feature.get('default_prompt_template', None)
+                        if prompt:
+                            logger.info(f"analysis_interface 프롬프트 로드 성공 (길이: {len(prompt)} 자)")
+                        return prompt
+
+                logger.warning("analysis_interface 기능을 찾을 수 없습니다.")
+                return None
+
+            except Exception as e:
+                logger.error(f"registry.json 로드 실패: {e}", exc_info=True)
+                return None
+
+        # Fallback 프롬프트 함수 정의
+        def _get_fallback_prompt(classification_text: str) -> str:
+            """fallback 프롬프트를 반환합니다."""
+            return f"""당신은 대형폐기물 분류 전문가입니다. 다음의 분류 체계를 정확히 따라서 이미지를 분석해주세요.
+
+{classification_text}
+
+## 분석 지침
+
+1. 위의 분류 체계에서 **정확한 대분류(primary_category)**를 선택하세요
+2. 해당 대분류 아래의 **정확한 세분류(secondary_category)**를 선택하세요
+3. 세분류는 반드시 위 목록에 있는 것 중에서만 선택하세요
+4. 이미지의 물품을 식별하고 크기를 추정하세요
+5. 신뢰도를 0.0~1.0 범위로 지정하세요
+
+## 3D 크기(Width, Height, Depth) 정의
+- **width_cm (가로)**: 정면에서 본 물체의 좌우 길이
+- **height_cm (높이)**: 정면에서 본 물체의 상하 길이
+- **depth_cm (깊이)**: 물체의 앞뒤 깊이 (안쪽으로 들어가는 정도)
+
+## 응답 형식 (JSON만 반환, 다른 텍스트는 없음)
 
 ```json
-{
-  "object_name": "제품명",
-  "primary_category": "대분류 (가구/가전/건강/의료용품/생활/주방용품/스포츠/레저/악기/조경/장식/행사용품/기타)",
-  "secondary_category": "세분류 (예: 침대/매트리스, 냉장고 등)",
-  "confidence": "신뢰도 (0.0~1.0)",
-  "dimensions": {
-    "width_cm": "가로 (cm)",
-    "height_cm": "세로 (cm)",
-    "depth_cm": "깊이 (cm)"
-  },
+{{
+  "object_name": "구체적인 물품명",
+  "primary_category": "대분류명 (위 목록에서 선택)",
+  "secondary_category": "세분류명 (위 목록에서 선택)",
+  "confidence": 0.0,
+  "dimensions": {{
+    "width_cm": 0,
+    "height_cm": 0,
+    "depth_cm": 0
+  }},
   "reasoning": "판단 근거"
-}
-```"""
+}}
+```
 
-        prompt = selected_prompt if selected_prompt else default_prompt
+**중요**: secondary_category는 반드시 위의 분류 체계 목록에 있는 정확한 이름으로 기입하세요."""
+
+        # 분류 체계 텍스트 생성
+        classification_text = build_waste_classification_text()
+
+        # registry.json에서 프롬프트 로드 및 변수 바인딩
+        registry_prompt = load_analysis_prompt_from_registry()
+
+        if registry_prompt:
+            # registry 프롬프트에 {CLASSIFICATION_TEXT} 변수 바인딩
+            try:
+                default_prompt = registry_prompt.format(CLASSIFICATION_TEXT=classification_text)
+                logger.info("registry 프롬프트에 분류 체계 바인딩 성공")
+            except Exception as e:
+                logger.error(f"프롬프트 바인딩 실패: {e}")
+                # fallback으로 기본 프롬프트 사용
+                default_prompt = _get_fallback_prompt(classification_text)
+        else:
+            # fallback: 기본 프롬프트 사용
+            logger.warning("registry 프롬프트 미로드 - fallback 프롬프트 사용")
+            default_prompt = _get_fallback_prompt(classification_text)
 
         prompt = st.text_area(
             "프롬프트",
-            value=prompt,
-            height=150,
+            value=default_prompt,
+            height=200,
             key="analysis_prompt"
         )
 

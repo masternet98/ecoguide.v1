@@ -186,10 +186,9 @@ class LabelingService(BaseService):
                 "object_name": analysis_result.get('object_name', '알 수 없음')
             },
             "dimensions": {
-                "width_cm": dimensions.get('width_cm'),
-                "height_cm": dimensions.get('height_cm'),
-                "depth_cm": dimensions.get('depth_cm'),
-                "dimension_sum_cm": dimensions.get('dimension_sum_cm')
+                "w_cm": dimensions.get('w_cm') or dimensions.get('width_cm'),
+                "h_cm": dimensions.get('h_cm') or dimensions.get('height_cm'),
+                "d_cm": dimensions.get('d_cm') or dimensions.get('depth_cm')
             },
             "confidence": analysis_result.get('confidence', 0.0),
             "reasoning": analysis_result.get('reasoning', ''),
@@ -229,7 +228,7 @@ class LabelingService(BaseService):
 
         # 크기 정보 (0.3점)
         dimensions = analysis_result.get('dimensions', {})
-        if any(dimensions.get(k) for k in ['width_cm', 'height_cm', 'depth_cm', 'dimension_sum_cm']):
+        if any(dimensions.get(k) for k in ['w_cm', 'h_cm', 'd_cm', 'width_cm', 'height_cm', 'depth_cm']):
             score += 0.3
 
         # 사용자 피드백 (0.3점)
@@ -342,3 +341,201 @@ class LabelingService(BaseService):
         """라벨의 이미지 경로를 조회합니다."""
         image_path = self.images_dir / f"{file_id}.jpg"
         return image_path if image_path.exists() else None
+
+    def delete_label(self, file_id: str) -> Dict[str, Any]:
+        """
+        특정 라벨과 이미지를 삭제합니다.
+
+        Args:
+            file_id: 삭제할 라벨의 파일 ID
+
+        Returns:
+            삭제 결과 (성공 여부 등)
+        """
+        try:
+            # 1. 이미지 파일 삭제
+            image_path = self.images_dir / f"{file_id}.jpg"
+            if image_path.exists():
+                image_path.unlink()
+                logger.info(f"Image deleted: {image_path}")
+
+            # 2. 라벨 파일 삭제
+            label_path = self.labels_dir / f"{file_id}.json"
+            if label_path.exists():
+                label_path.unlink()
+                logger.info(f"Label file deleted: {label_path}")
+
+            # 3. 인덱스에서 제거
+            self._remove_from_index(file_id)
+
+            logger.info(f"Label deleted successfully: {file_id}")
+
+            return {
+                'success': True,
+                'file_id': file_id,
+                'message': f'라벨링 데이터가 삭제되었습니다. (ID: {file_id})'
+            }
+
+        except Exception as e:
+            logger.error(f"Failed to delete label: {e}", exc_info=True)
+            return {
+                'success': False,
+                'error': str(e),
+                'message': '라벨링 데이터 삭제 중 오류가 발생했습니다.'
+            }
+
+    def delete_labels_by_primary_category(self, primary_category: str) -> Dict[str, Any]:
+        """
+        주 카테고리의 모든 라벨링 데이터를 삭제합니다.
+
+        Args:
+            primary_category: 삭제할 주 카테고리
+
+        Returns:
+            삭제 결과 (성공 여부, 삭제된 개수 등)
+        """
+        try:
+            deleted_count = 0
+            file_ids_to_delete = [
+                label['file_id'] for label in self.label_index['labels']
+                if label['primary_category'] == primary_category
+            ]
+
+            for file_id in file_ids_to_delete:
+                result = self.delete_label(file_id)
+                if result['success']:
+                    deleted_count += 1
+
+            logger.info(f"Deleted {deleted_count} labels from category: {primary_category}")
+
+            return {
+                'success': True,
+                'deleted_count': deleted_count,
+                'message': f'{primary_category} 분류의 {deleted_count}개 라벨링 데이터가 삭제되었습니다.'
+            }
+
+        except Exception as e:
+            logger.error(f"Failed to delete labels by category: {e}", exc_info=True)
+            return {
+                'success': False,
+                'error': str(e),
+                'message': '카테고리 라벨링 데이터 삭제 중 오류가 발생했습니다.'
+            }
+
+    def delete_labels_by_secondary_category(
+        self,
+        primary_category: str,
+        secondary_category: str
+    ) -> Dict[str, Any]:
+        """
+        주 카테고리와 세부 카테고리의 모든 라벨링 데이터를 삭제합니다.
+
+        Args:
+            primary_category: 삭제할 주 카테고리
+            secondary_category: 삭제할 세부 카테고리
+
+        Returns:
+            삭제 결과 (성공 여부, 삭제된 개수 등)
+        """
+        try:
+            deleted_count = 0
+            file_ids_to_delete = [
+                label['file_id'] for label in self.label_index['labels']
+                if (label['primary_category'] == primary_category and
+                    label['secondary_category'] == secondary_category)
+            ]
+
+            for file_id in file_ids_to_delete:
+                result = self.delete_label(file_id)
+                if result['success']:
+                    deleted_count += 1
+
+            logger.info(f"Deleted {deleted_count} labels from category: {primary_category}/{secondary_category}")
+
+            return {
+                'success': True,
+                'deleted_count': deleted_count,
+                'message': f'{primary_category}/{secondary_category} 분류의 {deleted_count}개 라벨링 데이터가 삭제되었습니다.'
+            }
+
+        except Exception as e:
+            logger.error(f"Failed to delete labels by secondary category: {e}", exc_info=True)
+            return {
+                'success': False,
+                'error': str(e),
+                'message': '세부 카테고리 라벨링 데이터 삭제 중 오류가 발생했습니다.'
+            }
+
+    def delete_all_labels(self) -> Dict[str, Any]:
+        """
+        모든 라벨링 데이터를 삭제합니다. (테스트/개발용)
+
+        Returns:
+            삭제 결과 (성공 여부, 삭제된 개수 등)
+        """
+        try:
+            deleted_count = 0
+            file_ids_to_delete = [label['file_id'] for label in self.label_index['labels']]
+
+            for file_id in file_ids_to_delete:
+                result = self.delete_label(file_id)
+                if result['success']:
+                    deleted_count += 1
+
+            logger.warning(f"Deleted all {deleted_count} labels")
+
+            return {
+                'success': True,
+                'deleted_count': deleted_count,
+                'message': f'전체 {deleted_count}개의 라벨링 데이터가 삭제되었습니다.'
+            }
+
+        except Exception as e:
+            logger.error(f"Failed to delete all labels: {e}", exc_info=True)
+            return {
+                'success': False,
+                'error': str(e),
+                'message': '모든 라벨링 데이터 삭제 중 오류가 발생했습니다.'
+            }
+
+    def _remove_from_index(self, file_id: str) -> None:
+        """인덱스에서 라벨을 제거합니다."""
+        try:
+            # labels 리스트에서 제거
+            label_to_remove = None
+            for label in self.label_index['labels']:
+                if label['file_id'] == file_id:
+                    label_to_remove = label
+                    break
+
+            if label_to_remove:
+                self.label_index['labels'].remove(label_to_remove)
+
+                # 카테고리별 인덱스 업데이트
+                primary = label_to_remove['primary_category']
+                secondary = label_to_remove['secondary_category']
+
+                if primary in self.label_index['labels_by_category']:
+                    cat_info = self.label_index['labels_by_category'][primary]
+                    cat_info['count'] -= 1
+
+                    if secondary in cat_info['subcategories']:
+                        cat_info['subcategories'][secondary] -= 1
+
+                        # 서브카테고리 개수가 0이 되면 제거
+                        if cat_info['subcategories'][secondary] == 0:
+                            del cat_info['subcategories'][secondary]
+
+                    # 주 카테고리 개수가 0이 되면 제거
+                    if cat_info['count'] == 0:
+                        del self.label_index['labels_by_category'][primary]
+
+                self.label_index['total_labels'] -= 1
+
+                # 인덱스 저장
+                self._save_index()
+                logger.debug(f"Index updated after deleting: {file_id}")
+
+        except Exception as e:
+            logger.error(f"Failed to remove from index: {e}")
+            raise

@@ -368,25 +368,25 @@ class EnhancedConfirmationUI:
     def _render_manual_size_input(self) -> Dict[str, Any]:
         """수동 크기 입력을 렌더링합니다."""
         st.info("실제 크기를 입력해주세요. (단위: cm)")
+        st.markdown("**크기 정의:**\n- 가로(W): 정면에서 본 좌우 길이\n- 높이(H): 정면에서 본 상하 길이\n- 깊이(D): 물체의 앞뒤 길이")
 
         col1, col2, col3 = st.columns(3)
 
         with col1:
-            width = st.number_input("가로 (cm)", min_value=0.0, value=0.0, step=1.0, key=f"enhanced_manual_width_{self.image_id}")
+            width = st.number_input("가로(W) cm", min_value=0.0, value=0.0, step=1.0, key=f"enhanced_manual_width_{self.image_id}", help="정면에서 본 좌우 길이")
         with col2:
-            height = st.number_input("세로 (cm)", min_value=0.0, value=0.0, step=1.0, key=f"enhanced_manual_height_{self.image_id}")
+            height = st.number_input("높이(H) cm", min_value=0.0, value=0.0, step=1.0, key=f"enhanced_manual_height_{self.image_id}", help="정면에서 본 상하 길이")
         with col3:
-            depth = st.number_input("높이/깊이 (cm)", min_value=0.0, value=0.0, step=1.0, key=f"enhanced_manual_depth_{self.image_id}")
+            depth = st.number_input("깊이(D) cm", min_value=0.0, value=0.0, step=1.0, key=f"enhanced_manual_depth_{self.image_id}", help="물체의 앞뒤 길이")
 
         if any([width > 0, height > 0, depth > 0]):
             return {
                 "status": "user_provided",
                 "is_correct": True,
                 "dimensions": {
-                    "width_cm": width if width > 0 else None,
-                    "height_cm": height if height > 0 else None,
-                    "depth_cm": depth if depth > 0 else None,
-                    "dimension_sum_cm": width + height + depth
+                    "w_cm": width if width > 0 else None,
+                    "h_cm": height if height > 0 else None,
+                    "d_cm": depth if depth > 0 else None
                 },
                 "user_feedback": {
                     "size_available": True,
@@ -400,17 +400,17 @@ class EnhancedConfirmationUI:
     def _render_size_validation(self, dimensions: Dict[str, Any]) -> Dict[str, Any]:
         """크기 검증을 렌더링합니다."""
         # 현재 크기 표시
-        col1, col2, col3, col4 = st.columns(4)
+        col1, col2, col3 = st.columns(3)
 
         with col1:
-            st.metric("가로", f"{dimensions.get('width_cm', 0):.0f} cm")
+            w_val = dimensions.get('w_cm') or dimensions.get('width_cm', 0)
+            st.metric("가로(W)", f"{w_val:.0f} cm", help="정면에서 본 좌우 길이")
         with col2:
-            st.metric("세로", f"{dimensions.get('height_cm', 0):.0f} cm")
+            h_val = dimensions.get('h_cm') or dimensions.get('height_cm', 0)
+            st.metric("높이(H)", f"{h_val:.0f} cm", help="정면에서 본 상하 길이")
         with col3:
-            st.metric("높이", f"{dimensions.get('depth_cm', 0):.0f} cm")
-        with col4:
-            total = dimensions.get('dimension_sum_cm', 0)
-            st.metric("합계", f"{total:.0f} cm")
+            d_val = dimensions.get('d_cm') or dimensions.get('depth_cm', 0)
+            st.metric("깊이(D)", f"{d_val:.0f} cm", help="물체의 앞뒤 길이")
 
         # 정확성 확인
         col1, col2 = st.columns(2)

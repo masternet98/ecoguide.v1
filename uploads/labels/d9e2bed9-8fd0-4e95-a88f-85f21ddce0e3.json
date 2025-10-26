@@ -1,0 +1,26 @@
+{
+  "file_id": "d9e2bed9-8fd0-4e95-a88f-85f21ddce0e3",
+  "image_path": "/home/jaeho/projects_linux/ecoguide.v1/uploads/user_images/d9e2bed9-8fd0-4e95-a88f-85f21ddce0e3.jpg",
+  "timestamp": "2025-10-26T21:43:26.574509",
+  "classification": {
+    "primary_category": "가구",
+    "primary_category_name": "가구",
+    "secondary_category": "거실장/테이블/서랍장",
+    "secondary_category_name": "서랍장",
+    "object_name": "서랍장"
+  },
+  "dimensions": {
+    "w_cm": 50,
+    "h_cm": 75,
+    "d_cm": 40
+  },
+  "confidence": 0.8,
+  "reasoning": "물체는 서랍이 있는 가정용 가구로 보이며, 일반적인 서랍장의 형태와 사이즈를 가지고 있습니다.",
+  "user_feedback": {
+    "notes": "",
+    "timestamp": "2025-10-26T21:43:26.436411"
+  },
+  "metadata": {
+    "labeling_quality": 0.6200000000000001
+  }
+}

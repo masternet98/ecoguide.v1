@@ -1,16 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(find:*)",
-      "Bash(xargs file:*)",
-      "Bash(xargs ls:*)",
-      "Bash(timeout:*)",
+      "Bash(git commit:*)",
       "Bash(python3:*)",
-      "Bash(pip install:*)",
-      "Bash(tree:*)",
-      "Bash(cat:*)",
-      "Bash(xargs cat:*)",
-      "Bash(git add:*)"
-    ]
+      "Bash(python -m py_compile:*)"
+    ],
+    "deny": [],
+    "ask": []
   }
 }
