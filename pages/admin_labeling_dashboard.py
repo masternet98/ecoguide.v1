@@ -216,6 +216,20 @@ def _render_data_browser(labeling_service) -> None:
                 st.markdown(f"**분류**: {label['classification']['primary_category_name']}")
                 st.markdown(f"**신뢰도**: {label['confidence']:.0%}")
 
+                # 크기 정보 표시
+                dimensions = label.get('dimensions', {})
+                if any(dimensions.values()):
+                    st.markdown("**📏 크기:**")
+                    size_info = []
+                    if dimensions.get('width_cm'):
+                        size_info.append(f"가로: {dimensions['width_cm']}cm")
+                    if dimensions.get('height_cm'):
+                        size_info.append(f"세로: {dimensions['height_cm']}cm")
+                    if dimensions.get('depth_cm'):
+                        size_info.append(f"높이: {dimensions['depth_cm']}cm")
+                    if size_info:
+                        st.caption(" / ".join(size_info))
+
                 # 상세 보기 버튼
                 if st.button(
                     "📋 상세 보기",
@@ -274,18 +288,41 @@ def _render_details(labeling_service) -> None:
                     confidence = label['confidence']
                     st.metric("신뢰도", f"{confidence:.0%}")
 
-                    # 크기 정보
+                    # 크기 정보 - 더 명확하게 표시
                     dimensions = label['dimensions']
                     if any(dimensions.values()):
-                        st.write("**크기 정보**:")
-                        if dimensions.get('width_cm'):
-                            st.write(f"- 가로: {dimensions['width_cm']}cm")
-                        if dimensions.get('height_cm'):
-                            st.write(f"- 세로: {dimensions['height_cm']}cm")
-                        if dimensions.get('depth_cm'):
-                            st.write(f"- 높이: {dimensions['depth_cm']}cm")
-                        if dimensions.get('dimension_sum_cm'):
-                            st.write(f"- 합계: {dimensions['dimension_sum_cm']}cm")
+                        st.markdown("#### 📏 크기 정보")
+
+                        # 3열로 크기 정보 표시
+                        size_col1, size_col2, size_col3 = st.columns(3)
+
+                        with size_col1:
+                            width = dimensions.get('width_cm')
+                            if width:
+                                st.metric("가로", f"{width} cm")
+                            else:
+                                st.metric("가로", "-")
+
+                        with size_col2:
+                            height = dimensions.get('height_cm')
+                            if height:
+                                st.metric("세로", f"{height} cm")
+                            else:
+                                st.metric("세로", "-")
+
+                        with size_col3:
+                            depth = dimensions.get('depth_cm')
+                            if depth:
+                                st.metric("높이", f"{depth} cm")
+                            else:
+                                st.metric("높이", "-")
+
+                        # 합계 표시
+                        dim_sum = dimensions.get('dimension_sum_cm')
+                        if dim_sum:
+                            st.info(f"📐 **합계**: {dim_sum} cm (가로 + 세로 + 높이)")
+                    else:
+                        st.info("📏 저장된 크기 정보가 없습니다")
 
                 st.markdown("---")
 
