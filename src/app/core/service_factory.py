@@ -167,6 +167,7 @@ class ServiceFactory:
             'search_manager': 'infrastructure',
             'search_providers': 'infrastructure',
             'link_collector_service': 'infrastructure',
+            'detail_content_service': 'infrastructure',
             'tunnel_service': 'infrastructure',
             'batch_service': 'infrastructure',
             'file_source_validator': 'infrastructure',
@@ -355,6 +356,16 @@ def create_default_service_registry(config: Config) -> ServiceRegistry:
         module_path='src.domains.analysis.services.labeling_service',
         dependencies=[],
         is_optional=False,
+        singleton=True
+    )
+
+    # Detail Content Service 등록 (세부내역 관리)
+    registry.register_service(
+        name='detail_content_service',
+        service_class=type('DetailContentService', (), {}),
+        module_path='src.domains.infrastructure.services.detail_content_service',
+        dependencies=[],
+        is_optional=True,
         singleton=True
     )
 

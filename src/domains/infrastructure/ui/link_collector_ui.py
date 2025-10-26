@@ -335,6 +335,57 @@ def show_sigungu_editor(sigungu_info: dict, registered_links: dict, config):
                 else:
                     st.error("삭제에 실패했습니다.")
 
+def show_detail_content_management(all_districts: list, registered_links: dict, config):
+    """세부내역 관리 UI"""
+    from src.domains.infrastructure.ui.detail_content_ui import show_detail_content_editor
+
+    st.subheader("📖 배출정보/수수료 세부내역 관리")
+    st.caption("지역별 배출정보 및 수수료에 대한 상세 내용을 관리합니다.")
+
+    st.divider()
+
+    # 시도 선택
+    sido_list = list(set(d.get("시도명") for d in all_districts))
+    sido_list.sort()
+
+    selected_sido = st.selectbox(
+        "시/도 선택",
+        sido_list,
+        key="detail_sido_select"
+    )
+
+    # 시군구 선택
+    if selected_sido:
+        sigungu_list = [d.get("시군구명") for d in all_districts if d.get("시도명") == selected_sido]
+        sigungu_list.sort()
+
+        selected_sigungu = st.selectbox(
+            "시/군/구 선택",
+            sigungu_list,
+            key="detail_sigungu_select"
+        )
+
+        if selected_sigungu:
+            district_key = f"{selected_sido}_{selected_sigungu}"
+
+            # 세부내역 관리
+            st.subheader(f"🗂️ {selected_sido} {selected_sigungu}")
+
+            # 배출정보 / 수수료 선택
+            content_type = st.radio(
+                "관리 항목",
+                ["배출정보 (info)", "수수료 (fee)"],
+                horizontal=True,
+                key="detail_content_type"
+            )
+
+            content_type_key = 'info' if '배출정보' in content_type else 'fee'
+
+            st.divider()
+
+            show_detail_content_editor(district_key, content_type_key, registered_links, config)
+
+
 def show_error_summary_dashboard(config):
     """오류 요약 대시보드를 표시합니다."""
     summary = get_all_districts_error_summary(config)
@@ -401,7 +452,7 @@ def link_collector_ui():
             sido_map[sido] = []
         sido_map[sido].append(d)
 
-    tab1, tab2, tab3 = st.tabs(["📝 링크 관리", "🚨 오류 현황", "📤 데이터 내보내기"])
+    tab1, tab2, tab3, tab4 = st.tabs(["📝 링크 관리", "🚨 오류 현황", "📤 데이터 내보내기", "📖 세부내역 관리"])
 
     with tab1:
         # 1단계: 시/도 선택
@@ -537,3 +588,6 @@ def link_collector_ui():
 
     with tab3:
         show_data_export(registered_links_data)
+
+    with tab4:
+        show_detail_content_management(all_districts, registered_links, config)
