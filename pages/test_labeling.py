@@ -169,7 +169,6 @@ def main():
                     with col1:
                         st.write("**이미지**")
                         try:
-                            from PIL import Image
                             img = Image.open(label['image_path'])
                             st.image(img, use_container_width=True)
                         except Exception as e:
