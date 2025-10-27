@@ -1,0 +1,26 @@
+{
+  "file_id": "2ce57d8f-5ff5-41a2-8fcf-f0da24b68e13",
+  "image_path": "/home/jaeho/projects_linux/ecoguide.v1/uploads/user_images/2ce57d8f-5ff5-41a2-8fcf-f0da24b68e13.jpg",
+  "timestamp": "2025-10-27T11:03:46.119740",
+  "classification": {
+    "primary_category": "가전",
+    "primary_category_name": "가전",
+    "secondary_category": "기타 가전",
+    "secondary_category_name": "정수기",
+    "object_name": "정수기"
+  },
+  "dimensions": {
+    "w_cm": 30,
+    "h_cm": 40,
+    "d_cm": 30
+  },
+  "confidence": 0.8,
+  "reasoning": "이미지에 보이는 물품은 물을 정수하는 필터가 있는 디스펜서 형태로, 일반적인 사무실 환경에 적합한 크기의 정수기로 보임. 이는 '기타 가전'으로 분류됨.",
+  "user_feedback": {
+    "notes": "가습기입니다",
+    "timestamp": "2025-10-27T11:03:46.037287"
+  },
+  "metadata": {
+    "labeling_quality": 0.9200000000000002
+  }
+}

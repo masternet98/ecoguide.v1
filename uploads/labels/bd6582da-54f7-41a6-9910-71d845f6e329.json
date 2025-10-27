@@ -1,0 +1,26 @@
+{
+  "file_id": "bd6582da-54f7-41a6-9910-71d845f6e329",
+  "image_path": "/home/jaeho/projects_linux/ecoguide.v1/uploads/user_images/bd6582da-54f7-41a6-9910-71d845f6e329.jpg",
+  "timestamp": "2025-10-27T01:07:32.141497",
+  "classification": {
+    "primary_category": "가구",
+    "primary_category_name": "가구",
+    "secondary_category": "소파",
+    "secondary_category_name": "가죽 소파",
+    "object_name": "가죽 소파"
+  },
+  "dimensions": {
+    "w_cm": 205,
+    "h_cm": 90,
+    "d_cm": 110
+  },
+  "confidence": 0.8,
+  "reasoning": "사진에 보이는 물품은 2인용 가죽 소파로 보인다. 좌석의 크기와 형태, 그리고 등받이가 있는 점으로 판단할 때 소파로 분류할 수 있다.",
+  "user_feedback": {
+    "notes": "",
+    "timestamp": "2025-10-27T01:07:31.982833"
+  },
+  "metadata": {
+    "labeling_quality": 0.6200000000000001
+  }
+}

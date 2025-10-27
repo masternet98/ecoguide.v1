@@ -218,10 +218,19 @@ def _render_data_browser(labeling_service) -> None:
 
         st.markdown(f"### {len(labels)}개의 라벨링 데이터")
 
-        # 이미지와 정보를 그리드로 표시
-        cols = st.columns(3)
+        # 동적 열 조정: 화면 너비에 따라 열 수 결정
+        # 모바일: 1열, 태블릿: 2열, 데스크톱: 4열
+        num_cols = st.selectbox(
+            "한 줄에 표시할 이미지 수",
+            options=[1, 2, 4],
+            index=2,  # 기본값: 4열
+            key="grid_columns",
+            help="화면 크기에 따라 조정하세요 (모바일: 1, 태블릿: 2, 데스크톱: 4)"
+        )
+
+        cols = st.columns(num_cols)
         for idx, label in enumerate(labels):
-            col = cols[idx % 3]
+            col = cols[idx % num_cols]
 
             with col:
                 # 컨테이너 생성 (카드 스타일)
@@ -234,30 +243,43 @@ def _render_data_browser(labeling_service) -> None:
                     except Exception as e:
                         st.warning(f"이미지를 불러올 수 없습니다: {e}")
 
-                    # 정보 표시
+                    # 정보 표시 (간결화)
                     st.markdown("**📌 정보:**")
                     st.markdown(f"**물품**: {label['classification']['object_name']}")
-                    st.markdown(f"**분류**: {label['classification']['primary_category_name']}")
-                    st.markdown(f"**세분류**: {label['classification']['secondary_category']}")
+                    st.markdown(f"**분류**: {label['classification']['primary_category_name']} | {label['classification']['secondary_category']}")
                     st.markdown(f"**신뢰도**: {label['confidence']:.0%}")
 
-                    # 크기 정보 표시
+                    # 크기 정보 표시 (한 줄로 간결화)
                     dimensions = label.get('dimensions', {})
                     if any(dimensions.values()):
-                        st.markdown("**📏 크기:**")
                         size_info = []
                         w_val = dimensions.get('w_cm') or dimensions.get('width_cm')
                         h_val = dimensions.get('h_cm') or dimensions.get('height_cm')
                         d_val = dimensions.get('d_cm') or dimensions.get('depth_cm')
 
                         if w_val:
-                            size_info.append(f"가로(W): {w_val}cm")
+                            size_info.append(f"W:{w_val}cm")
                         if h_val:
-                            size_info.append(f"높이(H): {h_val}cm")
+                            size_info.append(f"H:{h_val}cm")
                         if d_val:
-                            size_info.append(f"깊이(D): {d_val}cm")
+                            size_info.append(f"D:{d_val}cm")
                         if size_info:
-                            st.caption(" / ".join(size_info))
+                            st.markdown(f"**📏 크기**: {' / '.join(size_info)}")
+
+                    # AI 추론 결과 표시
+                    ai_inference = label.get('ai_inference', {})
+                    if ai_inference:
+                        st.markdown("**🤖 AI 추론:**")
+                        inference_info = []
+                        if ai_inference.get('object_name'):
+                            inference_info.append(f"물품: {ai_inference['object_name']}")
+                        if ai_inference.get('confidence'):
+                            inference_info.append(f"신뢰도: {ai_inference['confidence']:.0%}")
+                        if ai_inference.get('reasoning'):
+                            inference_info.append(f"추론: {ai_inference['reasoning'][:50]}...")
+
+                        if inference_info:
+                            st.caption(" | ".join(inference_info))
 
                     # 사용자 피드백 표시
                     user_feedback = label.get('user_feedback', {})
@@ -432,9 +454,47 @@ def _render_details(labeling_service) -> None:
                     labeling_quality = label['metadata'].get('labeling_quality', 0)
                     st.metric("라벨링 품질", f"{labeling_quality:.0%}")
 
+                    ai_inference_quality = label['metadata'].get('ai_inference_quality', 0)
+                    st.metric("AI 추론 품질", f"{ai_inference_quality:.0%}")
+
                     user_feedback = label.get('user_feedback', {})
                     if user_feedback.get('notes'):
                         st.write(f"**사용자 피드백**:\n{user_feedback['notes']}")
+
+                st.markdown("---")
+
+                # AI 추론 결과 상세 표시
+                st.markdown("### 🤖 AI 추론 결과")
+                ai_inference = label.get('ai_inference', {})
+
+                if ai_inference:
+                    ai_col1, ai_col2 = st.columns(2)
+
+                    with ai_col1:
+                        st.write(f"**감지된 물품**: {ai_inference.get('object_name', 'N/A')}")
+                        st.write(f"**주 카테고리**: {ai_inference.get('primary_category', 'N/A')}")
+                        st.write(f"**세부 카테고리**: {ai_inference.get('secondary_category', 'N/A')}")
+                        st.metric("AI 신뢰도", f"{ai_inference.get('confidence', 0):.0%}")
+
+                    with ai_col2:
+                        st.write(f"**추론 근거**:")
+                        st.caption(ai_inference.get('reasoning', '추론 정보 없음'))
+
+                        # AI 추론 크기 정보
+                        ai_dims = ai_inference.get('dimensions', {})
+                        if any(ai_dims.values()):
+                            st.write(f"**추론 크기**:")
+                            size_text = []
+                            if ai_dims.get('w_cm'):
+                                size_text.append(f"가로: {ai_dims['w_cm']}cm")
+                            if ai_dims.get('h_cm'):
+                                size_text.append(f"높이: {ai_dims['h_cm']}cm")
+                            if ai_dims.get('d_cm'):
+                                size_text.append(f"깊이: {ai_dims['d_cm']}cm")
+                            if size_text:
+                                st.caption(" | ".join(size_text))
+                else:
+                    st.info("AI 추론 결과가 저장되지 않았습니다.")
 
                 # 원본 JSON 표시
                 with st.expander("🔍 원본 JSON 보기"):

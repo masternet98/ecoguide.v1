@@ -1,0 +1,40 @@
+{
+  "file_id": "d75e64f8-8cbb-41ce-be34-245be07346ea",
+  "image_path": "/home/jaeho/projects_linux/ecoguide.v1/uploads/user_images/d75e64f8-8cbb-41ce-be34-245be07346ea.jpg",
+  "timestamp": "2025-10-27T12:43:31.487211",
+  "classification": {
+    "primary_category": "FURN",
+    "primary_category_name": "가구",
+    "secondary_category": "FURN_SOFA",
+    "secondary_category_name": "소파",
+    "object_name": "소파",
+    "is_object_name_corrected": false
+  },
+  "dimensions": {
+    "w_cm": null,
+    "h_cm": null,
+    "d_cm": null
+  },
+  "confidence": 0.85,
+  "reasoning": "이 물품은 소파로 보입니다. 가구 카테고리의 소파로 분류됩니다.",
+  "ai_inference": {
+    "object_name": "소파",
+    "primary_category": "FURN",
+    "secondary_category": "FURN_SOFA",
+    "confidence": 0.85,
+    "reasoning": "이 물품은 소파로 보입니다. 가구 카테고리의 소파로 분류됩니다.",
+    "dimensions": {},
+    "raw_response": {
+      "type": "large_furniture",
+      "detailed_analysis": "Sofa or similar furniture piece"
+    },
+    "inference_timestamp": "2025-10-27T12:43:31.487196"
+  },
+  "user_feedback": {
+    "notes": "소파가 정확하게 인식되었습니다"
+  },
+  "metadata": {
+    "labeling_quality": 0.64,
+    "ai_inference_quality": 0.625
+  }
+}

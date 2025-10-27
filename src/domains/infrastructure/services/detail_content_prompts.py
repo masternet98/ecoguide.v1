@@ -111,7 +111,9 @@ def register_detail_content_prompts(prompt_service) -> Dict[str, str]:
     """
     세부내역 콘텐츠 추출 프롬프트를 프롬프트 서비스에 등록합니다.
 
-    주의: 이미 등록된 프롬프트가 있으면 건너뜁니다 (중복 방지)
+    주의: 이 함수는 Feature Registry에만 프롬프트 정보를 등록합니다.
+    실제 프롬프트 파일은 data/prompts/templates/에 미리 저장되어 있으며,
+    로드 시 로컬 파일에서 직접 로드됩니다.
 
     Args:
         prompt_service: PromptService 인스턴스
@@ -123,56 +125,13 @@ def register_detail_content_prompts(prompt_service) -> Dict[str, str]:
     logger = get_logger(__name__)
 
     try:
-        # 1단계: 기존 프롬프트 확인 (중복 방지)
-        existing_info_prompts = prompt_service.search_prompts("detail_extraction_disposal_info")
-        existing_fee_prompts = prompt_service.search_prompts("detail_extraction_fee_info")
+        # 고정 프롬프트 ID (data/prompts/templates/에 저장된 파일명)
+        INFO_PROMPT_ID = "14d2ce15-8127-4b77-9be4-a0cb56600ead"
+        FEE_PROMPT_ID = "9c063a86-23a1-40b0-beb8-f132cc6572d9"
 
-        if existing_info_prompts and existing_fee_prompts:
-            logger.info("배출정보/수수료 프롬프트는 이미 등록되어 있습니다 (중복 방지)")
-            return {
-                'info': existing_info_prompts[0].id,
-                'fee': existing_fee_prompts[0].id
-            }
-
-        # 2단계: 프롬프트 생성 (PromptService에만)
-        info_prompt = prompt_service.create_prompt(
-            name="detail_extraction_disposal_info",
-            description="지역별 대형폐기물 배출정보를 URL/PDF 콘텐츠에서 추출합니다",
-            category=PromptCategory.CUSTOM,
-            template=get_info_extraction_prompt_template(),
-            created_by="system",
-            tags=["detail_content", "disposal_info", "infrastructure"],
-            metadata={
-                "feature_type": "detail_content",
-                "content_type": "info",
-                "variables": ["district_context", "content"],
-                "response_format": "json",
-                "source_domain": "infrastructure"
-            }
-        )
-
-        fee_prompt = prompt_service.create_prompt(
-            name="detail_extraction_fee_info",
-            description="지역별 대형폐기물 수수료 정보를 URL/PDF 콘텐츠에서 추출합니다",
-            category=PromptCategory.CUSTOM,
-            template=get_fee_extraction_prompt_template(),
-            created_by="system",
-            tags=["detail_content", "fee_info", "infrastructure"],
-            metadata={
-                "feature_type": "detail_content",
-                "content_type": "fee",
-                "variables": ["district_context", "content"],
-                "response_format": "json",
-                "source_domain": "infrastructure"
-            }
-        )
-
-        # 3단계: Feature 등록 (PromptFeatureRegistry에 ID만 저장)
+        # Feature Registry에만 프롬프트 정보 등록
         from src.app.core.prompt_feature_registry import PromptFeatureRegistry
         registry = PromptFeatureRegistry()
-
-        info_prompt_id = info_prompt.id if hasattr(info_prompt, 'id') else str(info_prompt)
-        fee_prompt_id = fee_prompt.id if hasattr(fee_prompt, 'id') else str(fee_prompt)
 
         # 배출정보 세부내역 기능 등록
         registry.register_feature(
@@ -182,11 +141,11 @@ def register_detail_content_prompts(prompt_service) -> Dict[str, str]:
             category="infrastructure",
             is_active=True,
             required_services=["openai_service"],
-            default_prompt_template="",  # 빈 문자열 (PromptService에서 로드)
+            default_prompt_template="",  # 빈 문자열 (로컬 파일에서 로드)
             metadata={
                 "content_type": "info",
                 "feature_type": "detail_content",
-                "prompt_id": info_prompt_id
+                "prompt_id": INFO_PROMPT_ID
             }
         )
 
@@ -198,18 +157,19 @@ def register_detail_content_prompts(prompt_service) -> Dict[str, str]:
             category="infrastructure",
             is_active=True,
             required_services=["openai_service"],
-            default_prompt_template="",  # 빈 문자열 (PromptService에서 로드)
+            default_prompt_template="",  # 빈 문자열 (로컬 파일에서 로드)
             metadata={
                 "content_type": "fee",
                 "feature_type": "detail_content",
-                "prompt_id": fee_prompt_id
+                "prompt_id": FEE_PROMPT_ID
             }
         )
 
-        logger.info(f"세부내역 프롬프트 등록 완료: info={info_prompt_id}, fee={fee_prompt_id}")
+        logger.info(f"세부내역 Feature Registry 등록 완료: info={INFO_PROMPT_ID}, fee={FEE_PROMPT_ID}")
+        logger.info(f"프롬프트는 로컬 파일에서 로드됩니다: data/prompts/templates/")
         return {
-            'info': info_prompt_id,
-            'fee': fee_prompt_id
+            'info': INFO_PROMPT_ID,
+            'fee': FEE_PROMPT_ID
         }
 
     except Exception as e:

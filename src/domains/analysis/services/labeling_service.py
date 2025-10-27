@@ -172,6 +172,9 @@ class LabelingService(BaseService):
 
         dimensions = analysis_result.get('dimensions', {})
 
+        # AI 추론 결과 추출
+        ai_inference = self._extract_ai_inference(analysis_result)
+
         label_data = {
             "file_id": file_id,
             "image_path": image_path,
@@ -183,7 +186,8 @@ class LabelingService(BaseService):
                 ),
                 "secondary_category": analysis_result.get('secondary_category', 'MISC_UNCLASS'),
                 "secondary_category_name": analysis_result.get('object_name', '알 수 없음'),
-                "object_name": analysis_result.get('object_name', '알 수 없음')
+                "object_name": analysis_result.get('object_name', '알 수 없음'),
+                "is_object_name_corrected": analysis_result.get('is_object_name_corrected', False)
             },
             "dimensions": {
                 "w_cm": dimensions.get('w_cm') or dimensions.get('width_cm'),
@@ -192,13 +196,49 @@ class LabelingService(BaseService):
             },
             "confidence": analysis_result.get('confidence', 0.0),
             "reasoning": analysis_result.get('reasoning', ''),
+            "ai_inference": ai_inference,  # AI 추론 결과 추가
             "user_feedback": user_feedback or {},
             "metadata": {
-                "labeling_quality": self._calculate_labeling_quality(analysis_result, user_feedback)
+                "labeling_quality": self._calculate_labeling_quality(analysis_result, user_feedback),
+                "ai_inference_quality": self._calculate_ai_inference_quality(ai_inference)
             }
         }
 
         return label_data
+
+    def _extract_ai_inference(self, analysis_result: Dict[str, Any]) -> Dict[str, Any]:
+        """AI 추론 결과를 추출합니다."""
+        raw_response = analysis_result.get('raw_response', {})
+
+        return {
+            "object_name": analysis_result.get('object_name', '알 수 없음'),
+            "primary_category": analysis_result.get('primary_category', 'MISC'),
+            "secondary_category": analysis_result.get('secondary_category', 'MISC_UNCLASS'),
+            "confidence": analysis_result.get('confidence', 0.0),
+            "reasoning": analysis_result.get('reasoning', ''),
+            "dimensions": analysis_result.get('dimensions', {}),
+            "raw_response": raw_response,
+            "inference_timestamp": datetime.now().isoformat()
+        }
+
+    def _calculate_ai_inference_quality(self, ai_inference: Dict[str, Any]) -> float:
+        """AI 추론 결과의 품질 점수를 계산합니다 (0.0 ~ 1.0)."""
+        score = 0.0
+
+        # 신뢰도 (0.5점)
+        confidence = ai_inference.get('confidence', 0.0)
+        score += min(confidence, 1.0) * 0.5
+
+        # 크기 정보 (0.3점)
+        dimensions = ai_inference.get('dimensions', {})
+        if any(dimensions.get(k) for k in ['w_cm', 'h_cm', 'd_cm', 'width_cm', 'height_cm', 'depth_cm']):
+            score += 0.3
+
+        # 추론 정보 (0.2점)
+        if ai_inference.get('reasoning'):
+            score += 0.2
+
+        return min(score, 1.0)
 
     def _get_category_name(self, category_code: str) -> str:
         """카테고리 코드를 한글 이름으로 변환합니다."""

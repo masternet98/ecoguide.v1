@@ -263,11 +263,11 @@ def create_default_service_registry(config: Config) -> ServiceRegistry:
         singleton=True
     )
     
-    # Tunnel Service 등록
+    # Tunnel Service 등록 (이 module_path는 동적 로드에 의해 무시됨)
     registry.register_service(
         name='tunnel_service',
         service_class=type('TunnelService', (), {}),
-        module_path='src.services.tunnel_service',
+        module_path='src.domains.infrastructure.services.tunnel_service',
         dependencies=[],
         is_optional=True,
         feature_flag='tunnel_enabled',

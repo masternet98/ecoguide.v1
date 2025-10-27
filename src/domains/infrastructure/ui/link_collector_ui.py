@@ -340,7 +340,21 @@ def show_detail_content_management(all_districts: list, registered_links: dict, 
     from src.domains.infrastructure.ui.detail_content_ui import show_detail_content_editor
 
     st.subheader("📖 배출정보/수수료 세부내역 관리")
-    st.caption("지역별 배출정보 및 수수료에 대한 상세 내용을 관리합니다.")
+    st.caption("링크 관리에서 등록한 배출정보/수수료를 기반으로 상세 내용을 자동 추출하고 관리합니다.")
+
+    st.divider()
+
+    # 등록된 링크 목록 표시 (필터링 옵션)
+    info_registered = sum(1 for v in registered_links.values() if v.get('info_url') or v.get('info_url_file'))
+    fee_registered = sum(1 for v in registered_links.values() if v.get('fee_url') or v.get('fee_url_file'))
+
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.metric("배출정보 등록", f"{info_registered}개")
+    with col2:
+        st.metric("수수료 등록", f"{fee_registered}개")
+    with col3:
+        st.metric("총 지역", len(registered_links))
 
     st.divider()
 
@@ -348,38 +362,88 @@ def show_detail_content_management(all_districts: list, registered_links: dict, 
     sido_list = list(set(d.get("시도명") for d in all_districts))
     sido_list.sort()
 
-    selected_sido = st.selectbox(
-        "시/도 선택",
-        sido_list,
-        key="detail_sido_select"
-    )
+    col1, col2 = st.columns([1, 1])
+
+    with col1:
+        selected_sido = st.selectbox(
+            "시/도 선택",
+            sido_list,
+            key="detail_sido_select"
+        )
 
     # 시군구 선택
     if selected_sido:
         sigungu_list = [d.get("시군구명") for d in all_districts if d.get("시도명") == selected_sido]
         sigungu_list.sort()
 
-        selected_sigungu = st.selectbox(
-            "시/군/구 선택",
-            sigungu_list,
-            key="detail_sigungu_select"
-        )
+        with col2:
+            selected_sigungu = st.selectbox(
+                "시/군/구 선택",
+                sigungu_list,
+                key="detail_sigungu_select"
+            )
 
         if selected_sigungu:
             district_key = f"{selected_sido}_{selected_sigungu}"
+            current_link_info = registered_links.get(district_key, {})
 
-            # 세부내역 관리
+            # 선택된 지역의 링크 정보 표시
+            st.divider()
             st.subheader(f"🗂️ {selected_sido} {selected_sigungu}")
+
+            # 등록 상태 표시
+            col1, col2, col3, col4 = st.columns(4)
+
+            info_status = current_link_info.get('info_url') or current_link_info.get('info_url_file')
+            fee_status = current_link_info.get('fee_url') or current_link_info.get('fee_url_file')
+
+            with col1:
+                if info_status:
+                    if current_link_info.get('info_url'):
+                        st.info("🔗 배출정보 URL 등록됨")
+                    else:
+                        st.info("📄 배출정보 PDF 등록됨")
+                else:
+                    st.warning("⚠️ 배출정보 미등록")
+
+            with col2:
+                if fee_status:
+                    if current_link_info.get('fee_url'):
+                        st.info("🔗 수수료 URL 등록됨")
+                    else:
+                        st.info("📄 수수료 PDF 등록됨")
+                else:
+                    st.warning("⚠️ 수수료 미등록")
+
+            with col3:
+                st.write("")  # 빈 공간
+
+            with col4:
+                st.write("")  # 빈 공간
+
+            st.divider()
 
             # 배출정보 / 수수료 선택
             content_type = st.radio(
-                "관리 항목",
+                "세부내역 관리 항목",
                 ["배출정보 (info)", "수수료 (fee)"],
                 horizontal=True,
                 key="detail_content_type"
             )
 
             content_type_key = 'info' if '배출정보' in content_type else 'fee'
+
+            # 등록된 정보가 없으면 경고
+            if content_type_key == 'info' and not info_status:
+                st.warning(
+                    "⚠️ 링크 관리에서 배출정보(URL 또는 PDF)를 먼저 등록해주세요.",
+                    icon="📝"
+                )
+            elif content_type_key == 'fee' and not fee_status:
+                st.warning(
+                    "⚠️ 링크 관리에서 수수료(URL 또는 PDF)를 먼저 등록해주세요.",
+                    icon="📝"
+                )
 
             st.divider()
 

@@ -167,6 +167,7 @@ class EnhancedConfirmationUI:
 
         current_main = self.mapped_result.get('main_category', '')
         current_sub = self.mapped_result.get('sub_category', '')
+        current_object_name = self.mapped_result.get('object_name', 'N/A')
         mapping_info = self.mapped_result.get('mapping_info', {})
         requires_user_input = mapping_info.get('requires_user_input', False)
 
@@ -176,29 +177,38 @@ class EnhancedConfirmationUI:
             return self._render_user_input_section()
 
         # 1단계: 분류 정확성 확인
-        col1, col2 = st.columns(2)
+        is_correct = st.radio(
+            "분류가 정확한가요?",
+            options=["정확합니다", "수정이 필요합니다"],
+            key=f"enhanced_classification_check_{self.image_id}"
+        ) == "정확합니다"
 
-        with col1:
-            is_correct = st.radio(
-                "분류가 정확한가요?",
-                options=["정확합니다", "수정이 필요합니다"],
-                key=f"enhanced_classification_check_{self.image_id}"
-            ) == "정확합니다"
-
-        with col2:
-            confidence_rating = st.slider(
-                "분류 신뢰도",
-                min_value=1,
-                max_value=5,
-                value=4 if is_correct else 2,
-                help="1=매우 부정확, 2=부정확, 3=보통, 4=정확, 5=매우 정확",
-                key=f"enhanced_classification_confidence_{self.image_id}"
-            )
+        # 품목명 정확성 확인 (분류 정확성과는 별개)
+        st.markdown("##### 🏷️ 품목명 확인")
+        object_name_correct = st.radio(
+            f"품목명이 정확한가요? (현재: {current_object_name})",
+            options=["정확합니다", "수정이 필요합니다"],
+            key=f"enhanced_object_name_check_{self.image_id}",
+            horizontal=True
+        ) == "정확합니다"
 
         # 2단계: 수정이 필요한 경우 계층적 선택
         corrected_main = current_main
         corrected_sub = current_sub
         user_custom_name = None
+        corrected_object_name = current_object_name
+
+        # 품목명 수정 필요 여부 확인
+        if not object_name_correct:
+            st.markdown("##### 📝 올바른 품목명 입력")
+            corrected_object_name = st.text_input(
+                "올바른 품목명을 입력해주세요",
+                value=current_object_name,
+                placeholder="예: 2인용 소파, 양문형 냉장고, 목재 책장",
+                max_chars=100,
+                key=f"enhanced_corrected_object_name_{self.image_id}",
+                help="정확한 품목명이 배출 방법 안내에 도움이 됩니다"
+            ).strip()
 
         if not is_correct:
             st.markdown("##### 🔧 분류 수정")
@@ -263,18 +273,22 @@ class EnhancedConfirmationUI:
 
         return {
             "is_correct": is_correct,
-            "confidence_rating": confidence_rating,
             "original_main": current_main,
             "original_sub": current_sub,
             "corrected_main": corrected_main,
             "corrected_sub": corrected_sub,
             "user_custom_name": user_custom_name,
+            "original_object_name": current_object_name,
+            "corrected_object_name": corrected_object_name,
+            "is_object_name_changed": current_object_name != corrected_object_name and not object_name_correct,
             "user_feedback": {
                 "classification_accurate": is_correct,
-                "confidence_level": confidence_rating,
                 "corrected_main_category": corrected_main if not is_correct else None,
                 "corrected_sub_category": corrected_sub if not is_correct else None,
-                "user_custom_name": user_custom_name
+                "user_custom_name": user_custom_name,
+                "object_name_accurate": object_name_correct,
+                "corrected_object_name": corrected_object_name if not object_name_correct else None,
+                "is_object_name_changed": current_object_name != corrected_object_name and not object_name_correct
             }
         }
 
@@ -325,7 +339,6 @@ class EnhancedConfirmationUI:
 
         return {
             "is_correct": True,
-            "confidence_rating": 1,  # 사용자 입력 필요하므로 낮은 신뢰도
             "original_main": '기타',
             "original_sub": '분류불가',
             "corrected_main": selected_main,
@@ -333,7 +346,6 @@ class EnhancedConfirmationUI:
             "user_custom_name": user_custom_name,
             "user_feedback": {
                 "classification_accurate": True,
-                "confidence_level": 1,
                 "user_provided_input": True,
                 "user_custom_name": user_custom_name,
                 "corrected_main_category": selected_main,
@@ -422,24 +434,13 @@ class EnhancedConfirmationUI:
                 key=f"enhanced_size_check_{self.image_id}"
             ) == "정확합니다"
 
-        with col2:
-            confidence_rating = st.slider(
-                "크기 신뢰도",
-                min_value=1,
-                max_value=5,
-                value=4 if is_correct else 2,
-                key=f"enhanced_size_confidence_{self.image_id}"
-            )
-
         result = {
             "status": "validated",
             "is_correct": is_correct,
-            "confidence_rating": confidence_rating,
             "original_dimensions": dimensions,
             "user_feedback": {
                 "size_available": True,
-                "size_accurate": is_correct,
-                "confidence_level": confidence_rating
+                "size_accurate": is_correct
             }
         }
 
@@ -578,7 +579,8 @@ class EnhancedConfirmationUI:
                 corrected_data={
                     "classification": {
                         "main_category": classification_result.get("corrected_main"),
-                        "sub_category": classification_result.get("corrected_sub")
+                        "sub_category": classification_result.get("corrected_sub"),
+                        "object_name": classification_result.get("corrected_object_name")
                     },
                     "size": size_result.get("dimensions"),
                     "notes": notes,

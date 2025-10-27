@@ -10,6 +10,11 @@ requests>=2.28.0,<3.0
 beautifulsoup4>=4.11.0,<5.0
 streamlit-geolocation>=0.0.10
 
+# Tunnel support (Cloudflared)
+# pycloudflared는 Cloudflare Tunnel 기능을 제공합니다.
+# 설치 시 cloudflared 바이너리를 자동으로 다운로드합니다.
+pycloudflared>=0.2.0
+
 # Vision stack (Py3.11 verified)
 # rembg==2.0.57
 # onnxruntime==1.16.3

@@ -27,6 +27,11 @@ from src.app.core.error_handler import handle_errors, create_streamlit_error_ui,
 
 logger = logging.getLogger(__name__)
 
+# ==================== 설정 상수 ====================
+# 프롬프트 기능 ID
+DISPOSAL_GUIDANCE_FEATURE_ID = 'disposal_guidance_main'
+# ================================================
+
 
 class AnalysisState:
     """이미지 분석 상태를 관리하는 클래스"""
@@ -279,8 +284,39 @@ class ConfirmationStep:
         # 분석 결과 표시 (콤보박스 형태)
         st.subheader("📊 분석 결과")
 
-        # 물품명 표시
-        st.write(f"**감지된 물품:** {normalized['object_name']}")
+        # 물품명 표시 및 수정
+        st.markdown("#### 🏷️ 물품명")
+        col_name1, col_name2 = st.columns([3, 1])
+
+        with col_name1:
+            st.write(f"**감지된 물품:** {normalized['object_name']}")
+
+        with col_name2:
+            object_name_correct = st.radio(
+                "정확함?",
+                options=["✓", "✗"],
+                horizontal=True,
+                key="object_name_correct"
+            ) == "✓"
+
+        # 물품명이 부정확한 경우 수정 필드 표시
+        if not object_name_correct:
+            corrected_object_name = st.text_input(
+                "올바른 물품명을 입력해주세요",
+                value=normalized['object_name'],
+                placeholder="예: 2인용 소파, 양문형 냉장고, 목재 책장",
+                max_chars=100,
+                key="corrected_object_name_input",
+                help="정확한 품목명이 배출 방법 안내에 도움이 됩니다"
+            ).strip()
+
+            if corrected_object_name and corrected_object_name != normalized['object_name']:
+                normalized['object_name'] = corrected_object_name
+                st.success(f"✓ 물품명 수정됨: {corrected_object_name}")
+                # 수정 여부 플래그 추가
+                normalized['is_object_name_corrected'] = True
+        else:
+            normalized['is_object_name_corrected'] = False
 
         # 폐기물 분류 서비스 가져오기
         waste_service = self.app_context.get_service('waste_classification_service')
@@ -380,11 +416,20 @@ class ConfirmationStep:
             if modify_size:
                 st.markdown("**슬라이더로 크기를 조정하세요 (단위: cm):**")
 
+                # 동적 MAX값 계산
+                current_width = int(dimensions.get('w_cm') or dimensions.get('width_cm') or 0)
+                current_height = int(dimensions.get('h_cm') or dimensions.get('height_cm') or 0)
+                current_depth = int(dimensions.get('d_cm') or dimensions.get('depth_cm') or 0)
+
+                max_width = max(current_width * 2 if current_width > 0 else 100, 100)
+                max_height = max(current_height * 2 if current_height > 0 else 100, 100)
+                max_depth = max(current_depth * 2 if current_depth > 0 else 100, 100)
+
                 width = st.slider(
                     "가로(W) - 정면에서 본 좌우 길이",
                     min_value=0,
-                    max_value=300,
-                    value=int(dimensions.get('w_cm') or dimensions.get('width_cm') or 0),
+                    max_value=max_width,
+                    value=current_width,
                     step=5,
                     key="mod_width"
                 )
@@ -392,8 +437,8 @@ class ConfirmationStep:
                 height = st.slider(
                     "높이(H) - 정면에서 본 상하 길이",
                     min_value=0,
-                    max_value=300,
-                    value=int(dimensions.get('h_cm') or dimensions.get('height_cm') or 0),
+                    max_value=max_height,
+                    value=current_height,
                     step=5,
                     key="mod_height"
                 )
@@ -401,8 +446,8 @@ class ConfirmationStep:
                 depth = st.slider(
                     "깊이(D) - 물체의 앞뒤 길이",
                     min_value=0,
-                    max_value=300,
-                    value=int(dimensions.get('d_cm') or dimensions.get('depth_cm') or 0),
+                    max_value=max_depth,
+                    value=current_depth,
                     step=5,
                     key="mod_depth"
                 )
@@ -424,10 +469,13 @@ class ConfirmationStep:
             if provide_size:
                 st.markdown("**슬라이더로 실제 크기를 입력해주세요 (단위: cm):**")
 
+                # 직접 입력 시 기본 MAX값은 200cm (초기값이 없으므로)
+                default_max = 200
+
                 width = st.slider(
                     "가로(W) - 정면에서 본 좌우 길이",
                     min_value=0,
-                    max_value=300,
+                    max_value=default_max,
                     value=0,
                     step=5,
                     key="manual_width"
@@ -436,7 +484,7 @@ class ConfirmationStep:
                 height = st.slider(
                     "높이(H) - 정면에서 본 상하 길이",
                     min_value=0,
-                    max_value=300,
+                    max_value=default_max,
                     value=0,
                     step=5,
                     key="manual_height"
@@ -445,7 +493,7 @@ class ConfirmationStep:
                 depth = st.slider(
                     "깊이(D) - 물체의 앞뒤 길이",
                     min_value=0,
-                    max_value=300,
+                    max_value=default_max,
                     value=0,
                     step=5,
                     key="manual_depth"
@@ -551,7 +599,8 @@ class CompleteStep:
                             "object_name": normalized.get('object_name'),
                             "primary_category": normalized.get('primary_category'),
                             "secondary_category": normalized.get('secondary_category'),
-                            "confidence": normalized.get('confidence')
+                            "confidence": normalized.get('confidence'),
+                            "is_object_name_corrected": normalized.get('is_object_name_corrected', False)
                         },
                         "dimensions": normalized.get('dimensions', {}),
                         "user_feedback": normalized.get('user_feedback', {}),
@@ -616,7 +665,7 @@ class CompleteStep:
                 if prompt_service and openai_service:
                     # Simple Prompt 패턴:
                     # 1. 저장된 프롬프트 로드
-                    disposal_prompt = prompt_service.get_default_prompt_for_feature('disposal_guidance_main')
+                    disposal_prompt = prompt_service.get_default_prompt_for_feature(DISPOSAL_GUIDANCE_FEATURE_ID)
 
                     if disposal_prompt:
                         # 2. 변수 준비
@@ -667,6 +716,8 @@ class CompleteStep:
                         waste_system_info = ""
                         waste_fee_info = ""
                         appliance_info = "https://15990903.or.kr/portal/main/main.do"
+                        district_waste_detail_content = ""  # 세부 배출정보 (마크다운)
+                        district_waste_fee_content = ""  # 세부 수수료 정보 (마크다운)
 
                         logger.info(f"📍 [district_links 로드] location_code='{location_code}'")
 
@@ -700,6 +751,23 @@ class CompleteStep:
                                     logger.info(f"  - waste_system_info: {bool(waste_system_info)} ({waste_system_info[:50] if waste_system_info else 'None'}...)")
                                     logger.info(f"  - waste_fee_info: {bool(waste_fee_info)} ({waste_fee_info[:50] if waste_fee_info else 'None'}...)")
                                     logger.info(f"  - appliance_info: {bool(appliance_info)} ({appliance_info[:50] if appliance_info else 'None'}...)")
+
+                                    # 세부 배출정보 및 수수료 콘텐츠 로드
+                                    try:
+                                        from src.domains.infrastructure.services.detail_content_service import DetailContentService
+                                        detail_service = DetailContentService(config)
+                                        detail_contents = detail_service.get_all_detail_content_by_type(location_code)
+
+                                        district_waste_detail_content = detail_contents.get('info_content', '') or ''
+                                        district_waste_fee_content = detail_contents.get('fee_content', '') or ''
+
+                                        logger.info(f"📖 [detail_content 로드] 세부정보 로드 완료:")
+                                        logger.info(f"  - info_content 있음: {bool(district_waste_detail_content)} ({len(district_waste_detail_content)} chars)")
+                                        logger.info(f"  - fee_content 있음: {bool(district_waste_fee_content)} ({len(district_waste_fee_content)} chars)")
+                                    except Exception as detail_error:
+                                        logger.warning(f"⚠️ [detail_content 로드] detail_content 로드 실패: {detail_error}")
+                                        district_waste_detail_content = ''
+                                        district_waste_fee_content = ''
                                 else:
                                     logger.warning(f"❌ [district_links 로드] '{location_code}' 정보를 찾을 수 없음")
                                     logger.warning(f"❌ [district_links 로드] 등록된 지역: {list(registered_links.keys())}")
@@ -717,15 +785,37 @@ class CompleteStep:
                             waste_detail_info = "배출정보: 위치를 선택해주세요"
                             waste_fee_info = "수수료: 구청 문의"
 
+                        # 크기 정보 포맷팅
+                        dimensions = normalized.get('dimensions', {})
+                        w_cm = dimensions.get('w_cm') or dimensions.get('width_cm')
+                        h_cm = dimensions.get('h_cm') or dimensions.get('height_cm')
+                        d_cm = dimensions.get('d_cm') or dimensions.get('depth_cm')
+
+                        # waste_item_size 변수 생성 (예: "세탁기 - w(80cm) x h(100cm) x d(70cm)")
+                        if any([w_cm, h_cm, d_cm]):
+                            size_parts = []
+                            if w_cm:
+                                size_parts.append(f"w({int(w_cm)}cm)")
+                            if h_cm:
+                                size_parts.append(f"h({int(h_cm)}cm)")
+                            if d_cm:
+                                size_parts.append(f"d({int(d_cm)}cm)")
+                            waste_item_size = f"{waste_item} - {' x '.join(size_parts)}"
+                        else:
+                            waste_item_size = f"{waste_item} - 크기정보없음"
+
                         variables = {
                             'waste_item': waste_item,
+                            'waste_item_size': waste_item_size,
                             'waste_category_01': waste_category_01,
                             'waste_category_02': waste_category_02,
                             'district_info': district_info,
                             'waste_detail_info': waste_detail_info,
                             'waste_system_info': waste_system_info,
                             'waste_fee_info': waste_fee_info,
-                            'appliance_info': appliance_info
+                            'appliance_info': appliance_info,
+                            'district_waste_detail_content': district_waste_detail_content,
+                            'district_waste_fee_content': district_waste_fee_content
                         }
 
                         # 3. 프롬프트 렌더링 (변수 치환)
@@ -750,7 +840,7 @@ class CompleteStep:
                                 st.divider()
 
                                 # 2. 변수값 확인
-                                st.subheader("📋 변수값 확인 (총 8개)")
+                                st.subheader("📋 변수값 확인 (총 10개)")
 
                                 # 변수값을 표로 표시
                                 var_data = []
@@ -782,9 +872,9 @@ class CompleteStep:
                                     label_visibility="collapsed"
                                 )
 
-                            # 4. LLM 호출 (gpt-4o)
-                            with st.spinner("🤖 배출 방법을 찾고 있습니다..."):
-                                disposal_result = openai_service.call_with_prompt(rendered_prompt, model="gpt-4o")
+                            # 4. LLM 호출 (gpt-4o-mini)
+                            with st.spinner("🤖 AI가 지역별 대형폐기물 배출정보를 확인하고 있습니다..."):
+                                disposal_result = openai_service.call_with_prompt(rendered_prompt, model="gpt-4o-mini")
 
                             if disposal_result:
                                 st.success("✅ 배출 방법 안내")
@@ -794,7 +884,7 @@ class CompleteStep:
                         else:
                             st.warning("프롬프트 렌더링에 실패했습니다")
                     else:
-                        st.info("💡 저장된 배출 안내 프롬프트가 없습니다. Admin에서 'disposal_guidance_main' 기능용 프롬프트를 생성해주세요.\n\n"
+                        st.info(f"💡 저장된 배출 안내 프롬프트가 없습니다. Admin에서 '{DISPOSAL_GUIDANCE_FEATURE_ID}' 기능용 프롬프트를 생성해주세요.\n\n"
                                f"기본 배출 방법:\n"
                                f"1. 해당 지역의 폐기물 관리 부서 확인\n"
                                f"2. **{normalized['object_name']}** ({normalized['primary_category']})의 배출 가능 여부 확인\n"
@@ -860,10 +950,10 @@ def main():
         st.title("⚙️ 설정")
         st.markdown("---")
 
-        # 모델 선택
+        # 모델 선택 (기본값: gpt-4o-mini)
         model = st.selectbox(
             "분석 모델",
-            options=["gpt-4o", "gpt-4o-mini", "gpt-4-vision"],
+            options=["gpt-4o-mini", "gpt-4o", "gpt-4-vision"],
             index=0,
             key="model_select"
         )

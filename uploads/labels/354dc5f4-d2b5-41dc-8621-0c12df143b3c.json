@@ -1,0 +1,44 @@
+{
+  "file_id": "354dc5f4-d2b5-41dc-8621-0c12df143b3c",
+  "image_path": "/home/jaeho/projects_linux/ecoguide.v1/uploads/user_images/354dc5f4-d2b5-41dc-8621-0c12df143b3c.jpg",
+  "timestamp": "2025-10-27T12:43:40.411019",
+  "classification": {
+    "primary_category": "FURN",
+    "primary_category_name": "가구",
+    "secondary_category": "FURN_SOFA",
+    "secondary_category_name": "세탁기",
+    "object_name": "세탁기",
+    "is_object_name_corrected": false
+  },
+  "dimensions": {
+    "w_cm": 180,
+    "h_cm": 85,
+    "d_cm": 95
+  },
+  "confidence": 0.85,
+  "reasoning": "이 물품은 세탁기로 보입니다. 가구 카테고리의 소파로 분류됩니다.",
+  "ai_inference": {
+    "object_name": "세탁기",
+    "primary_category": "FURN",
+    "secondary_category": "FURN_SOFA",
+    "confidence": 0.85,
+    "reasoning": "이 물품은 세탁기로 보입니다. 가구 카테고리의 소파로 분류됩니다.",
+    "dimensions": {
+      "w_cm": 180,
+      "h_cm": 85,
+      "d_cm": 95
+    },
+    "raw_response": {
+      "type": "large_furniture",
+      "detailed_analysis": "Sofa or similar furniture piece"
+    },
+    "inference_timestamp": "2025-10-27T12:43:40.411014"
+  },
+  "user_feedback": {
+    "notes": "세탁기가 정확합니다"
+  },
+  "metadata": {
+    "labeling_quality": 0.94,
+    "ai_inference_quality": 0.925
+  }
+}

@@ -87,11 +87,14 @@ class ApplicationFactory:
             
             # 5. 기능별 서비스 등록 및 활성화
             ApplicationFactory._setup_feature_services(feature_registry, service_registry)
-            
+
             # 6. 애플리케이션 컨텍스트 생성
             app_context = ApplicationContext(config, service_factory, feature_registry)
             app_context.mark_initialized()
-            
+
+            # 7. 도메인 특화 초기화 (프롬프트 등록 등)
+            ApplicationFactory._initialize_domain_services(app_context)
+
             logger.info("Application context created successfully")
             return app_context
             
@@ -104,23 +107,46 @@ class ApplicationFactory:
     @staticmethod
     def _setup_feature_services(feature_registry: FeatureRegistry, service_registry) -> None:
         """기능과 서비스를 연결하고 설정합니다."""
-        
+
         # OpenAI Vision 기능과 서비스 연결
         if feature_registry.is_feature_available("openai_vision"):
             feature_registry.enable_feature("openai_vision")
             service_registry.set_feature_flag('openai_enabled', True)
-        
+
         # Vision 분석 기능 확인 (무거운 의존성)
         if feature_registry.is_feature_available("vision_analysis"):
             # 자동 활성화하지 않음 - 사용자가 필요할 때 활성화
             logger.info("Vision analysis feature available but not auto-enabled")
-        
+
         # 관리 기능들 활성화
         management_features = ["tunnel_management", "district_management", "link_collector"]
         for feature_name in management_features:
             if feature_registry.is_feature_available(feature_name):
                 feature_registry.enable_feature(feature_name)
                 logger.info(f"Management feature enabled: {feature_name}")
+
+    @staticmethod
+    def _initialize_domain_services(app_context: 'ApplicationContext') -> None:
+        """도메인별 서비스 초기화 및 프롬프트 등록"""
+        # 세부내역 프롬프트는 로컬 파일(data/prompts/templates/)에서 직접 로드되므로
+        # 초기화 로직 비활성화 (로컬 파일의 프롬프트를 덮어씌우는 문제 방지)
+        #
+        # 이전 로직 (비활성화됨):
+        # try:
+        #     from src.domains.infrastructure.services.detail_content_initialization import (
+        #         initialize_detail_content_service
+        #     )
+        #     prompt_ids = initialize_detail_content_service(app_context)
+        #     if prompt_ids:
+        #         logger.info(f"Detail content prompts registered: {prompt_ids}")
+        #     else:
+        #         logger.info("Detail content prompts registration skipped or not available")
+        # except ImportError:
+        #     logger.debug("Detail content initialization not available")
+        # except Exception as e:
+        #     logger.warning(f"Domain service initialization failed: {e}")
+
+        logger.info("Domain service initialization skipped - prompts loaded from local files")
 
 
 # 전역 애플리케이션 컨텍스트

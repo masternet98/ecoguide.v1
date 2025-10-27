@@ -104,17 +104,37 @@ class ConfirmationService(BaseService):
         """피드백 데이터를 검증하고 구조화합니다."""
 
         feedback_details = corrected_data.get('feedback_details', {}) if corrected_data else {}
+        corrected_classification = corrected_data.get('classification', {}) if corrected_data else {}
 
         # 분류 피드백 처리
         classification_feedback = feedback_details.get('classification', {})
+        original_object_name = original_analysis.get('object_name')
+
+        # corrected_data에서도 object_name 확인
+        corrected_object_name = (
+            classification_feedback.get('corrected_object_name') or
+            corrected_classification.get('object_name')
+        )
+
+        # 피드백 정보에서 수정 여부 확인
+        is_object_name_changed = (
+            classification_feedback.get('is_object_name_changed', False) or
+            classification_feedback.get('is_object_name_corrected', False) or
+            (original_object_name != corrected_object_name and corrected_object_name is not None)
+        )
+
         classification_data = {
             'is_correct': classification_feedback.get('classification_accurate', is_correct),
             'confidence_rating': classification_feedback.get('confidence_level'),
             'corrected_label': classification_feedback.get('corrected_label'),
             'corrected_category': classification_feedback.get('corrected_category'),
-            'original_object_name': original_analysis.get('object_name'),
+            'original_object_name': original_object_name,
             'original_primary_category': original_analysis.get('primary_category'),
-            'original_secondary_category': original_analysis.get('secondary_category')
+            'original_secondary_category': original_analysis.get('secondary_category'),
+            # 품목명 관련 필드
+            'object_name_accurate': classification_feedback.get('object_name_accurate', True),
+            'corrected_object_name': corrected_object_name,
+            'is_object_name_changed': is_object_name_changed or (original_object_name != corrected_object_name and corrected_object_name is not None)
         }
 
         # 크기 피드백 처리
@@ -148,7 +168,8 @@ class ConfirmationService(BaseService):
                 'has_corrections': bool(
                     classification_data.get('corrected_label') or size_data.get('corrected_dimensions')
                 ),
-                'has_additional_notes': bool(overall_data.get('additional_notes'))
+                'has_additional_notes': bool(overall_data.get('additional_notes')),
+                'has_object_name_correction': bool(classification_data.get('is_object_name_changed'))
             }
         }
 
@@ -158,10 +179,21 @@ class ConfirmationService(BaseService):
         # 메모리 저장
         self.feedback_storage.append(feedback_record)
 
+        # 분류 데이터에서 품목명 변경 정보 추출
+        classification_data = feedback_record['validated_feedback'].get('classification', {})
+        is_object_name_changed = classification_data.get('is_object_name_changed', False)
+        original_object_name = classification_data.get('original_object_name')
+        corrected_object_name = classification_data.get('corrected_object_name')
+
         # 로그 저장
-        logger.info(f"Feedback saved: ID={feedback_record['id']}, "
-                   f"Correct={feedback_record['is_correct']}, "
-                   f"Session={feedback_record['session_id']}")
+        log_message = (f"Feedback saved: ID={feedback_record['id']}, "
+                      f"Correct={feedback_record['is_correct']}, "
+                      f"Session={feedback_record['session_id']}")
+
+        if is_object_name_changed:
+            log_message += f", ObjectName Changed: {original_object_name} → {corrected_object_name}"
+
+        logger.info(log_message)
 
         # 개발용 콘솔 출력
         print(f"\n=== FEEDBACK RECORD SAVED ===")
@@ -169,6 +201,8 @@ class ConfirmationService(BaseService):
         print(f"User Confirmed: {feedback_record['is_correct']}")
         print(f"Classification Feedback: {feedback_record['validated_feedback']['classification']}")
         print(f"Size Feedback: {feedback_record['validated_feedback']['size']}")
+        if is_object_name_changed:
+            print(f"📝 Object Name Changed: {original_object_name} → {corrected_object_name}")
         print(f"================================\n")
 
     def _update_accuracy_metrics(self, validated_feedback: Dict[str, Any]) -> None:
@@ -199,7 +233,13 @@ class ConfirmationService(BaseService):
 
         quality_indicators = validated_feedback['feedback_quality_indicators']
 
-        if quality_indicators['has_confidence_ratings'] and quality_indicators['has_corrections']:
+        # 품목명 수정이 있는 경우 우선적으로 언급
+        if quality_indicators['has_object_name_correction']:
+            if quality_indicators['has_corrections'] or quality_indicators['has_confidence_ratings']:
+                return "품목명 수정과 상세 피드백을 주셔서 감사합니다! 더 정확한 품목 인식에 큰 도움이 됩니다."
+            else:
+                return "품목명 수정을 주셔서 감사합니다! 향후 품목 인식 정확도 개선에 활용하겠습니다."
+        elif quality_indicators['has_confidence_ratings'] and quality_indicators['has_corrections']:
             return "상세한 피드백과 수정 정보를 주셔서 감사합니다! AI 정확도 향상에 큰 도움이 됩니다."
         elif quality_indicators['has_confidence_ratings']:
             return "신뢰도 평가를 주셔서 감사합니다! AI 성능 개선에 활용하겠습니다."
@@ -214,16 +254,20 @@ class ConfirmationService(BaseService):
         quality_indicators = validated_feedback['feedback_quality_indicators']
         score = 0.0
 
-        # 기본 확인: 0.3점
-        score += 0.3
+        # 기본 확인: 0.25점
+        score += 0.25
 
-        # 신뢰도 평가: 0.3점
+        # 신뢰도 평가: 0.25점
         if quality_indicators['has_confidence_ratings']:
-            score += 0.3
+            score += 0.25
 
-        # 수정 정보: 0.3점
+        # 수정 정보: 0.25점
         if quality_indicators['has_corrections']:
-            score += 0.3
+            score += 0.25
+
+        # 품목명 수정: 0.15점 (높은 가치의 피드백)
+        if quality_indicators['has_object_name_correction']:
+            score += 0.15
 
         # 추가 메모: 0.1점
         if quality_indicators['has_additional_notes']:

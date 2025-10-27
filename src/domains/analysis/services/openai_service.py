@@ -171,11 +171,27 @@ class OpenAIService(BaseService):
                         "content": prompt
                     }
                 ],
-                max_tokens=2048,
+                max_tokens=8192,  # JSON 및 마크다운 긴 응답 지원
             )
 
             output_text = response.choices[0].message.content or ""
-            self._logger.info(f"Successfully called LLM with model {model}")
+
+            # 응답 크기 로깅 (디버깅 용도)
+            finish_reason = response.choices[0].finish_reason
+            self._logger.info(
+                f"LLM response received: model={model}, "
+                f"output_length={len(output_text)}, "
+                f"finish_reason={finish_reason}"
+            )
+
+            # finish_reason가 'length'면 max_tokens 제한에 도달한 것
+            if finish_reason == 'length':
+                self._logger.warning(
+                    f"⚠️  응답이 max_tokens 제한에 도달했습니다! "
+                    f"응답 길이: {len(output_text)} 문자. "
+                    f"max_tokens를 더 증가시키세요."
+                )
+
             return output_text
 
         except APIError as e:

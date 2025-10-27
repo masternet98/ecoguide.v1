@@ -1,0 +1,26 @@
+{
+  "file_id": "7db55aca-b48e-4571-9491-88fdebd45be8",
+  "image_path": "/home/jaeho/projects_linux/ecoguide.v1/uploads/user_images/7db55aca-b48e-4571-9491-88fdebd45be8.jpg",
+  "timestamp": "2025-10-27T10:57:01.953660",
+  "classification": {
+    "primary_category": "가구",
+    "primary_category_name": "가구",
+    "secondary_category": "의자",
+    "secondary_category_name": "사무용 의자",
+    "object_name": "사무용 의자"
+  },
+  "dimensions": {
+    "w_cm": 60,
+    "h_cm": 100,
+    "d_cm": 60
+  },
+  "confidence": 0.8,
+  "reasoning": "사진 속 물품은 사무용 의자로 식별되며, 등받이와 팔걸이가 있는 형태로 사무실에서 일반적으로 사용됩니다.",
+  "user_feedback": {
+    "notes": "",
+    "timestamp": "2025-10-27T10:57:01.856673"
+  },
+  "metadata": {
+    "labeling_quality": 0.6200000000000001
+  }
+}

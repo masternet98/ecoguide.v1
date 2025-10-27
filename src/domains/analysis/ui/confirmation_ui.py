@@ -74,33 +74,26 @@ class ConfirmationUI:
         object_name = self.analysis_result.get('object_name', '알 수 없음')
         primary_category = self.analysis_result.get('primary_category', 'MISC')
         secondary_category = self.analysis_result.get('secondary_category', 'MISC_UNCLASS')
-        confidence = float(self.analysis_result.get('confidence', 0))
         dimensions = self.analysis_result.get('dimensions', {}) or {}
 
-        col1, col2 = st.columns([2, 1])
+        st.write(f"**감지된 품목:** {object_name}")
+        st.write(f"**1차 분류:** {primary_category}")
+        st.write(f"**2차 분류:** {secondary_category}")
 
-        with col1:
-            st.write(f"**감지된 품목:** {object_name}")
-            st.write(f"**1차 분류:** {primary_category}")
-            st.write(f"**2차 분류:** {secondary_category}")
-
-            if dimensions:
-                width = dimensions.get('w_cm') or dimensions.get('width_cm')
-                height = dimensions.get('h_cm') or dimensions.get('height_cm')
-                depth = dimensions.get('d_cm') or dimensions.get('depth_cm')
-                items = []
-                if width:
-                    items.append(f"가로 {width}cm")
-                if height:
-                    items.append(f"세로 {height}cm")
-                if depth:
-                    items.append(f"높이 {depth}cm")
-                st.write("**추정 크기:** " + ", ".join(items) if items else "크기 정보 없음")
-            else:
-                st.write("**추정 크기:** 정보 없음")
-
-        with col2:
-            st.metric("신뢰도", f"{confidence:.0%}")
+        if dimensions:
+            width = dimensions.get('w_cm') or dimensions.get('width_cm')
+            height = dimensions.get('h_cm') or dimensions.get('height_cm')
+            depth = dimensions.get('d_cm') or dimensions.get('depth_cm')
+            items = []
+            if width:
+                items.append(f"가로 {width}cm")
+            if height:
+                items.append(f"세로 {height}cm")
+            if depth:
+                items.append(f"높이 {depth}cm")
+            st.write("**추정 크기:** " + ", ".join(items) if items else "크기 정보 없음")
+        else:
+            st.write("**추정 크기:** 정보 없음")
 
     def _render_progress_indicator(self):
         """진행 상태를 표시합니다."""
@@ -198,15 +191,7 @@ class ConfirmationUI:
             help="AI가 분석한 물건 분류가 맞는지 확인해주세요"
         )
 
-        # 2단계: 신뢰도 평가 (항상 표시)
-        confidence_rating = st.slider(
-            "분류 결과에 대한 신뢰도를 평가해주세요",
-            min_value=1,
-            max_value=5,
-            value=4 if choice == "정확합니다" else 2,
-            help="1=매우 부정확, 2=부정확, 3=보통, 4=정확, 5=매우 정확",
-            key=f"classification_confidence_{self.image_id}"
-        )
+        # 2단계: 추가 수정 (제거됨 - 신뢰도 평가는 필요 없음)
 
         corrected_label = None
         corrected_category = None
@@ -255,7 +240,6 @@ class ConfirmationUI:
 
         return {
             "is_correct": is_correct,
-            "confidence_rating": confidence_rating,
             "status": "confirmed" if is_correct else "needs_review",
             "override": override_data,
             "user_feedback": {
@@ -372,7 +356,6 @@ class ConfirmationUI:
             return {
                 "status": "confirmed",
                 "is_correct": True,
-                "confidence_rating": confidence_rating,
                 "override": None,
                 "user_feedback": {
                     "size_available": True,
@@ -447,7 +430,6 @@ class ConfirmationUI:
         return {
             "status": "needs_review",
             "is_correct": False,
-            "confidence_rating": confidence_rating,
             "override": {
                 "w_cm": width if width > 0 else None,
                 "h_cm": height if height > 0 else None,

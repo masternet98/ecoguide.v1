@@ -244,65 +244,65 @@ def create_default_service_registry(config: Config) -> ServiceRegistry:
     registry.set_feature_flag('prompt_enabled', True)   # 프롬프트 관리 기능 활성화
     registry.set_feature_flag('location_enabled', True) # 위치 서비스 기능 활성화
     
-    # OpenAI Service 등록
+    # OpenAI Service 등록 (이 module_path는 동적 로드에 의해 무시됨)
     registry.register_service(
         name='openai_service',
         service_class=type('OpenAIService', (), {}),  # 실제 클래스는 동적 로드
-        module_path='src.services.openai_service',
+        module_path='src.domains.analysis.services.openai_service',
         dependencies=[],
         is_optional=False,
         singleton=True
     )
-    
-    # Vision Service 등록 (무거운 의존성으로 인해 optional)
+
+    # Vision Service 등록 (무거운 의존성으로 인해 optional, 이 module_path는 동적 로드에 의해 무시됨)
     registry.register_service(
         name='vision_service',
         service_class=type('VisionService', (), {}),
-        module_path='src.services.vision_service',
+        module_path='src.domains.analysis.services.vision_service',
         dependencies=[],
         is_optional=True,
         feature_flag='vision_enabled',
         singleton=True
     )
     
-    # Tunnel Service 등록
+    # Tunnel Service 등록 (이 module_path는 동적 로드에 의해 무시됨)
     registry.register_service(
         name='tunnel_service',
         service_class=type('TunnelService', (), {}),
-        module_path='src.services.tunnel_service',
+        module_path='src.domains.infrastructure.services.tunnel_service',
         dependencies=[],
         is_optional=True,
         feature_flag='tunnel_enabled',
         singleton=True
     )
     
-    # District Service 등록
+    # District Service 등록 (이 module_path는 동적 로드에 의해 무시됨)
     registry.register_service(
         name='district_service',
         service_class=type('DistrictService', (), {}),
-        module_path='src.services.district_service',
+        module_path='src.domains.district.services.district_service',
         dependencies=[],
         is_optional=True,
         feature_flag='district_enabled',
         singleton=True
     )
-    
-    # Prompt Service 등록
+
+    # Prompt Service 등록 (이 module_path는 동적 로드에 의해 무시됨)
     registry.register_service(
         name='prompt_service',
         service_class=type('PromptService', (), {}),
-        module_path='src.services.prompt_service',
+        module_path='src.domains.prompts.services.prompt_service',
         dependencies=[],
         is_optional=False,
         feature_flag='prompt_enabled',
         singleton=True
     )
 
-    # Location Service 등록
+    # Location Service 등록 (이 module_path는 동적 로드에 의해 무시됨)
     registry.register_service(
         name='location_service',
         service_class=type('LocationService', (), {}),
-        module_path='src.services.location_service',
+        module_path='src.domains.district.services.location_service',
         dependencies=[],
         is_optional=True,
         feature_flag='location_enabled',

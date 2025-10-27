@@ -1,0 +1,26 @@
+{
+  "file_id": "f0f7eebb-24ed-4bcb-8a4e-a6d8d5c67e60",
+  "image_path": "/home/jaeho/projects_linux/ecoguide.v1/uploads/user_images/f0f7eebb-24ed-4bcb-8a4e-a6d8d5c67e60.jpg",
+  "timestamp": "2025-10-27T10:24:55.005467",
+  "classification": {
+    "primary_category": "가구",
+    "primary_category_name": "가구",
+    "secondary_category": "의자",
+    "secondary_category_name": "오피스용 사무의자",
+    "object_name": "오피스용 사무의자"
+  },
+  "dimensions": {
+    "w_cm": 60,
+    "h_cm": 120,
+    "d_cm": 70
+  },
+  "confidence": 0.8,
+  "reasoning": "이미지에는 일반적인 오피스용 사무의자가 담겨 있으며, 바닥에 바퀴가 달려있고 회전 기능이 있는 등 사무용 의자의 전형적인 특징을 가지고 있어 '의자'로 분류함이 적절함.",
+  "user_feedback": {
+    "notes": "",
+    "timestamp": "2025-10-27T10:24:54.901765"
+  },
+  "metadata": {
+    "labeling_quality": 0.6200000000000001
+  }
+}

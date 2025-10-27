@@ -1,20 +1,50 @@
 {
   "version": "1.0",
   "created_at": "2025-10-26T20:32:50.927110",
-  "total_labels": 5,
+  "total_labels": 34,
   "labels_by_category": {
     "가구": {
-      "count": 4,
+      "count": 16,
       "subcategories": {
-        "침대/매트리스": 1,
-        "거실장/테이블/서랍장": 2,
-        "선반/수납가구": 1
+        "침대/매트리스": 2,
+        "거실장/테이블/서랍장": 5,
+        "선반/수납가구": 1,
+        "소파": 2,
+        "옷장/붙박이장/장롱": 2,
+        "책상": 1,
+        "의자": 2,
+        "화장대": 1
       }
     },
     "가전": {
+      "count": 4,
+      "subcategories": {
+        "기타 가전": 2,
+        "TV/모니터": 2
+      }
+    },
+    "스포츠/레저": {
       "count": 1,
       "subcategories": {
-        "기타 가전": 1
+        "자전거/킥보드": 1
+      }
+    },
+    "기타": {
+      "count": 1,
+      "subcategories": {
+        "분류불가": 1
+      }
+    },
+    "생활/주방용품": {
+      "count": 1,
+      "subcategories": {
+        "기타 생활용품": 1
+      }
+    },
+    "FURN": {
+      "count": 11,
+      "subcategories": {
+        "FURN_SOFA": 11
       }
     }
   },
@@ -61,6 +91,267 @@
       "primary_category": "가전",
       "secondary_category": "기타 가전",
       "object_name": "선풍기",
+      "confidence": 0.8,
+      "labeling_quality": 0.6200000000000001
+    },
+    {
+      "file_id": "53e75798-8c3b-4a6d-85b7-f044867e460d",
+      "timestamp": "2025-10-27T00:46:11.010701",
+      "primary_category": "가구",
+      "secondary_category": "소파",
+      "object_name": "소파",
+      "confidence": 0.8,
+      "labeling_quality": 0.6200000000000001
+    },
+    {
+      "file_id": "bd6582da-54f7-41a6-9910-71d845f6e329",
+      "timestamp": "2025-10-27T01:07:32.141497",
+      "primary_category": "가구",
+      "secondary_category": "소파",
+      "object_name": "가죽 소파",
+      "confidence": 0.8,
+      "labeling_quality": 0.6200000000000001
+    },
+    {
+      "file_id": "a23f5421-db65-48f9-af28-c88066f31602",
+      "timestamp": "2025-10-27T01:25:15.484674",
+      "primary_category": "스포츠/레저",
+      "secondary_category": "자전거/킥보드",
+      "object_name": "자전거",
+      "confidence": 0.8,
+      "labeling_quality": 0.6200000000000001
+    },
+    {
+      "file_id": "215f0d6e-e37c-4b0b-9c4e-5140e84093e4",
+      "timestamp": "2025-10-27T01:35:07.930366",
+      "primary_category": "가구",
+      "secondary_category": "옷장/붙박이장/장롱",
+      "object_name": "나무 장식장",
+      "confidence": 0.4,
+      "labeling_quality": 0.46
+    },
+    {
+      "file_id": "6806c716-659a-44f2-914d-8ed4dffc1ad4",
+      "timestamp": "2025-10-27T01:39:59.863039",
+      "primary_category": "가구",
+      "secondary_category": "옷장/붙박이장/장롱",
+      "object_name": "2도어 옷장",
+      "confidence": 0.8,
+      "labeling_quality": 0.6200000000000001
+    },
+    {
+      "file_id": "cf01945c-fa31-4eeb-b480-8fb385f826ab",
+      "timestamp": "2025-10-27T01:49:06.672273",
+      "primary_category": "가구",
+      "secondary_category": "책상",
+      "object_name": "컴퓨터용 책상",
+      "confidence": 0.8,
+      "labeling_quality": 0.6200000000000001
+    },
+    {
+      "file_id": "d8259df1-46a2-41dd-8495-535afb9e624d",
+      "timestamp": "2025-10-27T03:03:56.918644",
+      "primary_category": "가구",
+      "secondary_category": "침대/매트리스",
+      "object_name": "L자형 소파",
+      "confidence": 0.8,
+      "labeling_quality": 0.6200000000000001
+    },
+    {
+      "file_id": "f0f7eebb-24ed-4bcb-8a4e-a6d8d5c67e60",
+      "timestamp": "2025-10-27T10:24:55.005467",
+      "primary_category": "가구",
+      "secondary_category": "의자",
+      "object_name": "오피스용 사무의자",
+      "confidence": 0.8,
+      "labeling_quality": 0.6200000000000001
+    },
+    {
+      "file_id": "37c5f68c-bbf4-4cfe-bfb7-baf87784b9c4",
+      "timestamp": "2025-10-27T10:50:26.224162",
+      "primary_category": "가전",
+      "secondary_category": "TV/모니터",
+      "object_name": "컴퓨터 모니터",
+      "confidence": 0.8,
+      "labeling_quality": 0.6200000000000001
+    },
+    {
+      "file_id": "e32f1bee-bf90-42ac-8355-0c06d624be8f",
+      "timestamp": "2025-10-27T10:54:07.193064",
+      "primary_category": "가전",
+      "secondary_category": "TV/모니터",
+      "object_name": "벽걸이형 TV",
+      "confidence": 0.8,
+      "labeling_quality": 0.6200000000000001
+    },
+    {
+      "file_id": "7db55aca-b48e-4571-9491-88fdebd45be8",
+      "timestamp": "2025-10-27T10:57:01.953660",
+      "primary_category": "가구",
+      "secondary_category": "의자",
+      "object_name": "사무용 의자",
+      "confidence": 0.8,
+      "labeling_quality": 0.6200000000000001
+    },
+    {
+      "file_id": "11412157-70ab-45e3-8513-80379023c882",
+      "timestamp": "2025-10-27T10:57:51.285215",
+      "primary_category": "기타",
+      "secondary_category": "분류불가",
+      "object_name": "여행용 캐리어",
+      "confidence": 0.8,
+      "labeling_quality": 0.6200000000000001
+    },
+    {
+      "file_id": "2ce57d8f-5ff5-41a2-8fcf-f0da24b68e13",
+      "timestamp": "2025-10-27T11:03:46.119740",
+      "primary_category": "가전",
+      "secondary_category": "기타 가전",
+      "object_name": "정수기",
+      "confidence": 0.8,
+      "labeling_quality": 0.9200000000000002
+    },
+    {
+      "file_id": "c28718d8-5300-4763-ba8f-0e3b3e12ac7a",
+      "timestamp": "2025-10-27T11:06:11.783014",
+      "primary_category": "생활/주방용품",
+      "secondary_category": "기타 생활용품",
+      "object_name": "휴대용 칫솔 살균기",
+      "confidence": 0.8,
+      "labeling_quality": 0.9200000000000002
+    },
+    {
+      "file_id": "bc888e6d-63a3-4aa7-907c-96ec2b749638",
+      "timestamp": "2025-10-27T12:28:58.923243",
+      "primary_category": "가구",
+      "secondary_category": "거실장/테이블/서랍장",
+      "object_name": "소형 테이블",
+      "confidence": 0.8,
+      "labeling_quality": 0.6200000000000001
+    },
+    {
+      "file_id": "934e0149-d854-4fad-a092-b94aebc4b32b",
+      "timestamp": "2025-10-27T12:43:02.035053",
+      "primary_category": "FURN",
+      "secondary_category": "FURN_SOFA",
+      "object_name": "소파",
+      "confidence": 0.85,
+      "labeling_quality": 0.94
+    },
+    {
+      "file_id": "d5483c38-c6dd-4364-8b17-eb1e56e8cd65",
+      "timestamp": "2025-10-27T12:43:14.204148",
+      "primary_category": "FURN",
+      "secondary_category": "FURN_SOFA",
+      "object_name": "소파",
+      "confidence": 0.85,
+      "labeling_quality": 0.94
+    },
+    {
+      "file_id": "05b43c7a-50ab-4d9f-a0ff-b88a01f17e51",
+      "timestamp": "2025-10-27T12:43:14.204697",
+      "primary_category": "FURN",
+      "secondary_category": "FURN_SOFA",
+      "object_name": "양문형 냉장고",
+      "confidence": 0.85,
+      "labeling_quality": 0.94
+    },
+    {
+      "file_id": "ec79f4d3-6704-4b87-8b27-11d6e056c7fb",
+      "timestamp": "2025-10-27T12:43:14.206285",
+      "primary_category": "FURN",
+      "secondary_category": "FURN_SOFA",
+      "object_name": "목재 책장",
+      "confidence": 0.85,
+      "labeling_quality": 0.64
+    },
+    {
+      "file_id": "d75e64f8-8cbb-41ce-be34-245be07346ea",
+      "timestamp": "2025-10-27T12:43:31.487211",
+      "primary_category": "FURN",
+      "secondary_category": "FURN_SOFA",
+      "object_name": "소파",
+      "confidence": 0.85,
+      "labeling_quality": 0.64
+    },
+    {
+      "file_id": "6ab707df-499b-42c8-9c76-20f662c6e01b",
+      "timestamp": "2025-10-27T12:43:31.487823",
+      "primary_category": "FURN",
+      "secondary_category": "FURN_SOFA",
+      "object_name": "양문형 냉장고",
+      "confidence": 0.85,
+      "labeling_quality": 0.94
+    },
+    {
+      "file_id": "cdd2b57e-9e44-494a-a32c-226d388cf697",
+      "timestamp": "2025-10-27T12:43:31.489169",
+      "primary_category": "FURN",
+      "secondary_category": "FURN_SOFA",
+      "object_name": "목재 책장",
+      "confidence": 0.85,
+      "labeling_quality": 0.64
+    },
+    {
+      "file_id": "6b03b5e1-7cc8-40ae-9a3f-40b462717f39",
+      "timestamp": "2025-10-27T12:43:40.408075",
+      "primary_category": "FURN",
+      "secondary_category": "FURN_SOFA",
+      "object_name": "소파",
+      "confidence": 0.85,
+      "labeling_quality": 0.64
+    },
+    {
+      "file_id": "f8e6ee3b-a6ae-41a2-89bc-4cee7059dea5",
+      "timestamp": "2025-10-27T12:43:40.408650",
+      "primary_category": "FURN",
+      "secondary_category": "FURN_SOFA",
+      "object_name": "양문형 냉장고",
+      "confidence": 0.85,
+      "labeling_quality": 0.94
+    },
+    {
+      "file_id": "2bf7fe61-7601-4bea-9528-3ae307321701",
+      "timestamp": "2025-10-27T12:43:40.409901",
+      "primary_category": "FURN",
+      "secondary_category": "FURN_SOFA",
+      "object_name": "목재 책장",
+      "confidence": 0.85,
+      "labeling_quality": 0.64
+    },
+    {
+      "file_id": "354dc5f4-d2b5-41dc-8621-0c12df143b3c",
+      "timestamp": "2025-10-27T12:43:40.411019",
+      "primary_category": "FURN",
+      "secondary_category": "FURN_SOFA",
+      "object_name": "세탁기",
+      "confidence": 0.85,
+      "labeling_quality": 0.94
+    },
+    {
+      "file_id": "c99ada38-6d29-43c7-91ed-4b5d00d0d230",
+      "timestamp": "2025-10-27T12:45:04.392119",
+      "primary_category": "가구",
+      "secondary_category": "화장대",
+      "object_name": "화장대",
+      "confidence": 1.0,
+      "labeling_quality": 0.7
+    },
+    {
+      "file_id": "0dd9fbaf-4ac7-4d3a-8d04-33edbb216654",
+      "timestamp": "2025-10-27T17:39:56.049073",
+      "primary_category": "가구",
+      "secondary_category": "거실장/테이블/서랍장",
+      "object_name": "테이블",
+      "confidence": 0.8,
+      "labeling_quality": 0.6200000000000001
+    },
+    {
+      "file_id": "37075b4b-5b1c-4786-b048-a06f1acd481a",
+      "timestamp": "2025-10-27T17:55:06.418940",
+      "primary_category": "가구",
+      "secondary_category": "거실장/테이블/서랍장",
+      "object_name": "서랍장",
       "confidence": 0.8,
       "labeling_quality": 0.6200000000000001
     }

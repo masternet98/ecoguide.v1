@@ -19,15 +19,15 @@ class MainLayoutComponent(BaseComponent):
     def render_sidebar(self) -> str:
         """
         사이드바를 렌더링하고 선택된 모델을 반환합니다.
-        
+
         Returns:
             선택된 모델명
         """
         with st.sidebar:
             st.header("⚙️ 설정")
-            
-            # 모델 선택
-            model_options = self.config.vision_models if self.config else ["gpt-4o", "gpt-4o-mini"]
+
+            # 모델 선택 (기본값: gpt-4o-mini)
+            model_options = self.config.vision_models if self.config else ["gpt-4o-mini", "gpt-4o"]
             model = st.selectbox("모델 선택", options=model_options, index=0)
             
             # OpenAI 서비스 상태 확인

@@ -30,7 +30,8 @@ class AccuracyTrackingService(BaseService):
                 'size_correct': 0,
                 'total_feedback': 0,
                 'confidence_ratings': [],
-                'improvement_areas': []
+                'improvement_areas': [],
+                'object_name_corrections': 0
             }),
             'category_performance': defaultdict(lambda: {
                 'total': 0,
@@ -41,6 +42,11 @@ class AccuracyTrackingService(BaseService):
                 'estimation_errors': [],
                 'user_provided_count': 0,
                 'correction_patterns': []
+            },
+            'object_name_performance': {
+                'total_corrections': 0,
+                'correction_patterns': [],
+                'frequently_corrected_items': defaultdict(int)
             }
         }
 
@@ -74,6 +80,9 @@ class AccuracyTrackingService(BaseService):
 
             # 4. 개선 포인트 식별
             self._identify_improvement_points(validated_feedback, today)
+
+            # 5. 품목명 변경 추적 (새로 추가)
+            self._update_object_name_accuracy(validated_feedback, today)
 
             logger.info(f"Accuracy metrics updated for feedback: {feedback_record.get('id')}")
 
@@ -219,6 +228,39 @@ class AccuracyTrackingService(BaseService):
                     'timestamp': datetime.now().isoformat()
                 })
 
+    def _update_object_name_accuracy(self, validated_feedback: Dict[str, Any], date: str) -> None:
+        """품목명 변경을 추적합니다."""
+
+        classification_data = validated_feedback.get('classification', {})
+        is_object_name_changed = classification_data.get('is_object_name_changed', False)
+
+        if not is_object_name_changed:
+            return
+
+        # 일별 메트릭 업데이트
+        daily_metrics = self.accuracy_data['daily_metrics'][date]
+        daily_metrics['object_name_corrections'] += 1
+
+        # 전체 품목명 변경 통계
+        object_name_perf = self.accuracy_data['object_name_performance']
+        object_name_perf['total_corrections'] += 1
+
+        # 변경 패턴 기록
+        original_name = classification_data.get('original_object_name', 'UNKNOWN')
+        corrected_name = classification_data.get('corrected_object_name', 'UNKNOWN')
+
+        correction_pattern = {
+            'original_object_name': original_name,
+            'corrected_object_name': corrected_name,
+            'timestamp': datetime.now().isoformat()
+        }
+        object_name_perf['correction_patterns'].append(correction_pattern)
+
+        # 자주 수정되는 물품 추적
+        object_name_perf['frequently_corrected_items'][original_name] += 1
+
+        logger.info(f"Object name correction tracked: {original_name} → {corrected_name}")
+
     def _calculate_priority(self, confidence_rating: int) -> int:
         """신뢰도 기반으로 개선 우선순위를 계산합니다."""
         if confidence_rating <= 2:
@@ -241,6 +283,7 @@ class AccuracyTrackingService(BaseService):
                 'size_estimation_accuracy': self._calculate_size_accuracy(aggregated_metrics),
                 'user_satisfaction': self._calculate_user_satisfaction(aggregated_metrics),
                 'total_feedback_count': aggregated_metrics['total_feedback'],
+                'object_name_corrections': self._get_object_name_statistics(),
                 'recent_trends': self._get_recent_trends(),
                 'improvement_suggestions': self._get_improvement_suggestions(),
                 'category_performance': self._get_category_performance_summary()
@@ -372,6 +415,32 @@ class AccuracyTrackingService(BaseService):
 
         return summary
 
+    def _get_object_name_statistics(self) -> Dict[str, Any]:
+        """품목명 수정 통계를 반환합니다."""
+        object_name_perf = self.accuracy_data['object_name_performance']
+
+        # 자주 수정되는 물품 상위 5개
+        frequently_corrected = sorted(
+            object_name_perf['frequently_corrected_items'].items(),
+            key=lambda x: x[1],
+            reverse=True
+        )[:5]
+
+        return {
+            'total_corrections': object_name_perf['total_corrections'],
+            'correction_rate': (
+                object_name_perf['total_corrections'] /
+                sum(metrics['classification_total'] for metrics in self.accuracy_data['daily_metrics'].values())
+                if sum(metrics['classification_total'] for metrics in self.accuracy_data['daily_metrics'].values()) > 0
+                else 0.0
+            ),
+            'frequently_corrected_items': [
+                {'item_name': name, 'correction_count': count}
+                for name, count in frequently_corrected
+            ],
+            'recent_corrections': object_name_perf['correction_patterns'][-10:] if object_name_perf['correction_patterns'] else []
+        }
+
     def _get_default_metrics(self) -> Dict[str, Any]:
         """기본 메트릭을 반환합니다."""
         return {
@@ -379,6 +448,12 @@ class AccuracyTrackingService(BaseService):
             'size_estimation_accuracy': 0.0,
             'user_satisfaction': 0.0,
             'total_feedback_count': 0,
+            'object_name_corrections': {
+                'total_corrections': 0,
+                'correction_rate': 0.0,
+                'frequently_corrected_items': [],
+                'recent_corrections': []
+            },
             'recent_trends': {'classification_trend': 'no_data', 'trend_value': 0.0},
             'improvement_suggestions': [],
             'category_performance': {}
@@ -400,6 +475,7 @@ class AccuracyTrackingService(BaseService):
                 'user_satisfaction': self._calculate_user_satisfaction(aggregated_metrics)
             },
             'detailed_metrics': self._get_detailed_metrics(recent_dates),
+            'object_name_statistics': self._get_object_name_statistics(),
             'trend_analysis': self._get_recent_trends(),
             'recommendations': self._get_improvement_suggestions(),
             'category_breakdown': self._get_category_performance_summary(),

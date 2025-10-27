@@ -18,10 +18,24 @@ def main():
     """애플리케이션의 메인 함수입니다."""
     # 페이지별 설정
     st.set_page_config(
-        page_title="EcoGuide.AI", 
-        page_icon="📷", 
-        layout="centered"
+        page_title="EcoGuide.AI",
+        page_icon="📷",
+        layout="centered",
+        initial_sidebar_state="expanded"
     )
+
+    # Light 테마 강제 적용 (시스템 설정 무시)
+    st.markdown("""
+        <style>
+            :root {
+                color-scheme: light !important;
+            }
+            html, body {
+                background-color: #ffffff !important;
+                color: #262730 !important;
+            }
+        </style>
+    """, unsafe_allow_html=True)
     
     # 애플리케이션 컨텍스트 초기화
     try:

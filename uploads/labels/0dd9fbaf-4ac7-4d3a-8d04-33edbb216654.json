@@ -1,0 +1,53 @@
+{
+  "file_id": "0dd9fbaf-4ac7-4d3a-8d04-33edbb216654",
+  "image_path": "/home/jaeho/projects_linux/ecoguide.v1/uploads/user_images/0dd9fbaf-4ac7-4d3a-8d04-33edbb216654.jpg",
+  "timestamp": "2025-10-27T17:39:56.049073",
+  "classification": {
+    "primary_category": "가구",
+    "primary_category_name": "가구",
+    "secondary_category": "거실장/테이블/서랍장",
+    "secondary_category_name": "테이블",
+    "object_name": "테이블",
+    "is_object_name_corrected": false
+  },
+  "dimensions": {
+    "w_cm": 100,
+    "h_cm": 30,
+    "d_cm": 100
+  },
+  "confidence": 0.8,
+  "reasoning": "이미지에 나타난 물체는 테이블로 보이며 크기를 고려할 때 거실용 테이블로 분류할 수 있습니다.",
+  "ai_inference": {
+    "object_name": "테이블",
+    "primary_category": "가구",
+    "secondary_category": "거실장/테이블/서랍장",
+    "confidence": 0.8,
+    "reasoning": "이미지에 나타난 물체는 테이블로 보이며 크기를 고려할 때 거실용 테이블로 분류할 수 있습니다.",
+    "dimensions": {
+      "w_cm": 100,
+      "h_cm": 30,
+      "d_cm": 100
+    },
+    "raw_response": {
+      "object_name": "테이블",
+      "primary_category": "가구",
+      "secondary_category": "거실장/테이블/서랍장",
+      "confidence": 0.8,
+      "dimensions": {
+        "width_cm": 100,
+        "height_cm": 5,
+        "depth_cm": 50
+      },
+      "reasoning": "이미지에 나타난 물체는 테이블로 보이며 크기를 고려할 때 거실용 테이블로 분류할 수 있습니다."
+    },
+    "inference_timestamp": "2025-10-27T17:39:56.049059"
+  },
+  "user_feedback": {
+    "notes": "",
+    "timestamp": "2025-10-27T17:39:55.894511"
+  },
+  "metadata": {
+    "labeling_quality": 0.6200000000000001,
+    "ai_inference_quality": 0.8999999999999999
+  }
+}
