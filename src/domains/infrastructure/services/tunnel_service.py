@@ -13,15 +13,74 @@ from typing import Optional
 from src.app.core.utils import TunnelState
 
 def _find_cloudflared_path() -> Optional[str]:
-    """PATH 또는 일반적인 설치 위치에서 cloudflared를 찾습니다."""
+    """
+    cloudflared 바이너리를 찾거나 자동으로 다운로드합니다.
+
+    우선순위:
+    1. pycloudflared의 cloudflared 바이너리 (다운로드 가능)
+    2. 시스템 PATH의 cloudflared
+    3. 플랫폼별 일반적인 설치 위치
+    """
+    # 1. pycloudflared에서 제공하는 cloudflared 바이너리 확인
+    try:
+        from pycloudflared.util import get_info, download, Info
+
+        info = get_info()
+
+        # 파일이 이미 있는지 확인
+        if os.path.isfile(info.executable):
+            return info.executable
+
+        # pycloudflared의 패키지 디렉토리 확인
+        import pycloudflared
+        pycf_dir = os.path.dirname(pycloudflared.__file__)
+
+        # 플랫폼별로 가능한 파일명 확인
+        possible_names = []
+        if os.name == "nt":
+            # Windows: cloudflared-windows-amd64.exe, cloudflared-windows-arm64.exe 등
+            possible_names.extend([
+                "cloudflared-windows-amd64.exe",
+                "cloudflared-windows-arm64.exe",
+                "cloudflared.exe",
+            ])
+        elif os.uname().sysname == "Darwin":
+            # macOS: cloudflared
+            possible_names.extend(["cloudflared"])
+        else:
+            # Linux: cloudflared-linux-amd64, cloudflared-linux-arm64 등
+            possible_names.extend([
+                "cloudflared-linux-amd64",
+                "cloudflared-linux-arm64",
+                "cloudflared",
+            ])
+
+        for fname in possible_names:
+            fpath = os.path.join(pycf_dir, fname)
+            if os.path.isfile(fpath):
+                return fpath
+
+        # 파일을 찾지 못했으므로 자동으로 다운로드
+        print("[INFO] cloudflared를 자동으로 다운로드하고 있습니다...")
+        cloudflared_path = download(info)
+        if os.path.isfile(cloudflared_path):
+            return cloudflared_path
+
+    except ImportError:
+        pass  # pycloudflared 미설치
+    except Exception as e:
+        print(f"[WARNING] pycloudflared에서 cloudflared를 찾을 수 없습니다: {e}")
+
+    # 2. 시스템 PATH에서 cloudflared 찾기
     try:
         from shutil import which
         path = which("cloudflared")
         if path:
             return path
-    except ImportError:
+    except (ImportError, Exception):
         pass  # 최소 환경을 위한 대체
 
+    # 3. 플랫폼별 일반적인 설치 위치
     if os.name == "nt":
         common_paths = [
             r"C:\Program Files\cloudflared\cloudflared.exe",
@@ -161,7 +220,14 @@ def start_cloudflared_tunnel(state: TunnelState, wait_for_url_seconds: int = 10)
     cpath = _find_cloudflared_path()
     if not cpath:
         raise FileNotFoundError(
-            "cloudflared 실행 파일을 찾을 수 없습니다. PATH에 추가하거나 공식 문서에 따라 설치하세요."
+            "cloudflared 실행 파일을 찾을 수 없습니다.\n"
+            "\n설치 방법:\n"
+            "1. pip install -r requirements.txt 실행 (pycloudflared 포함)\n"
+            "2. 또는 다음 명령어로 수동 설치:\n"
+            "   - Linux: sudo apt-get install cloudflared\n"
+            "   - macOS: brew install cloudflare/cloudflare/cloudflared\n"
+            "   - Windows: choco install cloudflared\n"
+            "   - 또는: pip install pycloudflared"
         )
 
     # 입력 검증 및 보안 강화
