@@ -10,6 +10,26 @@ import json
 
 from src.app.core.config import Config
 from src.domains.infrastructure.services.detail_content_service import DetailContentService
+import pandas as pd
+
+
+def _json_array_to_table(json_str: str) -> Optional[pd.DataFrame]:
+    """
+    JSON 배열을 DataFrame으로 변환합니다.
+
+    Args:
+        json_str: JSON 문자열
+
+    Returns:
+        DataFrame 또는 None (파싱 실패 시)
+    """
+    try:
+        data = json.loads(json_str)
+        if isinstance(data, list) and len(data) > 0:
+            return pd.DataFrame(data)
+    except (json.JSONDecodeError, ValueError):
+        pass
+    return None
 
 
 def show_detail_content_editor(
@@ -115,11 +135,35 @@ def _show_detail_viewer(
 
     st.divider()
 
-    # 마크다운 콘텐츠 표시
+    # 콘텐츠 표시
     if isinstance(current_detail, dict) and 'content' in current_detail:
-        # 새 형식: 마크다운
         content_text = current_detail.get('content', '')
-        st.markdown(content_text)
+
+        # JSON 배열 형식 감지 및 테이블로 표시
+        if content_text.strip().startswith('['):
+            df = _json_array_to_table(content_text)
+            if df is not None:
+                st.subheader("📊 수수료 정보 (테이블)")
+                st.dataframe(
+                    df,
+                    use_container_width=True,
+                    hide_index=True,
+                    column_config={
+                        "품명": st.column_config.TextColumn("품명", width="medium"),
+                        "규격": st.column_config.TextColumn("규격", width="medium"),
+                        "금액": st.column_config.NumberColumn("금액(원)", format="%d"),
+                    }
+                )
+
+                # 원본 JSON도 표시 (선택사항)
+                with st.expander("📄 원본 JSON 보기"):
+                    st.json(json.loads(content_text))
+            else:
+                # JSON 파싱 실패 시 마크다운으로 표시
+                st.markdown(content_text)
+        else:
+            # 마크다운 형식
+            st.markdown(content_text)
     else:
         # 레거시 형식 호환성 (JSON)
         st.info("💡 레거시 형식 데이터입니다. 마크다운 형식으로 재분석을 권장합니다.")
@@ -160,12 +204,43 @@ def _show_info_input(
 
     # AI 분석 버튼
     if content and len(content) >= 100:
+        # 지역 정보 추출
+        region, sigungu = district_key.split('_', 1) if '_' in district_key else (district_key, '')
+        district_info = {"sido": region, "sigungu": sigungu}
+
+        # 최종 프롬프트 미리보기 (expander)
+        with st.expander("🔍 최종 프롬프트 확인 (AI에 전달될 내용)", expanded=False):
+            try:
+                # 프롬프트 템플릿 로드
+                prompt_template = service._load_prompt_from_admin(content_type)
+
+                # 디버깅: 로드된 프롬프트 시작 부분 표시
+                if prompt_template:
+                    prompt_preview = prompt_template[:100].replace('\n', ' ')
+                    st.write(f"**✅ 프롬프트 로드됨** (처음 100자: {prompt_preview}...)")
+                else:
+                    st.error("❌ 프롬프트를 로드할 수 없습니다")
+
+                if prompt_template:
+                    # 프롬프트 렌더링
+                    rendered_prompt = service._render_prompt(prompt_template, content, district_info)
+                    if rendered_prompt:
+                        st.info("📝 다음과 같은 프롬프트가 OpenAI에 전달됩니다:")
+                        st.code(rendered_prompt, language="markdown", line_numbers=True)
+                        st.caption(f"📊 총 길이: {len(rendered_prompt)} 자")
+                    else:
+                        st.error("프롬프트 렌더링 실패")
+                else:
+                    st.error("프롬프트 템플릿을 로드할 수 없습니다")
+            except Exception as e:
+                st.error(f"프롬프트 로드 중 오류: {str(e)}")
+                import traceback
+                st.text(traceback.format_exc())
+
+        st.divider()
+
         if st.button("🤖 AI로 분석", key=f"analyze_info_{district_key}", type="primary", use_container_width=True):
             with st.spinner("🔄 배출정보를 분석하고 있습니다..."):
-                # 지역 정보 추출
-                region, sigungu = district_key.split('_', 1) if '_' in district_key else (district_key, '')
-                district_info = {"sido": region, "sigungu": sigungu}
-
                 detail_data = service.generate_detail_content(content, content_type, district_info)
 
                 if detail_data:
@@ -232,12 +307,43 @@ def _show_fee_input(
 
     # AI 분석 버튼
     if content and len(content) >= 100:
+        # 지역 정보 추출
+        region, sigungu = district_key.split('_', 1) if '_' in district_key else (district_key, '')
+        district_info = {"sido": region, "sigungu": sigungu}
+
+        # 최종 프롬프트 미리보기 (expander)
+        with st.expander("🔍 최종 프롬프트 확인 (AI에 전달될 내용)", expanded=False):
+            try:
+                # 프롬프트 템플릿 로드
+                prompt_template = service._load_prompt_from_admin(content_type)
+
+                # 디버깅: 로드된 프롬프트 시작 부분 표시
+                if prompt_template:
+                    prompt_preview = prompt_template[:100].replace('\n', ' ')
+                    st.write(f"**✅ 프롬프트 로드됨** (처음 100자: {prompt_preview}...)")
+                else:
+                    st.error("❌ 프롬프트를 로드할 수 없습니다")
+
+                if prompt_template:
+                    # 프롬프트 렌더링
+                    rendered_prompt = service._render_prompt(prompt_template, content, district_info)
+                    if rendered_prompt:
+                        st.info("📝 다음과 같은 프롬프트가 OpenAI에 전달됩니다:")
+                        st.code(rendered_prompt, language="markdown", line_numbers=True)
+                        st.caption(f"📊 총 길이: {len(rendered_prompt)} 자")
+                    else:
+                        st.error("프롬프트 렌더링 실패")
+                else:
+                    st.error("프롬프트 템플릿을 로드할 수 없습니다")
+            except Exception as e:
+                st.error(f"프롬프트 로드 중 오류: {str(e)}")
+                import traceback
+                st.text(traceback.format_exc())
+
+        st.divider()
+
         if st.button("🤖 AI로 분석", key=f"analyze_fee_{district_key}", type="primary", use_container_width=True):
             with st.spinner("🔄 수수료 정보를 분석하고 있습니다..."):
-                # 지역 정보 추출
-                region, sigungu = district_key.split('_', 1) if '_' in district_key else (district_key, '')
-                district_info = {"sido": region, "sigungu": sigungu}
-
                 detail_data = service.generate_detail_content(content, content_type, district_info)
 
                 if detail_data:
