@@ -41,15 +41,21 @@ data/**/*.cache
 data/**/*.tmp
 data/prompts/backups/  # 백업 폴더만 제외
 
-# 업로드 디렉토리 - 애플리케이션 상태 데이터 포함 (영속 데이터)
-# uploads/ - 전체 디렉토리를 Git에 포함하여 원격 동기화 가능
-# 단, 임시 파일과 캐시는 제외
+# 업로드 디렉토리 - 선택적 Git 관리
+# 라벨 데이터는 Git 추적, 사용자 이미지는 제외
+uploads/user_images/    # 사용자 업로드 이미지 (로컬/배포 임시 저장소)
+uploads/temp/           # 임시 파일
+uploads/cache/          # 캐시 파일
+uploads/dong_cache/     # 동 단위 캐시 (빌드 중 생성)
 uploads/*.tmp
 uploads/*.cache
-uploads/temp/
-uploads/cache/
 uploads/**/*.tmp
 uploads/**/*.cache
+
+# 라벨 데이터는 Git에 포함됨 (uploads/labels/_index.json 및 *.json)
+# 행정구역 데이터는 Git에 포함됨 (uploads/districts/*.json)
+# 모니터링 데이터는 Git에 포함됨 (uploads/monitoring/*.json)
+# 폐기물 정보는 Git에 포함됨 (uploads/waste_types/*.json, waste_links/*.json)
 
 # Downloaded Models
 models/
