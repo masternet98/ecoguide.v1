@@ -41,9 +41,10 @@ data/**/*.cache
 data/**/*.tmp
 data/prompts/backups/  # 백업 폴더만 제외
 
-# 업로드 디렉토리 - 선택적 Git 관리
-# 라벨 데이터는 Git 추적, 사용자 이미지는 제외
-uploads/user_images/    # 사용자 업로드 이미지 (로컬/배포 임시 저장소)
+# 업로드 디렉토리 - 사용자 관리 데이터 제외
+# 사용자가 업로드한 데이터(이미지+라벨)는 로컬에서만 관리
+uploads/user_images/    # 사용자 업로드 이미지
+uploads/labels/         # 사용자 라벨링 메타데이터 (이미지 관리용)
 uploads/temp/           # 임시 파일
 uploads/cache/          # 캐시 파일
 uploads/dong_cache/     # 동 단위 캐시 (빌드 중 생성)
@@ -52,10 +53,15 @@ uploads/*.cache
 uploads/**/*.tmp
 uploads/**/*.cache
 
-# 라벨 데이터는 Git에 포함됨 (uploads/labels/_index.json 및 *.json)
-# 행정구역 데이터는 Git에 포함됨 (uploads/districts/*.json)
-# 모니터링 데이터는 Git에 포함됨 (uploads/monitoring/*.json)
-# 폐기물 정보는 Git에 포함됨 (uploads/waste_types/*.json, waste_links/*.json)
+# Git에 포함되는 데이터 (시스템/행정 데이터)
+# - uploads/districts/*.json       (행정구역 마스터 데이터)
+# - uploads/monitoring/*.json      (시스템 모니터링 데이터)
+# - uploads/waste_types/*.json     (폐기물 분류 마스터 데이터)
+# - uploads/waste_links/*.json     (폐기물 처리 링크 마스터 데이터)
+#
+# Git에서 제외되는 데이터 (사용자 업로드 데이터)
+# - uploads/labels/                (사용자 라벨링 데이터)
+# - uploads/user_images/           (사용자 이미지 파일)
 
 # Downloaded Models
 models/
