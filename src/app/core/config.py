@@ -12,26 +12,30 @@ from src.domains.analysis.vision_types import VisionConfig
 from src.app.core.prompt_types import PromptConfig
 
 
-def _get_vworld_api_key() -> Optional[str]:
+def get_vworld_api_key() -> Optional[str]:
     """
     VWorld API 키를 Streamlit Secrets 또는 환경변수에서 로드합니다.
 
     우선순위:
-    1. Streamlit Secrets (st.secrets)
-    2. 환경변수 (os.environ)
+    1. Streamlit Secrets (st.secrets) - Streamlit Cloud 환경
+    2. 환경변수 (os.environ) - 로컬 환경
 
-    Streamlit Cloud에서는 .streamlit/secrets.toml이 자동으로 로드되며,
-    로컬에서는 .env 파일이 로드됩니다.
+    NOTE: Streamlit Cloud에서는 secrets이 런타임에 로드되므로,
+    이 함수는 필요할 때마다 호출되어야 합니다.
     """
     try:
         # Streamlit이 실행 중인 경우 secrets에서 먼저 시도
         import streamlit as st
-        if hasattr(st, 'secrets') and 'VWORLD_API_KEY' in st.secrets:
-            key = st.secrets.get('VWORLD_API_KEY')
-            if key:
-                return key
-    except (ImportError, AttributeError, Exception):
-        # Streamlit이 없거나 secrets이 없는 경우는 다음 단계로
+        if hasattr(st, 'secrets'):
+            try:
+                # st.secrets는 딕셔너리처럼 접근할 수 있습니다
+                key = st.secrets.get('VWORLD_API_KEY')
+                if key:
+                    return key
+            except Exception:
+                pass
+    except ImportError:
+        # Streamlit이 설치되지 않았을 수 있음
         pass
 
     # 환경변수에서 로드
@@ -121,7 +125,9 @@ class LocationConfig:
     VWorld (브이월드) API를 사용한 역지오코딩 서비스
     """
     # VWorld API 설정 - Streamlit Secrets와 환경변수 모두 지원
-    vworld_api_key: Optional[str] = field(default_factory=lambda: _get_vworld_api_key())
+    # NOTE: vworld_api_key는 LocationService에서 동적으로 로드됨
+    # 이렇게 하는 이유: Streamlit Cloud에서는 secrets이 런타임에 로드되기 때문
+    vworld_api_key: Optional[str] = field(default=None)
 
     # VWorld API 엔드포인트
     vworld_geocode_url: str = "https://api.vworld.kr/req/address"

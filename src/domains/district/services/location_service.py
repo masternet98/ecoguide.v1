@@ -8,7 +8,7 @@ import requests
 from typing import Dict, List, Optional, Any, Tuple
 from datetime import datetime, timedelta
 
-from src.app.core.config import LocationConfig
+from src.app.core.config import LocationConfig, get_vworld_api_key
 from src.app.core.logger import logger, log_function, log_step, log_info, log_warning, log_error, LogCategory
 
 
@@ -23,6 +23,8 @@ class LocationService:
             config: 위치 서비스 설정
         """
         self.config = config
+        # VWorld API 키를 런타임에 로드 (Streamlit Cloud secrets 지원)
+        self.config.vworld_api_key = get_vworld_api_key()
         self.districts_data: Optional[Dict[str, Any]] = None
         self.location_cache: Dict[str, Dict[str, Any]] = {}
         self._load_districts_data()
