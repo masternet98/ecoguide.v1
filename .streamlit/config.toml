@@ -13,4 +13,6 @@ fileWatcherType = "none"
 enableCORS = false
 enableXsrfProtection = false
 address = "0.0.0.0"
-port = 8080
+# 주의: Streamlit Cloud에서는 PORT 환경변수가 자동으로 설정됩니다
+# 로컬 개발에서는 Procfile 또는 docker-compose.yml에서 PORT를 설정하세요
+# port = 8080  # Streamlit Cloud와의 포트 충돌을 피하기 위해 주석 처리
