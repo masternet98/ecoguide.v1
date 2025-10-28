@@ -1,0 +1,26 @@
+{
+  "25ff6989-f741-4be4-9e4e-7eff134f1363": {
+    "prompt_id": "25ff6989-f741-4be4-9e4e-7eff134f1363",
+    "usage_count": 26,
+    "last_used": "2025-10-27T12:29:44.563132",
+    "success_rate": 0.0,
+    "average_response_time": 0.0,
+    "user_ratings": []
+  },
+  "ca7a6fc5-a287-44bb-81ea-96f639ae3987": {
+    "prompt_id": "ca7a6fc5-a287-44bb-81ea-96f639ae3987",
+    "usage_count": 3,
+    "last_used": "2025-10-27T17:40:01.882980",
+    "success_rate": 0.0,
+    "average_response_time": 0.0,
+    "user_ratings": []
+  },
+  "53099b76-cfc2-448d-ad45-ce16fbbf4da6": {
+    "prompt_id": "53099b76-cfc2-448d-ad45-ce16fbbf4da6",
+    "usage_count": 1,
+    "last_used": "2025-10-27T17:55:08.467951",
+    "success_rate": 0.0,
+    "average_response_time": 0.0,
+    "user_ratings": []
+  }
+}

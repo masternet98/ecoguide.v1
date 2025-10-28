@@ -1,0 +1,162 @@
+{
+  "version": "1.0",
+  "updated_at": "2025-10-27T17:41:23.913870",
+  "features": [
+    {
+      "feature_id": "camera_analysis",
+      "name": "카메라 이미지 분석",
+      "description": "카메라로 촬영한 이미지를 AI로 분석합니다.",
+      "category": "analysis",
+      "is_active": true,
+      "required_services": [
+        "openai_service"
+      ],
+      "default_prompt_template": "이 이미지를 분석해서 다음 정보를 JSON 형식으로 제공해주세요: 1) 물체의 이름 2) 물체의 카테고리 3) 주요 특징",
+      "metadata": {
+        "input_type": "camera",
+        "analysis_type": "vision"
+      },
+      "created_at": "2025-09-11T22:26:27.428178",
+      "updated_at": "2025-09-11T22:26:27.457205"
+    },
+    {
+      "feature_id": "gallery_upload",
+      "name": "갤러리 이미지 업로드",
+      "description": "갤러리에서 이미지를 선택하여 분석합니다.",
+      "category": "input",
+      "is_active": true,
+      "required_services": [
+        "openai_service"
+      ],
+      "default_prompt_template": "업로드된 이미지를 분석해서 다음 정보를 JSON 형식으로 제공해주세요: 1) 물체의 이름 2) 물체의 카테고리 3) 주요 특징",
+      "metadata": {
+        "input_type": "file",
+        "analysis_type": "vision"
+      },
+      "created_at": "2025-09-11T22:26:27.429694",
+      "updated_at": "2025-09-11T22:26:27.482215"
+    },
+    {
+      "feature_id": "analysis_interface",
+      "name": "분석 인터페이스",
+      "description": "이미지 분석을 위한 통합 인터페이스 컴포넌트",
+      "category": "interface",
+      "is_active": true,
+      "required_services": [
+        "openai_service",
+        "prompt_service"
+      ],
+      "default_prompt_template": "당신은 대형폐기물 분류 전문가입니다. 다음의 분류 체계를 정확히 따라서 이미지를 분석해주세요.\n\n{CLASSIFICATION_TEXT}\n\n## 분석 지침\n\n1. 위의 분류 체계에서 **정확한 대분류(primary_category)**를 선택하세요\n2. 해당 대분류 아래의 **정확한 세분류(secondary_category)**를 선택하세요\n3. 세분류는 반드시 위 목록에 있는 것 중에서만 선택하세요\n4. 이미지의 물품을 식별하고 크기를 추정하세요\n5. 신뢰도를 0.0~1.0 범위로 지정하세요\n\n## 3D 크기(Width, Height, Depth) 정의 및 측정 방법\n\n### 크기 정의\n- **width_cm (가로)**: 정면에서 본 물체의 좌우 길이\n- **height_cm (높이)**: 정면에서 본 물체의 상하 길이  \n- **depth_cm (깊이)**: 물체의 앞뒤 깊이 (안쪽으로 들어가는 정도)\n\n### 측정 정확도 향상 방법\n1. 손 크기를 기준점으로 활용 (성인 손 길이 약 18-20cm)\n2. 객체의 형태와 각도를 고려하여 깊이 추정\n3. 일반적인 제품 규격 지식 활용\n4. 주변 사물과의 비례 관계 파악\n\n### 깊이 추정 예시\n- 침대: width 200cm, height 120cm, depth 30cm\n- 냉장고: width 70cm, height 180cm, depth 70cm\n- 책장: width 150cm, height 200cm, depth 40cm\n\n## JSON 응답 형식 (필수)\n```json\n{\n  \"object_name\": \"구체적인 물품명\",\n  \"primary_category\": \"대분류명 (위 목록에서 선택)\",\n  \"secondary_category\": \"세분류명 (위 목록에서 선택)\",\n  \"confidence\": 0.0,\n  \"dimensions\": {\n    \"width_cm\": 0,\n    \"height_cm\": 0,\n    \"depth_cm\": 0,\n    \"dimension_sum_cm\": 0\n  },\n  \"reasoning\": \"판단 근거\"\n}\n```\n\n**중요**: secondary_category는 반드시 위의 분류 체계 목록에 있는 정확한 이름으로 기입하세요.",
+      "metadata": {
+        "component_type": "interface",
+        "ui_type": "streamlit",
+        "variables": [
+          "CLASSIFICATION_TEXT"
+        ]
+      },
+      "created_at": "2025-09-11T22:27:27.558715",
+      "updated_at": "2025-10-26T20:30:00"
+    },
+    {
+      "feature_id": "disposal_guidance_main",
+      "name": "행정구역별 대형폐기물 배출정보 검색",
+      "description": "행정구역별 대형폐기물 배출정보 검색",
+      "category": "custom",
+      "is_active": true,
+      "required_services": [],
+      "default_prompt_template": "",
+      "metadata": {},
+      "created_at": "2025-10-27T00:11:24.768980",
+      "updated_at": "2025-10-27T00:11:24.768989"
+    },
+    {
+      "feature_id": "object_detection",
+      "name": "객체 탐지",
+      "description": "이미지에서 객체를 탐지하고 분류합니다.",
+      "category": "analysis",
+      "is_active": true,
+      "required_services": [
+        "vision_service"
+      ],
+      "default_prompt_template": "이미지에서 객체를 탐지하여 각 객체의 위치, 크기, 분류 정보를 제공해주세요.",
+      "metadata": {
+        "analysis_type": "detection",
+        "models": [
+          "yolo"
+        ]
+      },
+      "created_at": "2025-10-27T02:36:33.598590",
+      "updated_at": "2025-10-27T02:36:33.598594"
+    },
+    {
+      "feature_id": "size_estimation",
+      "name": "크기 추정",
+      "description": "탐지된 객체의 크기를 추정합니다.",
+      "category": "analysis",
+      "is_active": true,
+      "required_services": [
+        "vision_service"
+      ],
+      "default_prompt_template": "이미지에서 손을 기준으로 물체의 크기를 추정해주세요. 가로, 세로, 높이 정보를 cm 단위로 제공해주세요.",
+      "metadata": {
+        "analysis_type": "measurement",
+        "reference": "hand_scale"
+      },
+      "created_at": "2025-10-27T02:36:33.598715",
+      "updated_at": "2025-10-27T02:36:33.598716"
+    },
+    {
+      "feature_id": "waste_classification",
+      "name": "폐기물 분류",
+      "description": "대형폐기물을 분류하고 처리방법을 제안합니다.",
+      "category": "classification",
+      "is_active": true,
+      "required_services": [
+        "openai_service"
+      ],
+      "default_prompt_template": "이 물체가 대형폐기물인지 판단하고, 맞다면 처리 방법과 예상 수수료를 제안해주세요.",
+      "metadata": {
+        "domain": "waste_management",
+        "output": "disposal_guide"
+      },
+      "created_at": "2025-10-27T02:36:33.598760",
+      "updated_at": "2025-10-27T02:36:33.598761"
+    },
+    {
+      "feature_id": "detail_content_disposal_info",
+      "name": "세부내역 배출정보 관리",
+      "description": "지역별 대형폐기물 배출정보를 자동으로 추출하고 관리합니다",
+      "category": "infrastructure",
+      "is_active": true,
+      "required_services": [
+        "openai_service"
+      ],
+      "default_prompt_template": "",
+      "metadata": {
+        "content_type": "info",
+        "feature_type": "detail_content",
+        "prompt_id": "14d2ce15-8127-4b77-9be4-a0cb56600ead"
+      },
+      "created_at": "2025-10-27T02:36:33.599960",
+      "updated_at": "2025-10-27T17:06:29.080042"
+    },
+    {
+      "feature_id": "detail_content_fee_info",
+      "name": "세부내역 수수료 관리",
+      "description": "지역별 대형폐기물 수수료 정보를 자동으로 추출하고 관리합니다",
+      "category": "infrastructure",
+      "is_active": true,
+      "required_services": [
+        "openai_service"
+      ],
+      "default_prompt_template": "",
+      "metadata": {
+        "content_type": "fee",
+        "feature_type": "detail_content",
+        "prompt_id": "9c063a86-23a1-40b0-beb8-f132cc6572d9"
+      },
+      "created_at": "2025-10-27T02:36:33.601603",
+      "updated_at": "2025-10-27T17:06:29.082715"
+    }
+  ]
+}

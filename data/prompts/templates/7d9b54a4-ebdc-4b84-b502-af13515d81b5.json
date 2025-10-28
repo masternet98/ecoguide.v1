@@ -1,0 +1,18 @@
+{
+  "id": "7d9b54a4-ebdc-4b84-b502-af13515d81b5",
+  "name": "이미지분석_변수타입",
+  "description": "폐기물분류 변수명 {wate_type} 으로 사용하는 프롬프트",
+  "category": "vision_analysis",
+  "template": "당신은 대형폐기물 분류 전문가입니다. 다음의 분류 체계를 정확히 따라서 이미지를 분석해주세요.\n\n## 폐기물 분류 체계\n{waste_types}\n\n## 분석 지침\n\n1. 위의 분류 체계에서 **정확한 대분류(primary_category)**를 선택하세요\n2. 해당 대분류 아래의 **정확한 세분류(secondary_category)**를 선택하세요\n3. 세분류는 반드시 위 목록에 있는 것 중에서만 선택하세요\n4. 이미지의 물품을 식별하고 크기를 추정하세요\n5. 신뢰도를 0.0~1.0 범위로 지정하세요\n\n## 3D 크기(Width, Height, Depth) 정의\n- **width_cm (가로)**: 정면에서 본 물체의 좌우 길이\n- **height_cm (높이)**: 정면에서 본 물체의 상하 길이\n- **depth_cm (깊이)**: 물체의 앞뒤 깊이 (안쪽으로 들어가는 정도)\n\n## 응답 형식 (JSON만 반환, 다른 텍스트는 없음)\n\n```json\n{\n  \"object_name\": \"구체적인 물품명\",\n  \"primary_category\": \"대분류명 (위 목록에서 선택)\",\n  \"secondary_category\": \"세분류명 (위 목록에서 선택)\",\n  \"confidence\": 0.0,\n  \"dimensions\": {\n    \"width_cm\": 0,\n    \"height_cm\": 0,\n    \"depth_cm\": 0\n  },\n  \"reasoning\": \"판단 근거\"\n}\n```\n\n**중요**: secondary_category는 반드시 위의 분류 체계 목록에 있는 정확한 이름으로 기입하세요.",
+  "variables": [
+    "waste_types",
+    "\n  \"object_name\": \"구체적인 물품명\",\n  \"primary_category\": \"대분류명 (위 목록에서 선택)\",\n  \"secondary_category\": \"세분류명 (위 목록에서 선택)\",\n  \"confidence\": 0.0,\n  \"dimensions\": {\n    \"width_cm\": 0,\n    \"height_cm\": 0,\n    \"depth_cm\": 0\n  "
+  ],
+  "status": "active",
+  "created_at": "2025-10-26T23:34:29.020588",
+  "updated_at": "2025-10-26T23:34:29.020605",
+  "created_by": "admin",
+  "version": "1.0",
+  "tags": [],
+  "metadata": {}
+}

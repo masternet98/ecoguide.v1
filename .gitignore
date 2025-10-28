@@ -33,8 +33,13 @@ build/
 dist/
 *.egg-info/
 
-# 데이터 파일
-data/
+# 데이터 파일 - 프롬프트는 Git에 포함, 일시적 파일은 제외
+# data/ (전체 무시 제거 - 프롬프트 파일이 필요함)
+data/*.cache
+data/*.tmp
+data/**/*.cache
+data/**/*.tmp
+data/prompts/backups/  # 백업 폴더만 제외
 
 # 업로드 디렉토리 - 애플리케이션 상태 데이터 포함 (영속 데이터)
 # uploads/ - 전체 디렉토리를 Git에 포함하여 원격 동기화 가능

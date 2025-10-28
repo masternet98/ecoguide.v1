@@ -1,0 +1,57 @@
+{
+  "camera_analysis": {
+    "enabled": true,
+    "auto_activate": true,
+    "prompt_template_vars": [
+      "object_type",
+      "analysis_detail"
+    ],
+    "ui_settings": {
+      "show_confidence": true,
+      "enable_batch_mode": false,
+      "max_image_size": 1024
+    }
+  },
+  "gallery_upload": {
+    "enabled": true,
+    "auto_activate": true,
+    "accepted_formats": [
+      ".jpg",
+      ".jpeg",
+      ".png",
+      ".webp"
+    ],
+    "ui_settings": {
+      "show_file_info": true,
+      "enable_multi_select": false,
+      "max_file_size": "10MB"
+    }
+  },
+  "object_detection": {
+    "enabled": false,
+    "auto_activate": false,
+    "model_settings": {
+      "yolo_model": "yolov8n.pt",
+      "confidence_threshold": 0.5,
+      "nms_threshold": 0.4
+    }
+  },
+  "size_estimation": {
+    "enabled": false,
+    "auto_activate": false,
+    "measurement_settings": {
+      "reference_object": "hand",
+      "default_hand_size": 18.0,
+      "distance_estimation": true
+    }
+  },
+  "waste_classification": {
+    "enabled": true,
+    "auto_activate": true,
+    "classification_settings": {
+      "include_disposal_cost": true,
+      "suggest_alternatives": true,
+      "location_based": true
+    }
+  }
+}
