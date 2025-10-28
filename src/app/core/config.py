@@ -12,6 +12,32 @@ from src.domains.analysis.vision_types import VisionConfig
 from src.app.core.prompt_types import PromptConfig
 
 
+def _get_vworld_api_key() -> Optional[str]:
+    """
+    VWorld API 키를 Streamlit Secrets 또는 환경변수에서 로드합니다.
+
+    우선순위:
+    1. Streamlit Secrets (st.secrets)
+    2. 환경변수 (os.environ)
+
+    Streamlit Cloud에서는 .streamlit/secrets.toml이 자동으로 로드되며,
+    로컬에서는 .env 파일이 로드됩니다.
+    """
+    try:
+        # Streamlit이 실행 중인 경우 secrets에서 먼저 시도
+        import streamlit as st
+        if hasattr(st, 'secrets') and 'VWORLD_API_KEY' in st.secrets:
+            key = st.secrets.get('VWORLD_API_KEY')
+            if key:
+                return key
+    except (ImportError, AttributeError, Exception):
+        # Streamlit이 없거나 secrets이 없는 경우는 다음 단계로
+        pass
+
+    # 환경변수에서 로드
+    return os.environ.get('VWORLD_API_KEY')
+
+
 @dataclass
 class DistrictConfig:
     """
@@ -94,8 +120,8 @@ class LocationConfig:
     위치 기반 서비스 관련 설정을 포함하는 데이터 클래스입니다.
     VWorld (브이월드) API를 사용한 역지오코딩 서비스
     """
-    # VWorld API 설정
-    vworld_api_key: Optional[str] = field(default_factory=lambda: os.environ.get('VWORLD_API_KEY'))
+    # VWorld API 설정 - Streamlit Secrets와 환경변수 모두 지원
+    vworld_api_key: Optional[str] = field(default_factory=lambda: _get_vworld_api_key())
 
     # VWorld API 엔드포인트
     vworld_geocode_url: str = "https://api.vworld.kr/req/address"

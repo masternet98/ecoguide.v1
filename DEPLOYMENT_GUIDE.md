@@ -308,6 +308,86 @@ grep "port" .streamlit/config.toml
 - Streamlit Cloud: 더 높은 계층으로 업그레이드
 - Docker/Heroku: 메모리/CPU 할당 증가
 
+### 5. VWorld API 키가 로컬에서는 동작하는데 Streamlit Cloud에서 동작 안함
+
+**원인:** Streamlit Secrets 설정 오류
+**증상:**
+- 로컬 개발: ✅ GPS 기반 위치 조회 정상 작동
+- Streamlit Cloud: ❌ "VWorld API 키 미설정" 오류
+
+**원인 분석:**
+```
+로컬: .env 파일 → os.environ.get('VWORLD_API_KEY') ✅
+Streamlit Cloud: .streamlit/secrets.toml → st.secrets['VWORLD_API_KEY'] ❌ (미설정시)
+```
+
+**해결 방법:**
+
+#### Step 1: Streamlit Cloud에서 Secrets 설정 확인
+```
+1. https://share.streamlit.io 접속
+2. 앱 선택
+3. ⚙️ 설정 클릭
+4. "Secrets" 탭 선택
+5. 다음 내용 입력:
+
+VWORLD_API_KEY = "906B6560-0336-38D7-8D34-F38456C46956"  # 실제 API 키로 변경
+```
+
+#### Step 2: Secrets 파일 확인
+```toml
+# .streamlit/secrets.toml.example 참조
+OPENAI_API_KEY = "sk-proj-..."
+NOTIFICATION_EMAIL_USER = "ecoguide.ai@gmail.com"
+NOTIFICATION_EMAIL_PASSWORD = "..."
+VWORLD_API_KEY = "906B..."  # 필수!
+```
+
+#### Step 3: 앱 재시작
+```
+Streamlit Cloud 대시보드에서 앱 재시작 또는 재배포
+```
+
+#### Step 4: 검증
+Streamlit Cloud 앱에서:
+1. "위치 선택" 탭으로 이동
+2. "GPS로 위치 찾기" 클릭
+3. 좌표 입력
+4. "위치 조회" 버튼 클릭
+5. ✅ 주소가 표시되면 정상 작동
+
+**디버깅 로그 확인:**
+
+```bash
+# Streamlit Cloud 대시보드의 "Logs" 탭에서:
+- "VWorld API 키 가용성 확인"
+- "VWorld: True (키: 906B6560-...)" 메시지 확인
+```
+
+**만약 여전히 작동 안 한다면:**
+
+1. **API 키 유효성 확인**
+   - VWorld 포털에서 API 키 상태 확인
+   - 키가 활성화되었는지 확인
+   - 일일 요청 한도 확인
+
+2. **Streamlit Cloud 재배포**
+   ```bash
+   git push  # 변경 사항 없어도 괜찮음
+   # Streamlit Cloud가 자동으로 재배포
+   ```
+
+3. **테스트 API 호출**
+   ```bash
+   # 로컬에서 테스트
+   curl "https://api.vworld.kr/req/address?service=address&request=getAddress&version=2.0&crs=epsg:4326&point=127.0366,37.5007&format=json&type=both&zipcode=true&key=YOUR_VWORLD_KEY"
+   ```
+
+**참고:**
+- 로컬 개발: `.env` 파일에서 로드
+- Streamlit Cloud: `.streamlit/secrets.toml`에서 로드 (자동)
+- 코드는 두 가지 모두 자동으로 지원합니다 (우선순위: Secrets > 환경변수)
+
 ---
 
 ## 📚 참고 자료
