@@ -1,8 +1,6 @@
 # Python 가상환경
 venv/
-venv/.gitkeep
 env/
-env/.gitkeep
 
 # 환경변수 파일
 .env
@@ -14,7 +12,6 @@ __pycache__/
 
 # Jupyter Notebook
 .ipynb_checkpoints/
-.ipynb_checkpoints/.gitkeep
 
 # 로그 파일
 *.log
@@ -22,15 +19,11 @@ __pycache__/
 
 # pytest, mypy 캐시
 .pytest_cache/
-.pytest_cache/.gitkeep
 .mypy_cache/
-.mypy_cache/.gitkeep
 
 # VSCode, PyCharm 등 에디터 설정
 .vscode/
-.vscode/.gitkeep
 .idea/
-.idea/.gitkeep
 
 # macOS
 .DS_Store
@@ -46,20 +39,15 @@ data/*.cache
 data/*.tmp
 data/**/*.cache
 data/**/*.tmp
-data/prompts/backups/  # 백업 폴더만 제외
+data/prompts/backups/
 
 # 업로드 디렉토리 - 사용자 관리 데이터 제외
 # 사용자가 업로드한 데이터(이미지+라벨)는 로컬에서만 관리
-uploads/user_images/    # 사용자 업로드 이미지
-uploads/user_images/.gitkeep    # (제외: 로컬 데이터만 관리)
-uploads/labels/         # 사용자 라벨링 메타데이터 (이미지 관리용)
-uploads/labels/.gitkeep         # (제외: 로컬 데이터만 관리)
-uploads/temp/           # 임시 파일
-uploads/temp/.gitkeep
-uploads/cache/          # 캐시 파일
-uploads/cache/.gitkeep
-uploads/dong_cache/     # 동 단위 캐시 (빌드 중 생성)
-uploads/dong_cache/.gitkeep
+uploads/user_images/
+uploads/labels/
+uploads/temp/
+uploads/cache/
+uploads/dong_cache/
 uploads/*.tmp
 uploads/*.cache
 uploads/**/*.tmp
@@ -77,7 +65,6 @@ uploads/**/*.cache
 
 # Downloaded Models
 models/
-models/.gitkeep
 yolov8n.pt
 yolov8n-hands.pt
 
@@ -87,13 +74,10 @@ yolov8n-hands.pt
 # Temporary files
 *.tmp
 tmp/
-tmp/.gitkeep
 temp/
-temp/.gitkeep
 
 # Development documentation (일시적)
 instructions/remove/
-instructions/remove/.gitkeep
 
 # Claude Code specific
 .claude/
