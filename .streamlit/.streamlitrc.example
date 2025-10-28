@@ -1,0 +1,40 @@
+# Streamlit Runtime Configuration Reference
+# This file documents all Streamlit configuration options used in this project
+
+[theme]
+primaryColor = "#1f77b4"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f0f2f6"
+textColor = "#262730"
+font = "sans serif"
+base = "light"
+
+[server]
+# Headless mode for production/cloud deployment
+headless = true
+# No file watcher in production (improves performance)
+fileWatcherType = "none"
+# Allow requests from external sources
+enableCORS = false
+# Protect against CSRF attacks
+enableXsrfProtection = false
+# Bind to all network interfaces
+address = "0.0.0.0"
+# Port number (can be overridden by environment variable PORT)
+port = 8080
+# Allow large file uploads (for image processing)
+maxUploadSize = 200
+
+[client]
+# Show error details in development only
+showErrorDetails = false
+# Disable toolbar for cleaner UI in production
+showToolbar = true
+
+[logger]
+# Logging level: critical, error, warning, info, debug
+level = "warning"
+
+[browser]
+# Use web socket for better performance
+gatherUsageStats = false

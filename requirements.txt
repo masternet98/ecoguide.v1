@@ -3,26 +3,16 @@ streamlit>=1.33.0,<1.49
 openai>=1.40.0,<2.0
 pillow>=10.0.0,<11.0
 qrcode[pil]>=7.4.2
-numpy>=1.24.0,<2.0
+
+# ✅ 3.13 호환 필수 조정
+numpy>=2.1,<3.0           # 기존 <2.0 → 3.13에서 반드시 2.x 필요
+pandas>=2.2.3,<3.0        # 3.13과 잘 맞는 안정대
+pyarrow>=16,<23           # pandas/arrow 사용 시 3.13 안전 범위(옵션이지만 권장)
+
 python-dotenv>=0.21.0
-pandas>=2.0.0,<3.0
 requests>=2.28.0,<3.0
 beautifulsoup4>=4.11.0,<5.0
 streamlit-geolocation>=0.0.10
 
-# Tunnel support (Cloudflared)
-# pycloudflared는 Cloudflare Tunnel 기능을 제공합니다.
-# 설치 시 cloudflared 바이너리를 자동으로 다운로드합니다.
+# Tunnel (Cloudflared)
 pycloudflared>=0.2.0
-
-# Vision stack (Py3.11 verified)
-# rembg==2.0.57
-# onnxruntime==1.16.3
-# ultralytics==8.0.20
-# mediapipe==0.10.14
-# opencv-python-headless==4.11.0.86
-
-# (Optional) PyTorch for ultralytics / deep learning backends
-# ⚠️ Streamlit Cloud 무료플랜은 CPU-only 빌드 권장
-# 설치는 아래 중 하나 선택해서 로컬/Cloud에서 따로 실행
-# pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
