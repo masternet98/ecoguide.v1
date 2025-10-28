@@ -181,6 +181,21 @@ class LocationService:
                 params=params,
                 timeout=self.config.default_timeout
             )
+
+            # HTTP 상태 코드 확인
+            if response.status_code == 502:
+                log_warning(
+                    LogCategory.WEB_API, "location_service", "_get_location_from_vworld",
+                    "VWorld API 서버 오류 (502)",
+                    "Streamlit Cloud IP 제한 또는 서버 점검 상태 가능성 - VWorld 관리 페이지에서 아웃바운드 IP 화이트리스트 확인 필요"
+                )
+                return {
+                    'success': False,
+                    'message': 'VWorld API 서버 오류(502): 서버가 일시적으로 사용 불가능합니다.',
+                    'data': None,
+                    'error_code': 502
+                }
+
             response.raise_for_status()
 
             data = response.json()
