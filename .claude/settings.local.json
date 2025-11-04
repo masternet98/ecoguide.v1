@@ -5,7 +5,20 @@
       "Bash(python3:*)",
       "Bash(python -m py_compile:*)",
       "Bash(python -m pytest:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(git check-ignore:*)",
+      "Bash(if git check-ignore -q uploads/user_images/)",
+      "Bash(then )",
+      "Bash(else )",
+      "Bash(fi)",
+      "Bash(git rm:*)",
+      "Bash(netstat:*)",
+      "Bash(ss:*)",
+      "Bash(curl:*)",
+      "Bash(awk:*)",
+      "Bash(chmod:*)",
+      "Bash(git add:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []
