@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "last_updated": "2025-09-21T20:34:56.071838"
+    "last_updated": "2025-11-04T13:05:36.807591"
   },
   "links": {
     "대전광역시_동구": {
@@ -175,6 +175,23 @@
       "monitoring": {
         "enabled": true,
         "created_at": "2025-09-21T20:34:56.071838",
+        "last_checked": null,
+        "check_frequency": "daily",
+        "priority": "medium",
+        "failure_count": 0,
+        "last_failure": null
+      }
+    },
+    "서울특별시_은평구": {
+      "info_url": "https://www.ep.go.kr/www/contents.do?key=349",
+      "system_url": "https://ai-waste.ep.go.kr/",
+      "fee_url": "https://ai-waste.ep.go.kr/products",
+      "appliance_url": "https://www.15990903.or.kr/portal/main/main.do",
+      "description": "",
+      "updated_at": "2025-11-04T13:05:36.807577",
+      "monitoring": {
+        "enabled": true,
+        "created_at": "2025-11-04T13:02:57.535750",
         "last_checked": null,
         "check_frequency": "daily",
         "priority": "medium",

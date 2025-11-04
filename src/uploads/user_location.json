@@ -1,19 +1,12 @@
 {
   "location_data": {
-    "sido": "인천광역시",
-    "sigungu": "서구",
-    "legal_dong": "경서동",
-    "admin_dong": "검암경서동",
-    "dong": "경서동",
-    "dong_type": "법정동",
-    "full_address": "인천광역시 서구 경서동 363-184",
-    "coords": {
-      "lat": 37.551265,
-      "lng": 126.641767
-    },
-    "method": "vworld_api"
+    "sido": "서울특별시",
+    "sigungu": "은평구",
+    "full_address": "서울특별시 은평구",
+    "coords": null,
+    "method": "manual"
   },
-  "method": "gps",
-  "saved_at": "2025-10-26T19:24:33.588119",
+  "method": "manual",
+  "saved_at": "2025-11-04T13:37:40.114795",
   "version": "1.0"
 }
